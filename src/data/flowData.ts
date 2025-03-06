@@ -6,7 +6,7 @@ const nodeWidth = 180;
 const gap = 80;
 
 // Define columns
-const columns = [
+export const columns = [
   { id: 'pelanggan', title: 'Pelanggan', color: 'bg-blue-900' },
   { id: 'pemasaran', title: 'Pemasaran', color: 'bg-blue-900' },
   { id: 'renbang', title: 'Renbang', color: 'bg-blue-900' },

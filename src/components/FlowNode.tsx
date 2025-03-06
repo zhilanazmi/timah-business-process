@@ -6,31 +6,60 @@ const FlowNode = ({ data, isConnectable }: NodeProps) => {
   // For header nodes, render a special header style
   if (data.isHeader) {
     return (
-      <div className={`p-2 text-center text-white font-bold rounded-md shadow-md ${data.color || 'bg-blue-900'} w-[180px]`}>
+      <div className={`p-2 text-center text-white font-bold rounded-t-md shadow-md ${data.color || 'bg-blue-900'} w-[180px] select-none`}>
         {data.label}
       </div>
     );
   }
 
+  // Determine node style based on type or category (if available)
+  const getBgColor = () => {
+    const column = data.column;
+    switch(column) {
+      case 'pelanggan':
+        return 'bg-blue-50 border-blue-200 hover:border-blue-400';
+      case 'pemasaran':
+        return 'bg-green-50 border-green-200 hover:border-green-400';
+      case 'renbang':
+        return 'bg-amber-50 border-amber-200 hover:border-amber-400';
+      case 'produksi':
+        return 'bg-red-50 border-red-200 hover:border-red-400';
+      case 'logistik':
+        return 'bg-purple-50 border-purple-200 hover:border-purple-400';
+      case 'mitra':
+        return 'bg-teal-50 border-teal-200 hover:border-teal-400';
+      default:
+        return 'bg-white border-gray-200 hover:border-blue-400';
+    }
+  };
+
+  const nodeStyle = getBgColor();
+
   return (
-    <div className="p-3 rounded-md shadow-md bg-white border-2 w-[180px] hover:border-blue-400 transition-colors">
+    <div className={`p-3.5 rounded-md shadow-md border-2 w-[180px] transition-colors ${nodeStyle}`}>
       <Handle
         type="target"
         position={Position.Left}
         isConnectable={isConnectable}
-        className="w-2 h-2 bg-blue-500"
+        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
       />
       <div className="font-medium text-sm">{data.label}</div>
       {data.description && (
-        <div className="text-xs text-gray-500 mt-1 truncate">
+        <div className="text-xs text-gray-600 mt-1 line-clamp-2">
           {data.description}
+        </div>
+      )}
+      {/* Tampilkan process owner jika ada */}
+      {data.details?.["Process Owner"] && (
+        <div className="text-xs bg-gray-100 px-1.5 py-0.5 rounded mt-1.5 inline-block">
+          {data.details["Process Owner"]}
         </div>
       )}
       <Handle
         type="source"
         position={Position.Right}
         isConnectable={isConnectable}
-        className="w-2 h-2 bg-blue-500"
+        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
       />
     </div>
   );
