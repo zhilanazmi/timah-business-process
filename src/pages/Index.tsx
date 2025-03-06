@@ -7,7 +7,7 @@ const Index = () => {
     <main className="container mx-auto p-4 h-screen">
       <div className="mb-4">
         <h1 className="text-2xl font-bold mb-2">Diagram Alir Proses Bisnis</h1>
-        <div className="flex items-start gap-2 text-gray-600 bg-blue-50 p-3 rounded-md border border-blue-100">
+        {/* <div className="flex items-start gap-2 text-gray-600 bg-blue-50 p-3 rounded-md border border-blue-100">
           <Info className="text-blue-500 mt-0.5 flex-shrink-0" size={18} />
           <div>
             <p className="mb-1">
@@ -21,7 +21,7 @@ const Index = () => {
               <li>Simpan dan export diagram Anda dengan tombol yang tersedia</li>
             </ul>
           </div>
-        </div>
+        </div> */}
       </div>
       <div className="h-[calc(100vh-200px)] border rounded-md shadow-sm overflow-hidden">
         <FlowChart />

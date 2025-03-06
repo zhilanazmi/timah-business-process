@@ -1,4 +1,3 @@
-
 import { Node } from 'reactflow';
 import { X, Edit, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ const NodeDetail = ({ node, onClose, onUpdate, onDelete }: NodeDetailProps) => {
   const [editData, setEditData] = useState({
     label: node.data.label,
     description: node.data.description || '',
-    details: { ...node.data.details } || {}
+    details: { ...node.data.details } || {},
   });
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -31,19 +30,19 @@ const NodeDetail = ({ node, onClose, onUpdate, onDelete }: NodeDetailProps) => {
 
   const handleSave = () => {
     if (!editData.label.trim()) {
-      toast.error("Nama elemen tidak boleh kosong");
+      toast.error('Nama elemen tidak boleh kosong');
       return;
     }
-    
-    onUpdate(node.id, { 
-      ...node.data, 
+
+    onUpdate(node.id, {
+      ...node.data,
       label: editData.label,
       description: editData.description,
-      details: editData.details
+      details: editData.details,
     });
-    
+
     setIsEditing(false);
-    toast.success("Elemen berhasil diperbarui");
+    toast.success('Elemen berhasil diperbarui');
   };
 
   const handleDelete = () => {
@@ -51,32 +50,32 @@ const NodeDetail = ({ node, onClose, onUpdate, onDelete }: NodeDetailProps) => {
       setConfirmDelete(true);
       return;
     }
-    
+
     onDelete(node.id);
     onClose();
-    toast.success("Elemen berhasil dihapus");
+    toast.success('Elemen berhasil dihapus');
   };
 
   const handleChange = (field: string, value: string) => {
-    setEditData(prev => ({ ...prev, [field]: value }));
+    setEditData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleDetailChange = (field: string, value: string) => {
-    setEditData(prev => ({
+    setEditData((prev) => ({
       ...prev,
       details: {
         ...prev.details,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
   return (
-    <div className="w-80 border-l border-gray-200">
+    <div className="w-full max-w-sm border-l border-gray-200 h-full overflow-y-auto">
       <Card className="border-0 rounded-none h-full">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           {isEditing ? (
-            <Input 
+            <Input
               value={editData.label}
               onChange={(e) => handleChange('label', e.target.value)}
               className="font-medium"
@@ -88,59 +87,60 @@ const NodeDetail = ({ node, onClose, onUpdate, onDelete }: NodeDetailProps) => {
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">Deskripsi</h3>
-              {isEditing ? (
-                <Textarea
-                  value={editData.description}
-                  onChange={(e) => handleChange('description', e.target.value)}
-                  className="min-h-[80px]"
-                />
-              ) : (
-                <p className="text-sm mt-1">{node.data.description || 'Tidak ada deskripsi'}</p>
-              )}
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">Kolom</h3>
-              <p className="text-sm mt-1 capitalize">{node.data.column || 'Tidak ditentukan'}</p>
-            </div>
-            {(node.data.details || isEditing) && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">Detail</h3>
-                <div className="text-sm mt-1 space-y-2">
-                  {Object.entries(editData.details || {}).map(([key, value]) => (
-                    <div key={key} className="flex flex-col">
-                      <span className="font-medium">{key}</span>
-                      {isEditing ? (
-                        <Input 
-                          value={value as string} 
-                          onChange={(e) => handleDetailChange(key, e.target.value)}
-                          className="mt-1"
-                        />
-                      ) : (
-                        <span>{value as string}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">Info Teknis</h3>
-              <p className="text-sm">ID: {node.id}</p>
-              <p className="text-sm">Posisi: x={Math.round(node.position.x)}, y={Math.round(node.position.y)}</p>
-            </div>
-            
-            {confirmDelete && (
-              <Alert variant="destructive">
-                <AlertDescription>
-                  Apakah Anda yakin ingin menghapus elemen ini? Tindakan ini tidak dapat dibatalkan.
-                </AlertDescription>
-              </Alert>
+        <CardContent className="space-y-4">
+          <div>
+            <h3 className="text-sm font-medium text-gray-500 mb-1">Deskripsi</h3>
+            {isEditing ? (
+              <Textarea
+                value={editData.description}
+                onChange={(e) => handleChange('description', e.target.value)}
+                className="min-h-[80px]"
+              />
+            ) : (
+              <p className="text-sm mt-1">{node.data.description || 'Tidak ada deskripsi'}</p>
             )}
           </div>
+          <div>
+            <h3 className="text-sm font-medium text-gray-500 mb-1">Kolom</h3>
+            <p className="text-sm mt-1 capitalize">{node.data.column || 'Tidak ditentukan'}</p>
+          </div>
+          {(node.data.details || isEditing) && (
+            <div>
+              <h3 className="text-sm font-medium text-gray-500 mb-1">Detail</h3>
+              <div className="text-sm mt-1 space-y-2">
+                {Object.entries(editData.details || {}).map(([key, value]) => (
+                  <div key={key} className="flex flex-col">
+                    <span className="font-medium">{key}</span>
+                    {isEditing ? (
+                      <Input
+                        value={value as string}
+                        onChange={(e) => handleDetailChange(key, e.target.value)}
+                        className="mt-1"
+                      />
+                    ) : (
+                      <span>{value as string}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <h3 className="text-sm font-medium text-gray-500 mb-1">Info Teknis</h3>
+            <p className="text-sm">ID: {node.id}</p>
+            <p className="text-sm">
+              Posisi: x={Math.round(node.position.x)}, y={Math.round(node.position.y)}
+            </p>
+          </div>
+
+          {confirmDelete && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                Apakah Anda yakin ingin menghapus elemen ini? Tindakan ini tidak dapat
+                dibatalkan.
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
         <CardFooter className="flex gap-2">
           {isEditing ? (
