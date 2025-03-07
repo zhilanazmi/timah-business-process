@@ -1,5 +1,4 @@
-
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
   MiniMap,
@@ -17,8 +16,7 @@ import ReactFlow, {
   applyEdgeChanges,
   BackgroundVariant,
   Panel,
-  MarkerType,
-  getSmoothStepPath,
+  MarkerType
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import FlowNode from './FlowNode';
@@ -42,8 +40,6 @@ import { toast } from 'sonner';
 import NodeCreationModal from './NodeCreationModal';
 import AddColumnModal from './AddColumnModal';
 import { columns } from '@/data/flowData';
-
-// Import html-to-image for saving as image
 import { toPng } from 'html-to-image';
 
 const nodeTypes = {
@@ -61,51 +57,50 @@ const FlowChart = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const [availableColumns, setAvailableColumns] = useState(columns);
-  const [undoStack, setUndoStack] = useState<Array<{nodes: Node[], edges: Edge[]}>>([]);
-  const [redoStack, setRedoStack] = useState<Array<{nodes: Node[], edges: Edge[]}>>([]);
+  const [undoStack, setUndoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
+  const [redoStack, setRedoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
   
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<any>(null);
 
-  const saveCurrentState = () => {
-    setUndoStack(prev => [...prev, { nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)) }]);
+  // Gunakan useCallback untuk memastikan fungsi snapshot mengacu pada state terkini.
+  const saveCurrentState = useCallback(() => {
+    setUndoStack(prev => [...prev, { 
+      nodes: JSON.parse(JSON.stringify(nodes)), 
+      edges: JSON.parse(JSON.stringify(edges)) 
+    }]);
     setRedoStack([]);
-  };
+  }, [nodes, edges]);
 
+  // Catat perubahan selain perubahan posisi atau select.
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      const significantChanges = changes.filter(
-        change => change.type !== 'select' && change.type !== 'position'
+      const nonPositionChanges = changes.filter(
+        change => change.type !== 'position' && change.type !== 'select'
       );
-      
-      if (significantChanges.length > 0) {
+      if (nonPositionChanges.length > 0) {
         saveCurrentState();
       }
-      
-      setNodes((nds) => applyNodeChanges(changes, nds));
+      setNodes(nds => applyNodeChanges(changes, nds));
     },
-    [setNodes]
+    [saveCurrentState, setNodes]
   );
 
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
-      const significantChanges = changes.filter(
-        change => change.type !== 'select'
-      );
-      
-      if (significantChanges.length > 0) {
+      const nonSelectChanges = changes.filter(change => change.type !== 'select');
+      if (nonSelectChanges.length > 0) {
         saveCurrentState();
       }
-      
-      setEdges((eds) => applyEdgeChanges(changes, eds));
+      setEdges(eds => applyEdgeChanges(changes, eds));
     },
-    [setEdges]
+    [saveCurrentState, setEdges]
   );
 
   const onConnect = useCallback(
     (params: Connection) => {
       saveCurrentState();
-      setEdges((eds) => addEdge({ 
+      setEdges(eds => addEdge({ 
         ...params, 
         animated: true,
         style: { strokeWidth: 2, stroke: '#555' },
@@ -114,12 +109,12 @@ const FlowChart = () => {
           type: MarkerType.ArrowClosed,
           width: 20,
           height: 20,
-          color: '#555',
+          color: '#555'
         }
       }, eds));
       toast.success('Elemen berhasil dihubungkan');
     },
-    [setEdges]
+    [saveCurrentState, setEdges]
   );
 
   const onNodeClick = (_: React.MouseEvent, node: Node) => {
@@ -142,9 +137,14 @@ const FlowChart = () => {
     setSelectedEdge(null);
   };
 
+  // Tambahkan callback untuk menangkap event ketika drag node selesai,
+  // sehingga satu perubahan posisi (drag) menghasilkan satu snapshot undo.
+  const onNodeDragStop = useCallback(() => {
+    saveCurrentState();
+  }, [saveCurrentState]);
+
   const handleCreateNode = (nodeData: Omit<Node, "id" | "position">) => {
     saveCurrentState();
-    
     const sameColumnNodes = nodes.filter(node => 
       node.data.column === nodeData.data.column && !node.data.isHeader
     );
@@ -156,7 +156,6 @@ const FlowChart = () => {
     }
     
     const columnIndex = availableColumns.findIndex(col => col.id === nodeData.data.column);
-    
     const nodeWidth = 180;
     const gap = 80;
     const x = columnIndex * (200 + gap) + (200 - nodeWidth) / 2;
@@ -173,17 +172,12 @@ const FlowChart = () => {
 
   const addColumn = (columnData: { id: string; title: string; color: string }) => {
     saveCurrentState();
-    
-    // Add the new column to available columns
     setAvailableColumns(prevColumns => [...prevColumns, columnData]);
-    
-    // Create a header node for the new column
     const columnIndex = availableColumns.length;
     const columnWidth = 200;
     const gap = 80;
     const nodeWidth = 180;
     const x = columnIndex * (columnWidth + gap) + (columnWidth - nodeWidth) / 2;
-    
     const headerNode = {
       id: `header-${columnData.id}`,
       type: 'customNode',
@@ -196,18 +190,15 @@ const FlowChart = () => {
       },
       draggable: false
     };
-    
     setNodes(nds => [...nds, headerNode]);
     toast.success(`Kolom ${columnData.title} berhasil ditambahkan`);
   };
 
   const updateNode = (nodeId: string, data: any) => {
     saveCurrentState();
-    setNodes(nds => 
+    setNodes(nds =>
       nds.map(node => 
-        node.id === nodeId 
-          ? { ...node, data: data }
-          : node
+        node.id === nodeId ? { ...node, data: data } : node
       )
     );
   };
@@ -220,31 +211,29 @@ const FlowChart = () => {
 
   const handleUndo = () => {
     if (undoStack.length === 0) return;
-    
-    const currentState = { nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)) };
+    const currentState = {
+      nodes: JSON.parse(JSON.stringify(nodes)),
+      edges: JSON.parse(JSON.stringify(edges))
+    };
     const previousState = undoStack[undoStack.length - 1];
-    
     setRedoStack(prev => [...prev, currentState]);
     setUndoStack(prev => prev.slice(0, -1));
-    
     setNodes(previousState.nodes);
     setEdges(previousState.edges);
-    
     toast.info("Undo berhasil");
   };
 
   const handleRedo = () => {
     if (redoStack.length === 0) return;
-    
-    const currentState = { nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)) };
+    const currentState = {
+      nodes: JSON.parse(JSON.stringify(nodes)),
+      edges: JSON.parse(JSON.stringify(edges))
+    };
     const nextState = redoStack[redoStack.length - 1];
-    
     setUndoStack(prev => [...prev, currentState]);
     setRedoStack(prev => prev.slice(0, -1));
-    
     setNodes(nextState.nodes);
     setEdges(nextState.edges);
-    
     toast.info("Redo berhasil");
   };
 
@@ -253,7 +242,6 @@ const FlowChart = () => {
       nodes: nodes.filter(node => !node.data.isHeader),
       edges
     };
-    
     localStorage.setItem('flowChart', JSON.stringify(flowData));
     toast.success("Diagram berhasil disimpan");
   };
@@ -262,55 +250,47 @@ const FlowChart = () => {
     if (reactFlowInstance.current) {
       const flowData = reactFlowInstance.current.toObject();
       const dataStr = JSON.stringify(flowData);
-      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-      
+      const dataUri =
+        'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
       const exportFileDefaultName = 'flowchart-export.json';
-      
       const linkElement = document.createElement('a');
       linkElement.setAttribute('href', dataUri);
       linkElement.setAttribute('download', exportFileDefaultName);
       linkElement.click();
-      
       toast.success("Diagram berhasil diexport");
     }
   };
 
   const handleSaveAsImage = () => {
     if (reactFlowWrapper.current) {
-      // Make sure we have the flow element
-      const flowElement = reactFlowWrapper.current.querySelector('.react-flow__viewport') as HTMLElement;
-      
-      if (flowElement) {
-        toast.info("Sedang memproses gambar...");
-        
-        // Use toPng to convert the element to a PNG
-        toPng(flowElement, { 
-          backgroundColor: '#fff',
-          quality: 1,
-          pixelRatio: 2,
-          filter: (node) => {
-            // Filter out controls, minimap, and panel elements
-            const className = node.className || '';
-            return !className.includes('react-flow__controls') && 
-                   !className.includes('react-flow__minimap') &&
-                   !className.includes('react-flow__panel');
-          }
-        })
-          .then((dataUrl) => {
-            // Create a download link and trigger it
-            const link = document.createElement('a');
-            link.download = 'flowchart.png';
-            link.href = dataUrl;
-            link.click();
-            toast.success("Diagram berhasil disimpan sebagai gambar");
-          })
-          .catch((error) => {
-            console.error('Error saving image:', error);
-            toast.error("Gagal menyimpan gambar: " + error.message);
-          });
-      } else {
-        toast.error("Elemen diagram tidak ditemukan");
+      // Coba ambil elemen viewport diagram
+      let flowElement = reactFlowWrapper.current.querySelector('.react-flow__viewport') as HTMLElement;
+      if (!flowElement) {
+        flowElement = reactFlowWrapper.current;
       }
+      toast.info("Sedang memproses gambar...");
+      toPng(flowElement, { 
+        backgroundColor: '#fff',
+        quality: 1,
+        pixelRatio: 2,
+        filter: (node) => {
+          const className = node.className || '';
+          return !className.includes('react-flow__controls') && 
+                 !className.includes('react-flow__minimap') &&
+                 !className.includes('react-flow__panel');
+        }
+      })
+        .then((dataUrl) => {
+          const link = document.createElement('a');
+          link.download = 'flowchart.png';
+          link.href = dataUrl;
+          link.click();
+          toast.success("Diagram berhasil disimpan sebagai gambar");
+        })
+        .catch((error) => {
+          console.error('Error saving image:', error);
+          toast.error("Gagal menyimpan gambar: " + error.message);
+        });
     }
   };
 
@@ -328,6 +308,7 @@ const FlowChart = () => {
 
   return (
     <div className="h-full flex flex-col">
+      {/* Bagian Header dengan button */}
       <div className="flex justify-between items-center p-2 bg-gray-100 rounded mb-2">
         <div className="flex items-center gap-2">
           <Button 
@@ -338,7 +319,6 @@ const FlowChart = () => {
             <Plus size={16} />
             Tambah Elemen
           </Button>
-          
           <Button 
             size="sm" 
             onClick={() => setIsColumnModalOpen(true)} 
@@ -347,7 +327,6 @@ const FlowChart = () => {
             <Columns size={16} />
             Tambah Kolom
           </Button>
-          
           <Button
             size="sm"
             variant="outline"
@@ -357,7 +336,6 @@ const FlowChart = () => {
           >
             <Undo size={16} />
           </Button>
-          
           <Button
             size="sm"
             variant="outline"
@@ -368,7 +346,6 @@ const FlowChart = () => {
             <Redo size={16} />
           </Button>
         </div>
-        
         <div className="flex items-center gap-2">
           <Button
             size="sm"
@@ -379,7 +356,6 @@ const FlowChart = () => {
             <Save size={16} className="mr-1" />
             Simpan
           </Button>
-          
           <Button
             size="sm"
             variant="outline"
@@ -389,7 +365,6 @@ const FlowChart = () => {
             <Download size={16} className="mr-1" />
             Export
           </Button>
-          
           <Button
             size="sm"
             variant="outline"
@@ -402,7 +377,14 @@ const FlowChart = () => {
         </div>
       </div>
       
-      <div className="flex-1 relative" ref={reactFlowWrapper}>
+      {/* Kontainer diagram dengan cursor kustom berwarna hitam */}
+      <div 
+        className="flex-1 relative" 
+        ref={reactFlowWrapper}
+        style={{
+          cursor: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\'%3E%3Cpolygon points=\'0,0 0,16 4,12 8,0\' fill=\'black\'/%3E%3C/svg%3E") 0 0, auto'
+        }}
+      >
         <ReactFlowProvider>
           <ReactFlow
             nodes={nodes}
@@ -413,6 +395,7 @@ const FlowChart = () => {
             onNodeClick={onNodeClick}
             onEdgeClick={onEdgeClick}
             onPaneClick={onPaneClick}
+            onNodeDragStop={onNodeDragStop}
             nodeTypes={nodeTypes}
             onInit={(instance) => {
               reactFlowInstance.current = instance;
@@ -435,7 +418,6 @@ const FlowChart = () => {
             <Controls />
             <MiniMap zoomable pannable />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-            
             <Panel position="bottom-right" className="bg-white p-2 rounded shadow-sm">
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={handleZoomIn}>
