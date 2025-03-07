@@ -56,24 +56,36 @@ export const DiamondNode = memo(({ data, isConnectable }: any) => {
           </div>
         )}
       </div>
+      
+      {/* Right handle (typically for "Yes" path) */}
+      <div className="absolute right-[-15px] top-[50%] -translate-y-1/2 -rotate-45">
+        <span className="text-xs font-bold text-green-600">
+          {data.rightPathLabel || "Ya"}
+        </span>
+      </div>
       <Handle
         type="source"
         position={Position.Right}
+        id="yes"
         isConnectable={isConnectable}
         className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600 rotate-[-45deg]"
       />
+      
+      {/* Bottom handle (typically for "No" path) */}
+      <div className="absolute bottom-[-15px] left-[50%] -translate-x-1/2 -rotate-45">
+        <span className="text-xs font-bold text-red-600">
+          {data.bottomPathLabel || "Tidak"}
+        </span>
+      </div>
       <Handle
         type="source"
         position={Position.Bottom}
+        id="no"
         isConnectable={isConnectable}
         className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600 rotate-[-45deg]"
       />
-      <Handle
-        type="source"
-        position={Position.Left}
-        isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600 rotate-[-45deg]"
-      />
+      
+      {/* Removed the left handle since it's not needed for a decision node */}
     </div>
   );
 });
