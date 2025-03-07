@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -17,9 +16,11 @@ import ReactFlow, {
   applyEdgeChanges,
   BackgroundVariant,
   Panel,
+  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import FlowNode from './FlowNode';
+import { TerminatorNode, DiamondNode, DocumentNode } from './ShapeNodes';
 import NodeDetail from './NodeDetail';
 import { initialNodes, initialEdges } from '@/data/flowData';
 import { Button } from './ui/button';
@@ -30,6 +31,9 @@ import { columns } from '@/data/flowData';
 
 const nodeTypes = {
   customNode: FlowNode,
+  terminatorNode: TerminatorNode,
+  diamondNode: DiamondNode,
+  documentNode: DocumentNode,
 };
 
 const FlowChart = () => {
@@ -44,7 +48,6 @@ const FlowChart = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<any>(null);
 
-  // Menyimpan state saat ini ke undo stack
   const saveCurrentState = () => {
     setUndoStack(prev => [...prev, { nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)) }]);
     setRedoStack([]);
@@ -52,7 +55,6 @@ const FlowChart = () => {
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      // Filter out changes yang tidak perlu menyimpan history
       const significantChanges = changes.filter(
         change => change.type !== 'select' && change.type !== 'position'
       );
@@ -88,7 +90,13 @@ const FlowChart = () => {
         ...params, 
         animated: true,
         style: { strokeWidth: 2, stroke: '#555' },
-        data: { label: 'Hubungan' }
+        data: { label: 'Hubungan' },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: '#555',
+        }
       }, eds));
       toast.success('Elemen berhasil dihubungkan');
     },
@@ -118,25 +126,21 @@ const FlowChart = () => {
   const handleCreateNode = (nodeData: Omit<Node, "id" | "position">) => {
     saveCurrentState();
     
-    // Find the maximum y position of nodes in the same column to place the new node below
     const sameColumnNodes = nodes.filter(node => 
       node.data.column === nodeData.data.column && !node.data.isHeader
     );
     
-    let y = 100; // Default position
+    let y = 100;
     if (sameColumnNodes.length > 0) {
       const maxY = Math.max(...sameColumnNodes.map(node => node.position.y));
       y = maxY + 120;
     }
     
-    // Find the column index to determine x position
     const columnIndex = columns.findIndex(col => col.id === nodeData.data.column);
     
-    // Calculate x position based on column
-    const columnWidth = 200;
     const nodeWidth = 180;
     const gap = 80;
-    const x = columnIndex * (columnWidth + gap) + (columnWidth - nodeWidth) / 2;
+    const x = columnIndex * (200 + gap) + (200 - nodeWidth) / 2;
     
     const newNode = {
       id: `node-${Date.now()}`,
@@ -161,9 +165,7 @@ const FlowChart = () => {
 
   const deleteNode = (nodeId: string) => {
     saveCurrentState();
-    // Hapus node
     setNodes(nds => nds.filter(node => node.id !== nodeId));
-    // Hapus semua edge yang terkait dengan node
     setEdges(eds => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
   };
 
@@ -199,11 +201,10 @@ const FlowChart = () => {
 
   const handleSave = () => {
     const flowData = {
-      nodes: nodes.filter(node => !node.data.isHeader), // Exclude header nodes
+      nodes: nodes.filter(node => !node.data.isHeader),
       edges
     };
     
-    // In a real app, you would save to backend or localStorage
     localStorage.setItem('flowChart', JSON.stringify(flowData));
     toast.success("Diagram berhasil disimpan");
   };
@@ -315,6 +316,14 @@ const FlowChart = () => {
             deleteKeyCode={['Backspace', 'Delete']}
             multiSelectionKeyCode={['Control', 'Meta']}
             selectionKeyCode={['Shift']}
+            defaultEdgeOptions={{
+              type: 'default',
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+              },
+            }}
           >
             <Controls />
             <MiniMap zoomable pannable />

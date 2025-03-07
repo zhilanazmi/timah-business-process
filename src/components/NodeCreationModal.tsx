@@ -16,11 +16,19 @@ interface NodeCreationModalProps {
   columns: { id: string; title: string; color: string }[];
 }
 
+const nodeTypes = [
+  { id: "customNode", name: "Process Box", description: "Kotak proses standar" },
+  { id: "terminatorNode", name: "Terminator", description: "Awal atau akhir proses (oval)" },
+  { id: "diamondNode", name: "Decision", description: "Decision/percabangan (diamond)" },
+  { id: "documentNode", name: "Document", description: "Dokumen (document shape)" },
+];
+
 const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCreationModalProps) => {
   const [formData, setFormData] = useState({
     label: "",
     description: "",
     column: "",
+    nodeType: "customNode",
     details: {
       "Process Owner": "",
       "Duration": "",
@@ -55,7 +63,7 @@ const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCr
     }
     
     const newNode = {
-      type: "customNode",
+      type: formData.nodeType,
       data: {
         label: formData.label,
         description: formData.description,
@@ -73,6 +81,7 @@ const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCr
       label: "",
       description: "",
       column: "",
+      nodeType: "customNode",
       details: {
         "Process Owner": "",
         "Duration": "",
@@ -89,6 +98,28 @@ const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCr
           <DialogTitle>Tambah Elemen Baru</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          {/* Tipe Node */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="nodeType" className="text-right">
+              Bentuk
+            </Label>
+            <Select 
+              value={formData.nodeType} 
+              onValueChange={(value) => handleChange("nodeType", value)}
+            >
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Pilih bentuk elemen" />
+              </SelectTrigger>
+              <SelectContent>
+                {nodeTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name} - {type.description}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
               Nama

@@ -14,9 +14,9 @@ const Index = () => {
               Buat dan edit diagram alir proses bisnis. Tambahkan elemen baru dan hubungkan antar elemen sesuai kebutuhan.
             </p>
             <ul className="list-disc list-inside text-sm space-y-1">
-              <li>Klik tombol <strong>Tambah Elemen</strong> untuk menambahkan elemen baru</li>
+              <li>Klik tombol <strong>Tambah Elemen</strong> untuk menambahkan elemen baru (kotak proses, terminator, diamond, atau dokumen)</li>
               <li>Klik pada elemen untuk melihat detail dan mengeditnya</li>
-              <li>Tarik dari titik di sisi kanan ke titik di sisi kiri elemen lain untuk menghubungkan</li>
+              <li>Tarik dari titik di sisi kanan ke titik di sisi kiri elemen lain untuk menghubungkan dengan tanda panah</li>
               <li>Gunakan <strong>Undo/Redo</strong> untuk membatalkan atau mengulangi perubahan</li>
               <li>Simpan dan export diagram Anda dengan tombol yang tersedia</li>
             </ul>

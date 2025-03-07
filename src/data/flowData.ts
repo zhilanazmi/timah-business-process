@@ -1,5 +1,5 @@
 
-import { Node, Edge } from 'reactflow';
+import { Node, Edge, MarkerType } from 'reactflow';
 
 const columnWidth = 200;
 const nodeWidth = 180;
@@ -22,7 +22,7 @@ export const initialNodes: Node[] = [
   // Pelanggan column
   {
     id: '1',
-    type: 'customNode',
+    type: 'terminatorNode',
     position: { x: getColumnX(0), y: 100 },
     data: { 
       label: 'Order Request',
@@ -56,7 +56,7 @@ export const initialNodes: Node[] = [
   },
   {
     id: '3',
-    type: 'customNode',
+    type: 'diamondNode',
     position: { x: getColumnX(1), y: 220 },
     data: { 
       label: 'Price Negotiation',
@@ -126,7 +126,7 @@ export const initialNodes: Node[] = [
   // Logistik column
   {
     id: '7',
-    type: 'customNode',
+    type: 'documentNode',
     position: { x: getColumnX(4), y: 160 },
     data: { 
       label: 'Quality Check',
@@ -178,7 +178,7 @@ export const initialNodes: Node[] = [
   // Pelanggan column (closing the loop)
   {
     id: '10',
-    type: 'customNode',
+    type: 'terminatorNode',
     position: { x: getColumnX(0), y: 280 },
     data: { 
       label: 'Receive Product',
@@ -208,5 +208,32 @@ export const initialNodes: Node[] = [
   })),
 ];
 
-// Empty initial edges - users will create connections themselves
-export const initialEdges: Edge[] = [];
+// Initialize with some edge connections, now with arrow markers
+export const initialEdges: Edge[] = [
+  {
+    id: 'e1-2',
+    source: '1',
+    target: '2',
+    animated: true,
+    style: { strokeWidth: 2, stroke: '#555' },
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 20,
+      height: 20,
+      color: '#555',
+    },
+  },
+  {
+    id: 'e2-3',
+    source: '2',
+    target: '3',
+    animated: true,
+    style: { strokeWidth: 2, stroke: '#555' },
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 20,
+      height: 20,
+      color: '#555',
+    },
+  },
+];
