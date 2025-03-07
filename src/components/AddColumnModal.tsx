@@ -30,7 +30,7 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn }: AddColumnModalProps
     onAddColumn({
       id: columnId,
       title: columnTitle,
-      color: columnColor
+      color: `bg-[${columnColor}]` // Convert hex to tailwind compatible format
     });
     
     // Reset form
@@ -69,7 +69,7 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn }: AddColumnModalProps
                 style={{ backgroundColor: columnColor }}
                 onClick={() => setShowColorPicker(!showColorPicker)}
               >
-                <span className="text-white text-sm font-medium">
+                <span className={`text-sm font-medium ${columnColor.toLowerCase() < '#888888' ? 'text-white' : 'text-gray-800'}`}>
                   {columnColor}
                 </span>
               </div>

@@ -277,19 +277,19 @@ const FlowChart = () => {
 
   const handleSaveAsImage = () => {
     if (reactFlowWrapper.current) {
-      // Get the actual React Flow element
-      const flowElement = reactFlowWrapper.current.querySelector('.react-flow');
+      // Make sure we have the flow element
+      const flowElement = reactFlowWrapper.current.querySelector('.react-flow__viewport') as HTMLElement;
       
       if (flowElement) {
-        // Create a temporary clone of the flow to ensure we don't capture UI controls
         toast.info("Sedang memproses gambar...");
         
+        // Use toPng to convert the element to a PNG
         toPng(flowElement, { 
           backgroundColor: '#fff',
           quality: 1,
           pixelRatio: 2,
           filter: (node) => {
-            // Filter out controls, minimap, and other UI elements
+            // Filter out controls, minimap, and panel elements
             const className = node.className || '';
             return !className.includes('react-flow__controls') && 
                    !className.includes('react-flow__minimap') &&
@@ -297,6 +297,7 @@ const FlowChart = () => {
           }
         })
           .then((dataUrl) => {
+            // Create a download link and trigger it
             const link = document.createElement('a');
             link.download = 'flowchart.png';
             link.href = dataUrl;
@@ -305,8 +306,10 @@ const FlowChart = () => {
           })
           .catch((error) => {
             console.error('Error saving image:', error);
-            toast.error("Gagal menyimpan gambar");
+            toast.error("Gagal menyimpan gambar: " + error.message);
           });
+      } else {
+        toast.error("Elemen diagram tidak ditemukan");
       }
     }
   };
