@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -17,6 +18,7 @@ import ReactFlow, {
   BackgroundVariant,
   Panel,
   MarkerType,
+  getSmoothStepPath,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import FlowNode from './FlowNode';
@@ -24,10 +26,25 @@ import { TerminatorNode, DiamondNode, DocumentNode } from './ShapeNodes';
 import NodeDetail from './NodeDetail';
 import { initialNodes, initialEdges } from '@/data/flowData';
 import { Button } from './ui/button';
-import { Plus, Save, Download, Trash, Undo, Redo, ZoomIn, ZoomOut } from 'lucide-react';
+import { 
+  Plus, 
+  Save, 
+  Download, 
+  Trash, 
+  Undo, 
+  Redo, 
+  ZoomIn, 
+  ZoomOut,
+  Columns,
+  ImageDown
+} from 'lucide-react';
 import { toast } from 'sonner';
 import NodeCreationModal from './NodeCreationModal';
+import AddColumnModal from './AddColumnModal';
 import { columns } from '@/data/flowData';
+
+// Import html-to-image for saving as image
+import { toPng } from 'html-to-image';
 
 const nodeTypes = {
   customNode: FlowNode,
@@ -42,6 +59,8 @@ const FlowChart = () => {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+  const [availableColumns, setAvailableColumns] = useState(columns);
   const [undoStack, setUndoStack] = useState<Array<{nodes: Node[], edges: Edge[]}>>([]);
   const [redoStack, setRedoStack] = useState<Array<{nodes: Node[], edges: Edge[]}>>([]);
   
@@ -136,7 +155,7 @@ const FlowChart = () => {
       y = maxY + 120;
     }
     
-    const columnIndex = columns.findIndex(col => col.id === nodeData.data.column);
+    const columnIndex = availableColumns.findIndex(col => col.id === nodeData.data.column);
     
     const nodeWidth = 180;
     const gap = 80;
@@ -150,6 +169,36 @@ const FlowChart = () => {
     };
     
     setNodes(nds => [...nds, newNode]);
+  };
+
+  const addColumn = (columnData: { id: string; title: string; color: string }) => {
+    saveCurrentState();
+    
+    // Add the new column to available columns
+    setAvailableColumns(prevColumns => [...prevColumns, columnData]);
+    
+    // Create a header node for the new column
+    const columnIndex = availableColumns.length;
+    const columnWidth = 200;
+    const gap = 80;
+    const nodeWidth = 180;
+    const x = columnIndex * (columnWidth + gap) + (columnWidth - nodeWidth) / 2;
+    
+    const headerNode = {
+      id: `header-${columnData.id}`,
+      type: 'customNode',
+      position: { x, y: 10 },
+      data: { 
+        label: columnData.title,
+        isHeader: true,
+        column: columnData.id,
+        color: columnData.color
+      },
+      draggable: false
+    };
+    
+    setNodes(nds => [...nds, headerNode]);
+    toast.success(`Kolom ${columnData.title} berhasil ditambahkan`);
   };
 
   const updateNode = (nodeId: string, data: any) => {
@@ -226,6 +275,42 @@ const FlowChart = () => {
     }
   };
 
+  const handleSaveAsImage = () => {
+    if (reactFlowWrapper.current) {
+      // Get the actual React Flow element
+      const flowElement = reactFlowWrapper.current.querySelector('.react-flow');
+      
+      if (flowElement) {
+        // Create a temporary clone of the flow to ensure we don't capture UI controls
+        toast.info("Sedang memproses gambar...");
+        
+        toPng(flowElement, { 
+          backgroundColor: '#fff',
+          quality: 1,
+          pixelRatio: 2,
+          filter: (node) => {
+            // Filter out controls, minimap, and other UI elements
+            const className = node.className || '';
+            return !className.includes('react-flow__controls') && 
+                   !className.includes('react-flow__minimap') &&
+                   !className.includes('react-flow__panel');
+          }
+        })
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = 'flowchart.png';
+            link.href = dataUrl;
+            link.click();
+            toast.success("Diagram berhasil disimpan sebagai gambar");
+          })
+          .catch((error) => {
+            console.error('Error saving image:', error);
+            toast.error("Gagal menyimpan gambar");
+          });
+      }
+    }
+  };
+
   const handleZoomIn = () => {
     if (reactFlowInstance.current) {
       reactFlowInstance.current.zoomIn();
@@ -249,6 +334,15 @@ const FlowChart = () => {
           >
             <Plus size={16} />
             Tambah Elemen
+          </Button>
+          
+          <Button 
+            size="sm" 
+            onClick={() => setIsColumnModalOpen(true)} 
+            className="flex items-center gap-1"
+          >
+            <Columns size={16} />
+            Tambah Kolom
           </Button>
           
           <Button
@@ -291,6 +385,16 @@ const FlowChart = () => {
           >
             <Download size={16} className="mr-1" />
             Export
+          </Button>
+          
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleSaveAsImage}
+            title="Simpan sebagai Gambar"
+          >
+            <ImageDown size={16} className="mr-1" />
+            Simpan Gambar
           </Button>
         </div>
       </div>
@@ -356,7 +460,13 @@ const FlowChart = () => {
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         onCreateNode={handleCreateNode}
-        columns={columns}
+        columns={availableColumns}
+      />
+      
+      <AddColumnModal
+        open={isColumnModalOpen}
+        onOpenChange={setIsColumnModalOpen}
+        onAddColumn={addColumn}
       />
     </div>
   );

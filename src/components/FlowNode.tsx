@@ -1,8 +1,8 @@
 
 import { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import { Handle, Position, NodeProps, NodeResizer } from 'reactflow';
 
-const FlowNode = ({ data, isConnectable }: NodeProps) => {
+const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
   // For header nodes, render a special header style
   if (data.isHeader) {
     return (
@@ -36,7 +36,14 @@ const FlowNode = ({ data, isConnectable }: NodeProps) => {
   const nodeStyle = getBgColor();
 
   return (
-    <div className={`p-3.5 rounded-md shadow-md border-2 w-[180px] transition-colors ${nodeStyle}`}>
+    <div className={`p-3.5 rounded-md shadow-md border-2 transition-colors ${nodeStyle}`}>
+      <NodeResizer 
+        minWidth={150}
+        minHeight={40}
+        isVisible={selected}
+        lineClassName="border-blue-400"
+        handleClassName="h-3 w-3 bg-white border-2 border-blue-400"
+      />
       <Handle
         type="target"
         position={Position.Left}

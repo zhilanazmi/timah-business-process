@@ -1,11 +1,18 @@
 
-import { memo } from 'react';
-import { Handle, Position } from 'reactflow';
+import { memo, useState } from 'react';
+import { Handle, Position, NodeResizer } from 'reactflow';
 
 // Terminator Node (Rounded rectangle)
-export const TerminatorNode = memo(({ data, isConnectable }: any) => {
+export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
   return (
-    <div className="p-3.5 rounded-full shadow-md border-2 bg-yellow-50 border-yellow-200 hover:border-yellow-400 w-[180px] transition-colors">
+    <div className="p-3.5 rounded-full shadow-md border-2 bg-yellow-50 border-yellow-200 hover:border-yellow-400 transition-colors">
+      <NodeResizer 
+        minWidth={150}
+        minHeight={40}
+        isVisible={selected}
+        lineClassName="border-blue-400"
+        handleClassName="h-3 w-3 bg-white border-2 border-blue-400"
+      />
       <Handle
         type="target"
         position={Position.Left}
@@ -34,9 +41,16 @@ export const TerminatorNode = memo(({ data, isConnectable }: any) => {
 });
 
 // Diamond Node (Decision)
-export const DiamondNode = memo(({ data, isConnectable }: any) => {
+export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
   return (
-    <div className="p-3 shadow-md border-2 bg-purple-50 border-purple-200 hover:border-purple-400 w-[180px] h-[180px] transition-colors rotate-45 flex items-center justify-center">
+    <div className="p-3 shadow-md border-2 bg-purple-50 border-purple-200 hover:border-purple-400 transition-colors rotate-45 flex items-center justify-center">
+      <NodeResizer 
+        minWidth={150}
+        minHeight={150}
+        isVisible={selected}
+        lineClassName="border-purple-400"
+        handleClassName="h-3 w-3 bg-white border-2 border-purple-400"
+      />
       <Handle
         type="target"
         position={Position.Top}
@@ -91,9 +105,16 @@ export const DiamondNode = memo(({ data, isConnectable }: any) => {
 });
 
 // Document Node
-export const DocumentNode = memo(({ data, isConnectable }: any) => {
+export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
   return (
-    <div className="relative p-3.5 shadow-md border-2 bg-cyan-50 border-cyan-200 hover:border-cyan-400 w-[180px] transition-colors">
+    <div className="relative p-3.5 shadow-md border-2 bg-cyan-50 border-cyan-200 hover:border-cyan-400 transition-colors">
+      <NodeResizer 
+        minWidth={150}
+        minHeight={80}
+        isVisible={selected}
+        lineClassName="border-cyan-400"
+        handleClassName="h-3 w-3 bg-white border-2 border-cyan-400"
+      />
       <Handle
         type="target"
         position={Position.Left}
