@@ -358,7 +358,7 @@ const FlowChart = () => {
             <MiniMap zoomable pannable />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
 
-            <Panel position="bottom-right" className="bg-white p-2 rounded shadow-sm">
+            {/* <Panel position="bottom-right" className="bg-white p-2 rounded shadow-sm">
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={handleZoomIn}>
                   <ZoomIn size={16} />
@@ -367,7 +367,7 @@ const FlowChart = () => {
                   <ZoomOut size={16} />
                 </Button>
               </div>
-            </Panel>
+            </Panel> */}
           </ReactFlow>
         </ReactFlowProvider>
       </div>
