@@ -1,4 +1,5 @@
 
+import PropTypes from 'prop-types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,13 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ChromePicker } from 'react-color';
 
-interface AddColumnModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onAddColumn: (columnData: { id: string; title: string; color: string }) => void;
-}
-
-const AddColumnModal = ({ open, onOpenChange, onAddColumn }: AddColumnModalProps) => {
+const AddColumnModal = ({ open, onOpenChange, onAddColumn }) => {
   const [columnTitle, setColumnTitle] = useState("");
   const [columnColor, setColumnColor] = useState("#3b82f6");
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -95,6 +90,12 @@ const AddColumnModal = ({ open, onOpenChange, onAddColumn }: AddColumnModalProps
       </DialogContent>
     </Dialog>
   );
+};
+
+AddColumnModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onOpenChange: PropTypes.func.isRequired,
+  onAddColumn: PropTypes.func.isRequired
 };
 
 export default AddColumnModal;

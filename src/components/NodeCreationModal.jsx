@@ -1,4 +1,5 @@
 
+import PropTypes from 'prop-types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,14 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Node } from "reactflow";
-
-interface NodeCreationModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCreateNode: (nodeData: Omit<Node, "id" | "position">) => void;
-  columns: { id: string; title: string; color: string }[];
-}
 
 const nodeTypes = [
   { id: "customNode", name: "Process Box", description: "Kotak proses standar" },
@@ -23,7 +16,7 @@ const nodeTypes = [
   { id: "documentNode", name: "Document", description: "Dokumen (document shape)" },
 ];
 
-const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCreationModalProps) => {
+const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }) => {
   const [formData, setFormData] = useState({
     label: "",
     description: "",
@@ -37,11 +30,11 @@ const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCr
     }
   });
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleDetailChange = (field: string, value: string) => {
+  const handleDetailChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       details: {
@@ -214,6 +207,13 @@ const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCr
       </DialogContent>
     </Dialog>
   );
+};
+
+NodeCreationModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onOpenChange: PropTypes.func.isRequired,
+  onCreateNode: PropTypes.func.isRequired,
+  columns: PropTypes.array.isRequired
 };
 
 export default NodeCreationModal;

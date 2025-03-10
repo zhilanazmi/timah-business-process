@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Node } from 'reactflow';
+import PropTypes from 'prop-types';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
@@ -8,14 +8,7 @@ import { Textarea } from './ui/textarea';
 import { Trash } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface NodeDetailProps {
-  node: Node;
-  onClose: () => void;
-  onUpdate: (nodeId: string, data: any) => void;
-  onDelete: (nodeId: string) => void;
-}
-
-const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDelete }) => {
+const NodeDetail = ({ node, onClose, onUpdate, onDelete }) => {
   const [nodeData, setNodeData] = useState({ ...node.data });
   
   // Skip editing for header nodes
@@ -31,11 +24,11 @@ const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDele
     );
   }
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field, value) => {
     setNodeData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleDetailChange = (field: string, value: string) => {
+  const handleDetailChange = (field, value) => {
     setNodeData(prev => ({
       ...prev,
       details: {
@@ -130,6 +123,13 @@ const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDele
       </div>
     </div>
   );
+};
+
+NodeDetail.propTypes = {
+  node: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired
 };
 
 export default NodeDetail;

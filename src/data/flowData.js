@@ -1,5 +1,5 @@
 
-import { Node, Edge, MarkerType } from 'reactflow';
+import { MarkerType } from 'reactflow';
 
 const columnWidth = 200;
 const nodeWidth = 180;
@@ -16,9 +16,9 @@ export const columns = [
 ];
 
 // Calculate x position based on column index
-const getColumnX = (columnIndex: number) => columnIndex * (columnWidth + gap) + (columnWidth - nodeWidth) / 2;
+const getColumnX = (columnIndex) => columnIndex * (columnWidth + gap) + (columnWidth - nodeWidth) / 2;
 
-export const initialNodes: Node[] = [
+export const initialNodes = [
   // Pelanggan column
   {
     id: '1',
@@ -209,7 +209,7 @@ export const initialNodes: Node[] = [
 ];
 
 // Initialize with some edge connections, now with arrow markers
-export const initialEdges: Edge[] = [
+export const initialEdges = [
   {
     id: 'e1-2',
     source: '1',
