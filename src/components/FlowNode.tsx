@@ -1,9 +1,8 @@
 
 import { memo } from 'react';
-import { Handle, Position } from 'reactflow';
-import PropTypes from 'prop-types';
+import { Handle, Position, NodeProps, NodeResizer } from 'reactflow';
 
-const FlowNode = ({ data, isConnectable, selected }) => {
+const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
   // For header nodes, render a special header style
   if (data.isHeader) {
     return (
@@ -71,12 +70,6 @@ const FlowNode = ({ data, isConnectable, selected }) => {
       />
     </div>
   );
-};
-
-FlowNode.propTypes = {
-  data: PropTypes.object.isRequired,
-  isConnectable: PropTypes.bool,
-  selected: PropTypes.bool
 };
 
 export default memo(FlowNode);

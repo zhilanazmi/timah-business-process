@@ -1,10 +1,9 @@
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Handle, Position, NodeResizer } from 'reactflow';
-import PropTypes from 'prop-types';
 
 // Terminator Node (Rounded rectangle)
-export const TerminatorNode = memo(({ data, isConnectable, selected }) => {
+export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
   return (
     <div className="p-3.5 rounded-full shadow-md border-2 bg-yellow-50 border-yellow-200 hover:border-yellow-400 transition-colors">
       <NodeResizer 
@@ -41,14 +40,8 @@ export const TerminatorNode = memo(({ data, isConnectable, selected }) => {
   );
 });
 
-TerminatorNode.propTypes = {
-  data: PropTypes.object.isRequired,
-  isConnectable: PropTypes.bool,
-  selected: PropTypes.bool
-};
-
 // Diamond Node (Decision)
-export const DiamondNode = memo(({ data, isConnectable, selected }) => {
+export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
   return (
     <div className="w-[150px] h-[150px] shadow-md border-2 bg-purple-50 border-purple-200 hover:border-purple-400 transition-colors transform rotate-45">
       <NodeResizer 
@@ -114,14 +107,8 @@ export const DiamondNode = memo(({ data, isConnectable, selected }) => {
   );
 });
 
-DiamondNode.propTypes = {
-  data: PropTypes.object.isRequired,
-  isConnectable: PropTypes.bool,
-  selected: PropTypes.bool
-};
-
 // Document Node
-export const DocumentNode = memo(({ data, isConnectable, selected }) => {
+export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
   return (
     <div className="relative p-3.5 shadow-md border-2 bg-cyan-50 border-cyan-200 hover:border-cyan-400 transition-colors">
       <NodeResizer 
@@ -160,9 +147,3 @@ export const DocumentNode = memo(({ data, isConnectable, selected }) => {
     </div>
   );
 });
-
-DocumentNode.propTypes = {
-  data: PropTypes.object.isRequired,
-  isConnectable: PropTypes.bool,
-  selected: PropTypes.bool
-};

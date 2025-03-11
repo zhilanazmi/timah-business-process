@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -8,6 +7,11 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   addEdge,
+  Node,
+  Edge,
+  Connection,
+  NodeChange,
+  EdgeChange,
   applyNodeChanges,
   applyEdgeChanges,
   BackgroundVariant,
@@ -15,7 +19,6 @@ import ReactFlow, {
   MarkerType
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import PropTypes from 'prop-types';
 import FlowNode from './FlowNode';
 import { TerminatorNode, DiamondNode, DocumentNode } from './ShapeNodes';
 import NodeDetail from './NodeDetail';
@@ -49,16 +52,16 @@ const nodeTypes = {
 const FlowChart = () => {
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges] = useEdgesState(initialEdges);
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [selectedEdge, setSelectedEdge] = useState(null);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const [availableColumns, setAvailableColumns] = useState(columns);
-  const [undoStack, setUndoStack] = useState([]);
-  const [redoStack, setRedoStack] = useState([]);
+  const [undoStack, setUndoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
+  const [redoStack, setRedoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
   
-  const reactFlowWrapper = useRef(null);
-  const reactFlowInstance = useRef(null);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const reactFlowInstance = useRef<any>(null);
 
   // Gunakan useCallback untuk memastikan fungsi snapshot mengacu pada state terkini.
   const saveCurrentState = useCallback(() => {
@@ -71,7 +74,7 @@ const FlowChart = () => {
 
   // Catat perubahan selain perubahan posisi atau select.
   const onNodesChange = useCallback(
-    (changes) => {
+    (changes: NodeChange[]) => {
       const nonPositionChanges = changes.filter(
         change => change.type !== 'position' && change.type !== 'select'
       );
@@ -84,7 +87,7 @@ const FlowChart = () => {
   );
 
   const onEdgesChange = useCallback(
-    (changes) => {
+    (changes: EdgeChange[]) => {
       const nonSelectChanges = changes.filter(change => change.type !== 'select');
       if (nonSelectChanges.length > 0) {
         saveCurrentState();
@@ -95,7 +98,7 @@ const FlowChart = () => {
   );
 
   const onConnect = useCallback(
-    (params) => {
+    (params: Connection) => {
       saveCurrentState();
       setEdges(eds => addEdge({ 
         ...params, 
@@ -114,12 +117,12 @@ const FlowChart = () => {
     [saveCurrentState, setEdges]
   );
 
-  const onNodeClick = (_, node) => {
+  const onNodeClick = (_: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
     setSelectedEdge(null);
   };
   
-  const onEdgeClick = (_, edge) => {
+  const onEdgeClick = (_: React.MouseEvent, edge: Edge) => {
     setSelectedEdge(edge);
     setSelectedNode(null);
   };
@@ -140,7 +143,7 @@ const FlowChart = () => {
     saveCurrentState();
   }, [saveCurrentState]);
 
-  const handleCreateNode = (nodeData) => {
+  const handleCreateNode = (nodeData: Omit<Node, "id" | "position">) => {
     saveCurrentState();
     const sameColumnNodes = nodes.filter(node => 
       node.data.column === nodeData.data.column && !node.data.isHeader
@@ -167,7 +170,7 @@ const FlowChart = () => {
     setNodes(nds => [...nds, newNode]);
   };
 
-  const addColumn = (columnData) => {
+  const addColumn = (columnData: { id: string; title: string; color: string }) => {
     saveCurrentState();
     setAvailableColumns(prevColumns => [...prevColumns, columnData]);
     const columnIndex = availableColumns.length;
@@ -191,7 +194,7 @@ const FlowChart = () => {
     toast.success(`Kolom ${columnData.title} berhasil ditambahkan`);
   };
 
-  const updateNode = (nodeId, data) => {
+  const updateNode = (nodeId: string, data: any) => {
     saveCurrentState();
     setNodes(nds =>
       nds.map(node => 
@@ -200,7 +203,7 @@ const FlowChart = () => {
     );
   };
 
-  const deleteNode = (nodeId) => {
+  const deleteNode = (nodeId: string) => {
     saveCurrentState();
     setNodes(nds => nds.filter(node => node.id !== nodeId));
     setEdges(eds => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
@@ -261,7 +264,7 @@ const FlowChart = () => {
   const handleSaveAsImage = () => {
     if (reactFlowWrapper.current) {
       // Coba ambil elemen viewport diagram
-      let flowElement = reactFlowWrapper.current.querySelector('.react-flow__viewport');
+      let flowElement = reactFlowWrapper.current.querySelector('.react-flow__viewport') as HTMLElement;
       if (!flowElement) {
         flowElement = reactFlowWrapper.current;
       }
