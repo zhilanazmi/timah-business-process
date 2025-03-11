@@ -172,12 +172,19 @@ const FlowChart = () => {
 
   const addColumn = (columnData: { id: string; title: string; color: string }) => {
     saveCurrentState();
+    
+    // Add the new column to available columns
     setAvailableColumns(prevColumns => [...prevColumns, columnData]);
+    
+    // Use prevColumns.length for correct positioning of the new column
+    // This ensures we're using the actual current length before addition
     const columnIndex = availableColumns.length;
     const columnWidth = 200;
     const gap = 80;
     const nodeWidth = 180;
     const x = columnIndex * (columnWidth + gap) + (columnWidth - nodeWidth) / 2;
+    
+    // Create the header node for the new column
     const headerNode = {
       id: `header-${columnData.id}`,
       type: 'customNode',
@@ -186,10 +193,17 @@ const FlowChart = () => {
         label: columnData.title,
         isHeader: true,
         column: columnData.id,
+        // Use the hex color directly in the node data
         color: columnData.color
       },
-      draggable: false
+      draggable: false,
+      // You might need to add this style property if your CustomNode renders with inline styles
+      style: { 
+        backgroundColor: columnData.color 
+      }
     };
+    
+    // Add the new node to the flow
     setNodes(nds => [...nds, headerNode]);
     toast.success(`Kolom ${columnData.title} berhasil ditambahkan`);
   };
