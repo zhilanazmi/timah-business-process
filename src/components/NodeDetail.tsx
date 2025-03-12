@@ -93,30 +93,30 @@ const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDele
               onChange={(e) => handleDetailChange('Process Owner', e.target.value)}
             />
           </div>
-          <div>
+          {/* <div>
             <Label htmlFor="duration">Duration</Label>
             <Input 
               id="duration" 
               value={nodeData.details?.["Duration"] || ''} 
               onChange={(e) => handleDetailChange('Duration', e.target.value)}
             />
-          </div>
-          <div>
+          </div> */}
+          {/* <div>
             <Label htmlFor="input">Input</Label>
             <Input 
               id="input" 
               value={nodeData.details?.["Input"] || ''} 
               onChange={(e) => handleDetailChange('Input', e.target.value)}
             />
-          </div>
-          <div>
+          </div> */}
+          {/* <div>
             <Label htmlFor="output">Output</Label>
             <Input 
               id="output" 
               value={nodeData.details?.["Output"] || ''} 
               onChange={(e) => handleDetailChange('Output', e.target.value)}
             />
-          </div>
+          </div> */}
         </div>
         
         {/* Action buttons */}

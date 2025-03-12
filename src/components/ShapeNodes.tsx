@@ -67,24 +67,68 @@ export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
 
 // Diamond Node (Decision)
 export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
+  const width = 150;
+  const height = 100;
+
   return (
-    <div className="w-[150px] h-[150px] shadow-md border-2 bg-purple-50 border-purple-200 hover:border-purple-400 transition-colors transform rotate-45">
-      <NodeResizer 
+    <div className="relative" style={{ width, height }}>
+      <svg width={width} height={height}>
+        <polygon
+          points={`${width / 2},0 ${width},${height / 2} ${width / 2},${height} 0,${height / 2}`}
+          className="fill-purple-50 stroke-purple-200 stroke-2 hover:stroke-purple-400 transition-colors"
+        />
+      </svg>
+
+      <NodeResizer
         minWidth={100}
-        minHeight={100}
+        minHeight={60}
         isVisible={selected}
         lineClassName="border-purple-400"
         handleClassName="h-3 w-3 bg-white border-2 border-purple-400"
       />
+
+      {/* Handle atas */}
       <Handle
         type="target"
         position={Position.Top}
         isConnectable={isConnectable}
         className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
-        style={{ transform: 'rotate(-45deg)' }}
+        style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
       />
-      <div className="absolute inset-0 flex items-center justify-center -rotate-45">
-        <div className="text-center p-2">
+
+      {/* Handle kanan (Yes) */}
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="yes"
+        isConnectable={isConnectable}
+        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        style={{ top: '50%', right: 0, transform: 'translate(50%, -50%)' }}
+      />
+      <div className="absolute right-[-20px] top-[50%] -translate-y-1/2">
+        <span className="text-xs font-medium text-green-600 block whitespace-nowrap">
+          {data.rightPathLabel || "Yes"}
+        </span>
+      </div>
+
+      {/* Handle bawah (No) */}
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="no"
+        isConnectable={isConnectable}
+        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
+      />
+      <div className="absolute bottom-[-20px] left-[50%] -translate-x-1/2">
+        <span className="text-xs font-medium text-red-600 block">
+          {data.bottomPathLabel || "No"}
+        </span>
+      </div>
+
+      {/* Konten teks */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="text-center px-2">
           <div className="font-medium text-sm">{data.label}</div>
           {data.description && (
             <div className="text-xs text-gray-600 mt-1 line-clamp-2">
@@ -98,39 +142,10 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
           )}
         </div>
       </div>
-      
-      {/* Right handle (typically for "Yes" path) */}
-      <div className="absolute right-[-8px] top-[60%] -translate-y-1/2">
-        <span className="text-xs font-medium text-green-600 -rotate-45 block whitespace-nowrap">
-          {data.rightPathLabel || "Yes"}
-        </span>
-      </div>
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="yes"
-        isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
-        style={{ transform: 'rotate(-45deg)' }}
-      />
-      
-      {/* Bottom handle (typically for "No" path) */}
-      <div className="absolute bottom-[-20px] left-[50%] -translate-x-1/2">
-        <span className="text-xs font-medium text-red-600 -rotate-45 block">
-          {data.bottomPathLabel || "No"}
-        </span>
-      </div>
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id="no"
-        isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
-        style={{ transform: 'rotate(-45deg)' }}
-      />
     </div>
   );
 });
+
 
 // Document Node
 export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
