@@ -34,13 +34,15 @@ import {
   ZoomIn, 
   ZoomOut,
   Columns,
-  ImageDown
+  ImageDown,
+  HelpCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import NodeCreationModal from './NodeCreationModal';
 import AddColumnModal from './AddColumnModal';
 import { columns } from '@/data/flowData';
 import { toPng } from 'html-to-image';
+import ShortcutHelpModal from './ShortcutHelpModal'; // New component for showing keyboard shortcuts
 
 const nodeTypes = {
   customNode: FlowNode,
@@ -56,6 +58,7 @@ const FlowChart = () => {
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+  const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false); // New state for shortcut help modal
   const [availableColumns, setAvailableColumns] = useState(columns);
   const [undoStack, setUndoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
   const [redoStack, setRedoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
@@ -276,36 +279,93 @@ const FlowChart = () => {
   };
 
   const handleSaveAsImage = () => {
-    if (reactFlowWrapper.current) {
-      // Coba ambil elemen viewport diagram
-      let flowElement = reactFlowWrapper.current.querySelector('.react-flow__viewport') as HTMLElement;
-      if (!flowElement) {
-        flowElement = reactFlowWrapper.current;
-      }
-      toast.info("Sedang memproses gambar...");
-      toPng(flowElement, { 
-        backgroundColor: '#fff',
+    if (!reactFlowWrapper.current) {
+      toast.error("Referensi diagram tidak ditemukan");
+      return;
+    }
+  
+    const reactFlowNode = reactFlowWrapper.current.querySelector('.react-flow');
+    
+    if (!reactFlowNode) {
+      toast.error("Tidak dapat menemukan elemen diagram");
+      return;
+    }
+    
+    toast.info("Sedang memproses gambar...");
+    
+    const viewport = reactFlowNode.querySelector('.react-flow__viewport');
+    const targetElement = viewport || reactFlowNode;
+    
+    if (!targetElement) {
+      toast.error("Tidak dapat menemukan konten diagram");
+      return;
+    }
+  
+    setTimeout(() => {
+      toPng(targetElement, { 
+        backgroundColor: '#ffffff',
         quality: 1,
         pixelRatio: 2,
+        cacheBust: true, 
         filter: (node) => {
-          const className = node.className || '';
-          return !className.includes('react-flow__controls') && 
-                 !className.includes('react-flow__minimap') &&
-                 !className.includes('react-flow__panel');
+          if (!node) return true;
+          
+          let classStr = "";
+          
+          if (node.className !== undefined && node.className !== null) {
+            if (typeof node.className === 'string') {
+              classStr = node.className;
+            } else if (node.className.baseVal !== undefined) {
+              classStr = node.className.baseVal;
+            } else if (typeof node.className.toString === 'function') {
+              classStr = node.className.toString();
+            }
+          }
+          
+          const checkClass = (str, className) => {
+            return str.indexOf(className) === -1;
+          };
+          
+          return checkClass(classStr, 'react-flow__controls') && 
+                 checkClass(classStr, 'react-flow__minimap') && 
+                 checkClass(classStr, 'react-flow__panel') &&
+                 checkClass(classStr, 'toast-');
         }
       })
-        .then((dataUrl) => {
-          const link = document.createElement('a');
-          link.download = 'flowchart.png';
-          link.href = dataUrl;
-          link.click();
-          toast.success("Diagram berhasil disimpan sebagai gambar");
-        })
-        .catch((error) => {
-          console.error('Error saving image:', error);
-          toast.error("Gagal menyimpan gambar: " + error.message);
-        });
-    }
+      .then((dataUrl) => {
+        const tanggal = new Date().toISOString().split('T')[0];
+        const link = document.createElement('a');
+        link.download = `flowchart-${tanggal}.png`;
+        link.href = dataUrl;
+        link.click();
+        toast.success("Diagram berhasil disimpan sebagai gambar");
+      })
+      .catch((error) => {
+        console.error('Error saat menyimpan gambar:', error);
+        toast.error("Gagal menyimpan gambar: " + error.message);
+        
+        try {
+          toPng(targetElement, { 
+            backgroundColor: '#ffffff',
+            quality: 1,
+            pixelRatio: 2
+          })
+          .then((dataUrl) => {
+            const tanggal = new Date().toISOString().split('T')[0];
+            const link = document.createElement('a');
+            link.download = `flowchart-${tanggal}-alt.png`;
+            link.href = dataUrl;
+            link.click();
+            toast.success("Diagram berhasil disimpan dengan metode alternatif");
+          })
+          .catch((fallbackError) => {
+            toast.error("Semua metode gagal menyimpan gambar");
+          });
+        } catch (fallbackError) {
+          toast.error("Gagal menggunakan metode alternatif");
+        }
+      });
+    }, 100);
   };
 
   const handleZoomIn = () => {
@@ -320,6 +380,101 @@ const FlowChart = () => {
     }
   };
 
+  const handleFitView = () => {
+    if (reactFlowInstance.current) {
+      reactFlowInstance.current.fitView();
+    }
+  };
+
+  // Add keyboard shortcut handler
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Skip handling if user is typing in an input field
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        return;
+      }
+
+      const ctrlOrCmd = event.ctrlKey || event.metaKey;
+
+      // Add Node: Ctrl/Cmd + N
+      if (ctrlOrCmd && event.key === 'n') {
+        event.preventDefault();
+        setIsModalOpen(true);
+      }
+      // Add Column: Ctrl/Cmd + Shift + C
+      else if (ctrlOrCmd && event.shiftKey && event.key === 'c') {
+        event.preventDefault();
+        setIsColumnModalOpen(true);
+      }
+      // Undo: Ctrl/Cmd + Z
+      else if (ctrlOrCmd && !event.shiftKey && event.key === 'z' && undoStack.length > 0) {
+        event.preventDefault();
+        handleUndo();
+      }
+      // Redo: Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y
+      else if ((ctrlOrCmd && event.shiftKey && event.key === 'z') || 
+               (ctrlOrCmd && event.key === 'y')) {
+        event.preventDefault();
+        if (redoStack.length > 0) handleRedo();
+      }
+      // Save: Ctrl/Cmd + S
+      else if (ctrlOrCmd && !event.shiftKey && event.key === 's') {
+        event.preventDefault();
+        handleSaveAsImage();
+      }
+      // Export: Ctrl/Cmd + E
+      else if (ctrlOrCmd && event.key === 'e') {
+        event.preventDefault();
+        handleExport();
+      }
+      // Save as Image: Ctrl/Cmd + Shift + S
+      // else if (ctrlOrCmd && event.shiftKey && event.key === 's') {
+      //   event.preventDefault();
+      //   handleSaveAsImage();
+      // }
+      // Zoom In: Ctrl/Cmd + Plus or Ctrl/Cmd + =
+      else if (ctrlOrCmd && (event.key === '+' || event.key === '=')) {
+        event.preventDefault();
+        handleZoomIn();
+      }
+      // Zoom Out: Ctrl/Cmd + Minus
+      else if (ctrlOrCmd && event.key === '-') {
+        event.preventDefault();
+        handleZoomOut();
+      }
+      // Fit View: Ctrl/Cmd + 0 
+      else if (ctrlOrCmd && event.key === '0') {
+        event.preventDefault();
+        handleFitView();
+      }
+      // Delete selected node: Delete key
+      else if ((event.key === 'Delete' || event.key === 'Backspace') && selectedNode) {
+        event.preventDefault();
+        deleteNode(selectedNode.id);
+        setSelectedNode(null);
+      }
+      // Show Shortcut Help: ? key
+      else if (event.key === '?') {
+        event.preventDefault();
+        setIsShortcutHelpOpen(true);
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Clean up
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [
+    setIsModalOpen, setIsColumnModalOpen, 
+    handleUndo, handleRedo, undoStack.length, redoStack.length,
+    handleSave, handleExport, handleSaveAsImage,
+    handleZoomIn, handleZoomOut, handleFitView, 
+    selectedNode, deleteNode, setIsShortcutHelpOpen
+  ]);
+
   return (
     <div className="h-full flex flex-col">
       {/* Bagian Header dengan button */}
@@ -329,6 +484,7 @@ const FlowChart = () => {
             size="sm" 
             onClick={() => setIsModalOpen(true)} 
             className="flex items-center gap-1"
+            title="Tambah Elemen (Ctrl+N)"
           >
             <Plus size={16} />
             Tambah Elemen
@@ -337,6 +493,7 @@ const FlowChart = () => {
             size="sm" 
             onClick={() => setIsColumnModalOpen(true)} 
             className="flex items-center gap-1"
+            title="Tambah Kolom (Ctrl+Shift+C)"
           >
             <Columns size={16} />
             Tambah Kolom
@@ -346,7 +503,7 @@ const FlowChart = () => {
             variant="outline"
             onClick={handleUndo}
             disabled={undoStack.length === 0}
-            title="Undo"
+            title="Undo (Ctrl+Z)"
           >
             <Undo size={16} />
           </Button>
@@ -355,9 +512,18 @@ const FlowChart = () => {
             variant="outline"
             onClick={handleRedo}
             disabled={redoStack.length === 0}
-            title="Redo"
+            title="Redo (Ctrl+Shift+Z or Ctrl+Y)"
           >
             <Redo size={16} />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setIsShortcutHelpOpen(true)}
+            title="Bantuan Shortcut (Tekan ?)"
+            className="ml-2"
+          >
+            <HelpCircle size={16} />
           </Button>
         </div>
         <div className="flex items-center gap-2">
@@ -365,7 +531,7 @@ const FlowChart = () => {
             size="sm"
             variant="outline"
             onClick={handleSave}
-            title="Simpan"
+            title="Simpan (Ctrl+S)"
           >
             <Save size={16} className="mr-1" />
             Simpan
@@ -374,7 +540,7 @@ const FlowChart = () => {
             size="sm"
             variant="outline"
             onClick={handleExport}
-            title="Export"
+            title="Export (Ctrl+E)"
           >
             <Download size={16} className="mr-1" />
             Export
@@ -383,7 +549,7 @@ const FlowChart = () => {
             size="sm"
             variant="outline"
             onClick={handleSaveAsImage}
-            title="Simpan sebagai Gambar"
+            title="Simpan sebagai Gambar (Ctrl+Shift+S)"
           >
             <ImageDown size={16} className="mr-1" />
             Simpan Gambar
@@ -434,10 +600,20 @@ const FlowChart = () => {
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <Panel position="bottom-right" className="bg-white p-2 rounded shadow-sm">
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={handleZoomIn}>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={handleZoomIn}
+                  title="Perbesar (Ctrl+Plus)"
+                >
                   <ZoomIn size={16} />
                 </Button>
-                <Button size="sm" variant="outline" onClick={handleZoomOut}>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={handleZoomOut}
+                  title="Perkecil (Ctrl+Minus)"
+                >
                   <ZoomOut size={16} />
                 </Button>
               </div>
@@ -466,6 +642,12 @@ const FlowChart = () => {
         open={isColumnModalOpen}
         onOpenChange={setIsColumnModalOpen}
         onAddColumn={addColumn}
+      />
+      
+      {/* Modal bantuan shortcut keyboard */}
+      <ShortcutHelpModal
+        open={isShortcutHelpOpen}
+        onOpenChange={setIsShortcutHelpOpen}
       />
     </div>
   );
