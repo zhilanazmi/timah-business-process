@@ -1,4 +1,3 @@
-
 import { memo } from 'react';
 import { Handle, Position, NodeProps, NodeResizer } from 'reactflow';
 
@@ -12,7 +11,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
     );
   }
 
-  // Determine node style based on type or category (if available)
+  // Determine node style based on type or category
   const getBgColor = () => {
     const column = data.column;
     switch(column) {
@@ -36,7 +35,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
   const nodeStyle = getBgColor();
 
   return (
-    <div className={`p-3.5 rounded-md shadow-md border-2 transition-colors ${nodeStyle}`}>
+    <div className={`p-3.5 rounded-md shadow-md border-2 transition-colors ${nodeStyle} relative`}>
       <NodeResizer 
         minWidth={150}
         minHeight={40}
@@ -44,12 +43,25 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         lineClassName="border-blue-400"
         handleClassName="h-3 w-3 bg-white border-2 border-blue-400"
       />
+      
+      {/* Top handle with unique ID */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        id="top"
+        style={{ width: 8, height: 8, background: '#555' }}
+        isConnectable={isConnectable}
+      />
+      
+      {/* Left handle with unique ID */}
       <Handle
         type="target"
         position={Position.Left}
+        id="left"
+        style={{ width: 8, height: 8, background: '#555' }}
         isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
       />
+      
       <div className="font-medium text-sm">{data.label}</div>
       {data.description && (
         <div className="text-xs text-gray-600 mt-1 line-clamp-2">
@@ -62,11 +74,23 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
           {data.details["Process Owner"]}
         </div>
       )}
+      
+      {/* Right handle with unique ID */}
       <Handle
         type="source"
         position={Position.Right}
+        id="right"
+        style={{ width: 8, height: 8, background: '#555' }}
         isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+      />
+      
+      {/* Bottom handle with unique ID */}
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="bottom"
+        style={{ width: 8, height: 8, background: '#555' }}
+        isConnectable={isConnectable}
       />
     </div>
   );

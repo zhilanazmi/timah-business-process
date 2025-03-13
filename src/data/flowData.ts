@@ -25,11 +25,11 @@ export const initialNodes: Node[] = [
     type: 'terminatorNode',
     position: { x: getColumnX(0), y: 100 },
     data: { 
-      label: 'Order Request',
-      description: 'Customer places an order',
+      label: 'Start',
+      description: '',
       column: 'pelanggan',
       details: {
-        'Process Owner': 'Customer',
+        'Process Owner': '',
         'Duration': '1-2 days',
         'Input': 'Product requirements',
         'Output': 'Order form'
@@ -43,11 +43,11 @@ export const initialNodes: Node[] = [
     type: 'customNode',
     position: { x: getColumnX(1), y: 100 },
     data: { 
-      label: 'Order Validation',
-      description: 'Validate customer order',
+      label: 'Kontrak Penjualan',
+      description: 'Descriptionnya apa',
       column: 'pemasaran',
       details: {
-        'Process Owner': 'Marketing Team',
+        'Process Owner': '',
         'Duration': '1 day',
         'Input': 'Order form',
         'Output': 'Validated order'
@@ -57,13 +57,13 @@ export const initialNodes: Node[] = [
   {
     id: '3',
     type: 'diamondNode',
-    position: { x: getColumnX(1), y: 220 },
+    position: { x: getColumnX(2), y: 300 },
     data: { 
-      label: 'Price Negotiation',
-      description: 'Negotiate pricing with customer',
+      label: 'QC',
+      description: 'Description',
       column: 'pemasaran',
       details: {
-        'Process Owner': 'Sales Manager',
+        'Process Owner': 'QC',
         'Duration': '2-3 days',
         'Input': 'Product specifications',
         'Output': 'Price agreement'
@@ -75,9 +75,9 @@ export const initialNodes: Node[] = [
   {
     id: '4',
     type: 'customNode',
-    position: { x: getColumnX(2), y: 160 },
+    position: { x: getColumnX(2), y: 100 },
     data: { 
-      label: 'Production Planning',
+      label: 'Perencanaan Produksi',
       description: 'Plan production schedule',
       column: 'renbang',
       details: {
@@ -109,7 +109,7 @@ export const initialNodes: Node[] = [
   {
     id: '6',
     type: 'customNode',
-    position: { x: getColumnX(3), y: 220 },
+    position: { x: getColumnX(3), y: 240 },
     data: { 
       label: 'Manufacturing',
       description: 'Manufacture the product',
@@ -127,13 +127,13 @@ export const initialNodes: Node[] = [
   {
     id: '7',
     type: 'documentNode',
-    position: { x: getColumnX(4), y: 160 },
+    position: { x: getColumnX(4), y: 100 },
     data: { 
-      label: 'Quality Check',
-      description: 'Check product quality',
+      label: 'Penilaian Persediaan',
+      description: 'Check persediaan',
       column: 'logistik',
       details: {
-        'Process Owner': 'QC Department',
+        // 'Process Owner': 'QC',
         'Duration': '1 day',
         'Input': 'Finished product',
         'Output': 'Quality report'
@@ -143,7 +143,7 @@ export const initialNodes: Node[] = [
   {
     id: '8',
     type: 'customNode',
-    position: { x: getColumnX(4), y: 280 },
+    position: { x: getColumnX(4), y: 240 },
     data: { 
       label: 'Packaging',
       description: 'Package products for delivery',
@@ -181,14 +181,30 @@ export const initialNodes: Node[] = [
     type: 'terminatorNode',
     position: { x: getColumnX(0), y: 280 },
     data: { 
-      label: 'Receive Product',
-      description: 'Customer receives the product',
+      label: 'End',
+      description: '',
       column: 'pelanggan',
       details: {
-        'Process Owner': 'Customer',
+        'Process Owner': '',
         'Duration': 'N/A',
         'Input': 'Delivered products',
         'Output': 'Customer feedback'
+      }
+    }
+  },
+  {
+    id: '11',
+    type: 'customNode',
+    position: { x: getColumnX(1), y: 240 },
+    data: { 
+      label: 'Pemesanan Penjualan',
+      description: 'Descriptionnya apa',
+      column: 'pemasaran',
+      details: {
+        'Process Owner': '',
+        'Duration': '1 day',
+        'Input': 'Order form',
+        'Output': 'Validated order'
       }
     }
   },
