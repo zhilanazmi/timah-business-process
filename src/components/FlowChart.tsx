@@ -57,10 +57,9 @@ const ButtonEdge = ({
   targetPosition, 
   style = {}, 
   markerEnd, 
-  data 
+  data,
+  selected
 }: EdgeProps) => {
-  const [isHovered, setIsHovered] = useState(false);
-
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -84,11 +83,9 @@ const ButtonEdge = ({
         style={style} 
         className="react-flow__edge-path" 
         d={edgePath} 
-        markerEnd={markerEnd} 
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        markerEnd={markerEnd}
       />
-      {isHovered && (
+      {selected && (
         <EdgeLabelRenderer>
           <div
             style={{
@@ -387,10 +384,12 @@ const FlowChart = () => {
           if (node.className !== undefined && node.className !== null) {
             if (typeof node.className === 'string') {
               classStr = node.className;
-            } else if (node.className instanceof Object && 'baseVal' in node.className) {
-              classStr = node.className.baseVal as string;
-            } else if (node.className instanceof Object && typeof node.className.toString === 'function') {
-              classStr = node.className.toString();
+            } else if (node.className && typeof node.className === 'object') {
+              if ('baseVal' in node.className) {
+                classStr = (node.className as SVGAnimatedString).baseVal;
+              } else if (typeof (node.className as any).toString === 'function') {
+                classStr = (node.className as any).toString();
+              }
             }
           }
           
