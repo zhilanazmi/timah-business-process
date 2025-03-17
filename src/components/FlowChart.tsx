@@ -16,7 +16,9 @@ import ReactFlow, {
   applyEdgeChanges,
   BackgroundVariant,
   Panel,
-  MarkerType
+  MarkerType,
+  getBezierPath,
+  EdgeLabelRenderer
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import FlowNode from './FlowNode';
@@ -42,13 +44,60 @@ import NodeCreationModal from './NodeCreationModal';
 import AddColumnModal from './AddColumnModal';
 import { columns } from '@/data/flowData';
 import { toPng } from 'html-to-image';
-import ShortcutHelpModal from './ShortcutHelpModal'; // New component for showing keyboard shortcuts
+import ShortcutHelpModal from './ShortcutHelpModal';
+
+const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style = {}, markerEnd, data }) => {
+  const [edgePath, labelX, labelY] = getBezierPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+  });
+
+  const onEdgeClick = (e) => {
+    e.stopPropagation();
+    if (data && data.onDelete) {
+      data.onDelete(id);
+    }
+  };
+
+  return (
+    <>
+      <path id={id} style={style} className="react-flow__edge-path" d={edgePath} markerEnd={markerEnd} />
+      <EdgeLabelRenderer>
+        <div
+          style={{
+            position: 'absolute',
+            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            zIndex: 1,
+            pointerEvents: 'all',
+          }}
+          className="nodrag nopan"
+        >
+          <button
+            onClick={onEdgeClick}
+            className="w-5 h-5 flex items-center justify-center bg-white rounded-full border border-gray-300 shadow-sm hover:bg-red-100 hover:border-red-300 transition-colors"
+            title="Delete connection"
+          >
+            ×
+          </button>
+        </div>
+      </EdgeLabelRenderer>
+    </>
+  );
+};
 
 const nodeTypes = {
   customNode: FlowNode,
   terminatorNode: TerminatorNode,
   diamondNode: DiamondNode,
   documentNode: DocumentNode,
+};
+
+const edgeTypes = {
+  buttonEdge: ButtonEdge,
 };
 
 const FlowChart = () => {
@@ -58,7 +107,7 @@ const FlowChart = () => {
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
-  const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false); // New state for shortcut help modal
+  const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false);
   const [availableColumns, setAvailableColumns] = useState(columns);
   const [undoStack, setUndoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
   const [redoStack, setRedoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
@@ -66,7 +115,6 @@ const FlowChart = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<any>(null);
 
-  // Gunakan useCallback untuk memastikan fungsi snapshot mengacu pada state terkini.
   const saveCurrentState = useCallback(() => {
     setUndoStack(prev => [...prev, { 
       nodes: JSON.parse(JSON.stringify(nodes)), 
@@ -75,7 +123,6 @@ const FlowChart = () => {
     setRedoStack([]);
   }, [nodes, edges]);
 
-  // Catat perubahan selain perubahan posisi atau select.
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       const nonPositionChanges = changes.filter(
@@ -106,8 +153,12 @@ const FlowChart = () => {
       setEdges(eds => addEdge({ 
         ...params, 
         animated: true,
+        type: 'buttonEdge',
         style: { strokeWidth: 2, stroke: '#555' },
-        data: { label: 'Hubungan' },
+        data: { 
+          label: 'Hubungan',
+          onDelete: handleDeleteEdge
+        },
         markerEnd: {
           type: MarkerType.ArrowClosed,
           width: 20,
@@ -117,7 +168,7 @@ const FlowChart = () => {
       }, eds));
       toast.success('Elemen berhasil dihubungkan');
     },
-    [saveCurrentState, setEdges]
+    [saveCurrentState, setEdges, handleDeleteEdge]
   );
 
   const onNodeClick = (_: React.MouseEvent, node: Node) => {
@@ -140,8 +191,6 @@ const FlowChart = () => {
     setSelectedEdge(null);
   };
 
-  // Tambahkan callback untuk menangkap event ketika drag node selesai,
-  // sehingga satu perubahan posisi (drag) menghasilkan satu snapshot undo.
   const onNodeDragStop = useCallback(() => {
     saveCurrentState();
   }, [saveCurrentState]);
@@ -176,18 +225,14 @@ const FlowChart = () => {
   const addColumn = (columnData: { id: string; title: string; color: string }) => {
     saveCurrentState();
     
-    // Add the new column to available columns
     setAvailableColumns(prevColumns => [...prevColumns, columnData]);
     
-    // Use prevColumns.length for correct positioning of the new column
-    // This ensures we're using the actual current length before addition
     const columnIndex = availableColumns.length;
     const columnWidth = 200;
     const gap = 80;
     const nodeWidth = 180;
     const x = columnIndex * (columnWidth + gap) + (columnWidth - nodeWidth) / 2;
     
-    // Create the header node for the new column
     const headerNode = {
       id: `header-${columnData.id}`,
       type: 'customNode',
@@ -196,17 +241,14 @@ const FlowChart = () => {
         label: columnData.title,
         isHeader: true,
         column: columnData.id,
-        // Use the hex color directly in the node data
         color: columnData.color
       },
       draggable: false,
-      // You might need to add this style property if your CustomNode renders with inline styles
       style: { 
         backgroundColor: columnData.color 
       }
     };
     
-    // Add the new node to the flow
     setNodes(nds => [...nds, headerNode]);
     toast.success(`Kolom ${columnData.title} berhasil ditambahkan`);
   };
@@ -225,6 +267,12 @@ const FlowChart = () => {
     setNodes(nds => nds.filter(node => node.id !== nodeId));
     setEdges(eds => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
   };
+
+  const handleDeleteEdge = useCallback((edgeId: string) => {
+    saveCurrentState();
+    setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
+    toast.success('Koneksi berhasil dihapus');
+  }, [saveCurrentState, setEdges]);
 
   const handleUndo = () => {
     if (undoStack.length === 0) return;
@@ -386,84 +434,81 @@ const FlowChart = () => {
     }
   };
 
-  // Add keyboard shortcut handler
+  useEffect(() => {
+    setEdges(currentEdges => 
+      currentEdges.map(edge => ({
+        ...edge,
+        type: 'buttonEdge',
+        data: {
+          ...edge.data,
+          onDelete: handleDeleteEdge
+        }
+      }))
+    );
+  }, [handleDeleteEdge]);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
-      // Skip handling if user is typing in an input field
       if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
         return;
       }
 
       const ctrlOrCmd = event.ctrlKey || event.metaKey;
 
-      // Add Node: Ctrl/Cmd + N
       if (ctrlOrCmd && event.key === 'n') {
         event.preventDefault();
         setIsModalOpen(true);
       }
-      // Add Column: Ctrl/Cmd + Shift + C
       else if (ctrlOrCmd && event.shiftKey && event.key === 'c') {
         event.preventDefault();
         setIsColumnModalOpen(true);
       }
-      // Undo: Ctrl/Cmd + Z
       else if (ctrlOrCmd && !event.shiftKey && event.key === 'z' && undoStack.length > 0) {
         event.preventDefault();
         handleUndo();
       }
-      // Redo: Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y
       else if ((ctrlOrCmd && event.shiftKey && event.key === 'z') || 
                (ctrlOrCmd && event.key === 'y')) {
         event.preventDefault();
         if (redoStack.length > 0) handleRedo();
       }
-      // Save: Ctrl/Cmd + S
       else if (ctrlOrCmd && !event.shiftKey && event.key === 's') {
         event.preventDefault();
         handleSaveAsImage();
       }
-      // Export: Ctrl/Cmd + E
       else if (ctrlOrCmd && event.key === 'e') {
         event.preventDefault();
         handleExport();
       }
-      // Save as Image: Ctrl/Cmd + Shift + S
-      // else if (ctrlOrCmd && event.shiftKey && event.key === 's') {
-      //   event.preventDefault();
-      //   handleSaveAsImage();
-      // }
-      // Zoom In: Ctrl/Cmd + Plus or Ctrl/Cmd + =
+      else if (ctrlOrCmd && event.shiftKey && event.key === 's') {
+        event.preventDefault();
+        handleSaveAsImage();
+      }
       else if (ctrlOrCmd && (event.key === '+' || event.key === '=')) {
         event.preventDefault();
         handleZoomIn();
       }
-      // Zoom Out: Ctrl/Cmd + Minus
       else if (ctrlOrCmd && event.key === '-') {
         event.preventDefault();
         handleZoomOut();
       }
-      // Fit View: Ctrl/Cmd + 0 
       else if (ctrlOrCmd && event.key === '0') {
         event.preventDefault();
         handleFitView();
       }
-      // Delete selected node: Delete key
       else if ((event.key === 'Delete' || event.key === 'Backspace') && selectedNode) {
         event.preventDefault();
         deleteNode(selectedNode.id);
         setSelectedNode(null);
       }
-      // Show Shortcut Help: ? key
       else if (event.key === '?') {
         event.preventDefault();
         setIsShortcutHelpOpen(true);
       }
     };
 
-    // Add event listener
     document.addEventListener('keydown', handleKeyDown);
     
-    // Clean up
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
@@ -477,7 +522,6 @@ const FlowChart = () => {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Bagian Header dengan button */}
       <div className="flex justify-between items-center p-2 bg-gray-100 rounded mb-2">
         <div className="flex items-center gap-2">
           <Button 
@@ -557,7 +601,6 @@ const FlowChart = () => {
         </div>
       </div>
       
-      {/* Kontainer diagram dengan cursor kustom berwarna hitam */}
       <div 
         className="flex-1 relative" 
         ref={reactFlowWrapper}
@@ -577,6 +620,7 @@ const FlowChart = () => {
             onPaneClick={onPaneClick}
             onNodeDragStop={onNodeDragStop}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             onInit={(instance) => {
               reactFlowInstance.current = instance;
             }}
@@ -587,16 +631,14 @@ const FlowChart = () => {
             multiSelectionKeyCode={['Control', 'Meta']}
             selectionKeyCode={['Shift']}
             defaultEdgeOptions={{
-              type: 'default',
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
+              type: 'buttonEdge',
+              data: {
+                onDelete: handleDeleteEdge
               },
             }}
           >
             <Controls />
-            <MiniMap zoomable pannable />
+            <MiniMap zoomable pannable nodeClassName={node => node.type} />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <Panel position="bottom-right" className="bg-white p-2 rounded shadow-sm">
               <div className="flex gap-2">
@@ -644,7 +686,6 @@ const FlowChart = () => {
         onAddColumn={addColumn}
       />
       
-      {/* Modal bantuan shortcut keyboard */}
       <ShortcutHelpModal
         open={isShortcutHelpOpen}
         onOpenChange={setIsShortcutHelpOpen}
