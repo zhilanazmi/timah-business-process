@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -48,7 +47,6 @@ import { columns } from '@/data/flowData';
 import { toPng } from 'html-to-image';
 import ShortcutHelpModal from './ShortcutHelpModal';
 
-// Moving the ButtonEdge component definition to fix "used before declaration" error
 const ButtonEdge = ({ 
   id, 
   sourceX, 
@@ -61,6 +59,8 @@ const ButtonEdge = ({
   markerEnd, 
   data 
 }: EdgeProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -79,26 +79,36 @@ const ButtonEdge = ({
 
   return (
     <>
-      <path id={id} style={style} className="react-flow__edge-path" d={edgePath} markerEnd={markerEnd} />
-      <EdgeLabelRenderer>
-        <div
-          style={{
-            position: 'absolute',
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            zIndex: 1,
-            pointerEvents: 'all',
-          }}
-          className="nodrag nopan"
-        >
-          <button
-            onClick={onEdgeClick}
-            className="w-5 h-5 flex items-center justify-center bg-white rounded-full border border-gray-300 shadow-sm hover:bg-red-100 hover:border-red-300 transition-colors"
-            title="Delete connection"
+      <path 
+        id={id} 
+        style={style} 
+        className="react-flow__edge-path" 
+        d={edgePath} 
+        markerEnd={markerEnd} 
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      />
+      {isHovered && (
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+              zIndex: 1,
+              pointerEvents: 'all',
+            }}
+            className="nodrag nopan"
           >
-            ×
-          </button>
-        </div>
-      </EdgeLabelRenderer>
+            <button
+              onClick={onEdgeClick}
+              className="w-5 h-5 flex items-center justify-center bg-white rounded-full border border-gray-300 shadow-sm hover:bg-red-100 hover:border-red-300 transition-colors"
+              title="Delete connection"
+            >
+              ×
+            </button>
+          </div>
+        </EdgeLabelRenderer>
+      )}
     </>
   );
 };
@@ -129,7 +139,6 @@ const FlowChart = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<any>(null);
 
-  // Define handleDeleteEdge before it's used
   const handleDeleteEdge = useCallback((edgeId: string) => {
     saveCurrentState();
     setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
@@ -378,9 +387,9 @@ const FlowChart = () => {
           if (node.className !== undefined && node.className !== null) {
             if (typeof node.className === 'string') {
               classStr = node.className;
-            } else if (node.className instanceof SVGAnimatedString) {
-              classStr = node.className.baseVal;
-            } else if (typeof node.className.toString === 'function') {
+            } else if (node.className instanceof Object && 'baseVal' in node.className) {
+              classStr = node.className.baseVal as string;
+            } else if (node.className instanceof Object && typeof node.className.toString === 'function') {
               classStr = node.className.toString();
             }
           }
