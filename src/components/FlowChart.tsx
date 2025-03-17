@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -18,7 +19,8 @@ import ReactFlow, {
   Panel,
   MarkerType,
   getBezierPath,
-  EdgeLabelRenderer
+  EdgeLabelRenderer,
+  EdgeProps
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import FlowNode from './FlowNode';
@@ -46,7 +48,19 @@ import { columns } from '@/data/flowData';
 import { toPng } from 'html-to-image';
 import ShortcutHelpModal from './ShortcutHelpModal';
 
-const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style = {}, markerEnd, data }) => {
+// Moving the ButtonEdge component definition to fix "used before declaration" error
+const ButtonEdge = ({ 
+  id, 
+  sourceX, 
+  sourceY, 
+  targetX, 
+  targetY, 
+  sourcePosition, 
+  targetPosition, 
+  style = {}, 
+  markerEnd, 
+  data 
+}: EdgeProps) => {
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -56,7 +70,7 @@ const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, ta
     targetPosition,
   });
 
-  const onEdgeClick = (e) => {
+  const onEdgeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (data && data.onDelete) {
       data.onDelete(id);
@@ -114,6 +128,13 @@ const FlowChart = () => {
   
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<any>(null);
+
+  // Define handleDeleteEdge before it's used
+  const handleDeleteEdge = useCallback((edgeId: string) => {
+    saveCurrentState();
+    setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
+    toast.success('Koneksi berhasil dihapus');
+  }, [setEdges]);
 
   const saveCurrentState = useCallback(() => {
     setUndoStack(prev => [...prev, { 
@@ -268,12 +289,6 @@ const FlowChart = () => {
     setEdges(eds => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
   };
 
-  const handleDeleteEdge = useCallback((edgeId: string) => {
-    saveCurrentState();
-    setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
-    toast.success('Koneksi berhasil dihapus');
-  }, [saveCurrentState, setEdges]);
-
   const handleUndo = () => {
     if (undoStack.length === 0) return;
     const currentState = {
@@ -350,7 +365,7 @@ const FlowChart = () => {
     }
   
     setTimeout(() => {
-      toPng(targetElement, { 
+      toPng(targetElement as HTMLElement, { 
         backgroundColor: '#ffffff',
         quality: 1,
         pixelRatio: 2,
@@ -363,14 +378,14 @@ const FlowChart = () => {
           if (node.className !== undefined && node.className !== null) {
             if (typeof node.className === 'string') {
               classStr = node.className;
-            } else if (node.className.baseVal !== undefined) {
+            } else if (node.className instanceof SVGAnimatedString) {
               classStr = node.className.baseVal;
             } else if (typeof node.className.toString === 'function') {
               classStr = node.className.toString();
             }
           }
           
-          const checkClass = (str, className) => {
+          const checkClass = (str: string, className: string) => {
             return str.indexOf(className) === -1;
           };
           
@@ -393,7 +408,7 @@ const FlowChart = () => {
         toast.error("Gagal menyimpan gambar: " + error.message);
         
         try {
-          toPng(targetElement, { 
+          toPng(targetElement as HTMLElement, { 
             backgroundColor: '#ffffff',
             quality: 1,
             pixelRatio: 2
@@ -448,8 +463,9 @@ const FlowChart = () => {
   }, [handleDeleteEdge]);
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      if (activeElement && ['INPUT', 'TEXTAREA'].includes(activeElement.tagName)) {
         return;
       }
 
