@@ -47,6 +47,12 @@ import { columns } from '@/data/flowData';
 import { toPng } from 'html-to-image';
 import ShortcutHelpModal from './ShortcutHelpModal';
 
+const handleDeleteEdge = (edgeId: string, setEdges: React.Dispatch<React.SetStateAction<Edge[]>>, saveCurrentState: () => void) => {
+  saveCurrentState();
+  setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
+  toast.success('Koneksi berhasil dihapus');
+};
+
 const ButtonEdge = ({ 
   id, 
   sourceX, 
