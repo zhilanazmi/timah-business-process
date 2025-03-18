@@ -29,6 +29,7 @@ const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCr
     description: "",
     column: "",
     nodeType: "customNode",
+    link: "",
     details: {
       "Process Owner": "",
       "Duration": "",
@@ -68,6 +69,7 @@ const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCr
         label: formData.label,
         description: formData.description,
         column: formData.column,
+        link: formData.link,
         details: formData.details
       }
     };
@@ -82,6 +84,7 @@ const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCr
       description: "",
       column: "",
       nodeType: "customNode",
+      link: "",
       details: {
         "Process Owner": "",
         "Duration": "",
@@ -161,6 +164,18 @@ const NodeCreationModal = ({ open, onOpenChange, onCreateNode, columns }: NodeCr
               onChange={(e) => handleChange("description", e.target.value)}
               className="col-span-3"
               rows={2}
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="link" className="text-right">
+              Link
+            </Label>
+            <Input
+              id="link"
+              value={formData.link}
+              onChange={(e) => handleChange("link", e.target.value)}
+              className="col-span-3"
+              placeholder="https://example.com"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">

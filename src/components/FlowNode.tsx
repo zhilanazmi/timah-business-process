@@ -1,5 +1,7 @@
+
 import { memo } from 'react';
 import { Handle, Position, NodeProps, NodeResizer } from 'reactflow';
+import { ExternalLink } from 'lucide-react';
 
 const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
   // For header nodes, render a special header style
@@ -33,6 +35,15 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
   };
 
   const nodeStyle = getBgColor();
+  
+  // Create a function to open the link
+  const handleLinkClick = (e: React.MouseEvent) => {
+    if (data.link) {
+      e.stopPropagation(); // Prevent node selection
+      const url = data.link.startsWith('http') ? data.link : `https://${data.link}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   return (
     <div className={`p-3.5 rounded-md shadow-md border-2 transition-colors ${nodeStyle} relative`}>
@@ -62,12 +73,24 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         isConnectable={isConnectable}
       />
       
-      <div className="font-medium text-sm">{data.label}</div>
+      <div className="flex justify-between items-start gap-1">
+        <div className="font-medium text-sm">{data.label}</div>
+        {data.link && (
+          <ExternalLink 
+            size={14} 
+            className="text-blue-500 flex-shrink-0 cursor-pointer" 
+            onClick={handleLinkClick}
+            title="Buka link di tab baru"
+          />
+        )}
+      </div>
+      
       {data.description && (
         <div className="text-xs text-gray-600 mt-1 line-clamp-2">
           {data.description}
         </div>
       )}
+      
       {/* Tampilkan process owner jika ada */}
       {data.details?.["Process Owner"] && (
         <div className="text-xs bg-gray-100 px-1.5 py-0.5 rounded mt-1.5 inline-block">

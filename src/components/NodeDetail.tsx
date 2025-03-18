@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
-import { Trash } from 'lucide-react';
+import { Trash, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface NodeDetailProps {
@@ -59,6 +59,12 @@ const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDele
     onClose();
   };
 
+  const openLink = (url: string) => {
+    // Add protocol if not present
+    const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
+    window.open(formattedUrl, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="fixed inset-0 bg-black/20 flex justify-end z-10">
       <div className="bg-white shadow-lg border p-4 w-[350px] h-full overflow-y-auto">
@@ -95,6 +101,29 @@ const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDele
               placeholder="Berikan uraian lengkap tentang kegiatan ini"
             />
             <p className="text-xs text-gray-500 mt-1">Uraian kegiatan tidak akan ditampilkan pada elemen, hanya tersedia di detail.</p>
+          </div>
+          
+          <div>
+            <Label htmlFor="link">Link</Label>
+            <div className="flex gap-2">
+              <Input 
+                id="link" 
+                value={nodeData.link || ''} 
+                onChange={(e) => handleChange('link', e.target.value)}
+                placeholder="https://example.com"
+              />
+              {nodeData.link && (
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => openLink(nodeData.link)}
+                  title="Buka link di tab baru"
+                >
+                  <ExternalLink size={16} />
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Link terkait dengan elemen ini</p>
           </div>
           
           {/* Details section */}
