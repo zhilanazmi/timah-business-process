@@ -376,6 +376,16 @@ const FlowChart = () => {
       return;
     }
   
+    // Get all handles
+    const handles = reactFlowWrapper.current.querySelectorAll('.react-flow__handle');
+    
+    // Store their original display values and hide them
+    const originalDisplayValues = Array.from(handles).map(handle => {
+      const originalDisplay = (handle as HTMLElement).style.display;
+      (handle as HTMLElement).style.display = 'none';
+      return originalDisplay;
+    });
+  
     setTimeout(() => {
       toPng(targetElement as HTMLElement, { 
         backgroundColor: '#ffffff',
@@ -403,9 +413,11 @@ const FlowChart = () => {
             return str.indexOf(className) === -1;
           };
           
+          // Add handle to the filter
           return checkClass(classStr, 'react-flow__controls') && 
                  checkClass(classStr, 'react-flow__minimap') && 
                  checkClass(classStr, 'react-flow__panel') &&
+                 checkClass(classStr, 'react-flow__handle') && // This filters out any handles that weren't hidden
                  checkClass(classStr, 'toast-');
         }
       })
@@ -416,12 +428,23 @@ const FlowChart = () => {
         link.href = dataUrl;
         link.click();
         toast.success("Diagram berhasil disimpan sebagai gambar");
+        
+        // Restore handles visibility
+        handles.forEach((handle, index) => {
+          (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
+        });
       })
       .catch((error) => {
         console.error('Error saat menyimpan gambar:', error);
         toast.error("Gagal menyimpan gambar: " + error.message);
         
+        // Restore handles visibility even on error
+        handles.forEach((handle, index) => {
+          (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
+        });
+        
         try {
+          // Fallback method
           toPng(targetElement as HTMLElement, { 
             backgroundColor: '#ffffff',
             quality: 1,
