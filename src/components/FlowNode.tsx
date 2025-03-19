@@ -80,7 +80,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
             size={14} 
             className="text-blue-500 flex-shrink-0 cursor-pointer" 
             onClick={handleLinkClick}
-            title="Buka link di tab baru"
+            aria-label="Open link in new tab"
           />
         )}
       </div>

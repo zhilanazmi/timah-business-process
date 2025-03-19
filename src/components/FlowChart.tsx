@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -10,125 +11,30 @@ import ReactFlow, {
   Node,
   Edge,
   Connection,
-  NodeChange,
-  EdgeChange,
-  applyNodeChanges,
-  applyEdgeChanges,
   BackgroundVariant,
   Panel,
   MarkerType,
-  getBezierPath,
-  EdgeLabelRenderer,
-  EdgeProps
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import FlowNode from './FlowNode';
-import { TerminatorNode, DiamondNode, DocumentNode } from './ShapeNodes';
 import NodeDetail from './NodeDetail';
 import { initialNodes, initialEdges } from '@/data/flowData';
-import { Button } from './ui/button';
-import { 
-  Plus, 
-  Save, 
-  Download, 
-  Upload,
-  Trash, 
-  Undo, 
-  Redo, 
-  ZoomIn, 
-  ZoomOut,
-  Columns,
-  ImageDown,
-  HelpCircle
-} from 'lucide-react';
 import { toast } from 'sonner';
 import NodeCreationModal from './NodeCreationModal';
 import AddColumnModal from './AddColumnModal';
 import { columns } from '@/data/flowData';
-import { toPng } from 'html-to-image';
 import ShortcutHelpModal from './ShortcutHelpModal';
 import { importFromJson, saveToLocalStorage, exportToJson, saveAsImage } from '@/utils/exportUtils';
 import FlowToolbar from './flow/FlowToolbar';
-
-const handleDeleteEdge = (edgeId: string, setEdges: React.Dispatch<React.SetStateAction<Edge[]>>, saveCurrentState: () => void) => {
-  saveCurrentState();
-  setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
-  toast.success('Koneksi berhasil dihapus');
-};
-
-const ButtonEdge = ({ 
-  id, 
-  sourceX, 
-  sourceY, 
-  targetX, 
-  targetY, 
-  sourcePosition, 
-  targetPosition, 
-  style = {}, 
-  markerEnd, 
-  data,
-  selected
-}: EdgeProps) => {
-  const [edgePath, labelX, labelY] = getBezierPath({
-    sourceX,
-    sourceY,
-    sourcePosition,
-    targetX,
-    targetY,
-    targetPosition,
-  });
-
-  const onEdgeClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (data && data.onDelete) {
-      data.onDelete(id);
-    }
-  };
-
-  return (
-    <>
-      <path 
-        id={id} 
-        style={style} 
-        className="react-flow__edge-path" 
-        d={edgePath} 
-        markerEnd={markerEnd}
-      />
-      {selected && (
-        <EdgeLabelRenderer>
-          <div
-            style={{
-              position: 'absolute',
-              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-              zIndex: 1,
-              pointerEvents: 'all',
-            }}
-            className="nodrag nopan"
-          >
-            <button
-              onClick={onEdgeClick}
-              className="w-5 h-5 flex items-center justify-center bg-white rounded-full border border-gray-300 shadow-sm hover:bg-red-100 hover:border-red-300 transition-colors"
-              title="Delete connection"
-            >
-              ×
-            </button>
-          </div>
-        </EdgeLabelRenderer>
-      )}
-    </>
-  );
-};
-
-const nodeTypes = {
-  customNode: FlowNode,
-  terminatorNode: TerminatorNode,
-  diamondNode: DiamondNode,
-  documentNode: DocumentNode,
-};
-
-const edgeTypes = {
-  buttonEdge: ButtonEdge,
-};
+import { nodeTypes, edgeTypes } from './flow/flowTypes';
+import { 
+  handleDeleteEdge, 
+  handleNodesChange, 
+  handleEdgesChange, 
+  handleConnect,
+  createEdgeWithDeleteHandler
+} from '@/utils/flowUtils';
+import { useFlowShortcuts } from '@/hooks/useFlowShortcuts';
+import ZoomControls from './flow/ZoomControls';
 
 const FlowChart = () => {
   const [nodes, setNodes] = useNodesState(initialNodes);
@@ -146,12 +52,7 @@ const FlowChart = () => {
   const reactFlowInstance = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleDeleteEdge = useCallback((edgeId: string) => {
-    saveCurrentState();
-    setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
-    toast.success('Koneksi berhasil dihapus');
-  }, [setEdges]);
-
+  // Save current state for undo/redo functionality
   const saveCurrentState = useCallback(() => {
     setUndoStack(prev => [...prev, { 
       nodes: JSON.parse(JSON.stringify(nodes)), 
@@ -160,54 +61,29 @@ const FlowChart = () => {
     setRedoStack([]);
   }, [nodes, edges]);
 
+  // Edge deletion handler
+  const handleEdgeDelete = useCallback((edgeId: string) => {
+    handleDeleteEdge(edgeId, setEdges, saveCurrentState);
+  }, [setEdges, saveCurrentState]);
+
+  // Nodes and edges change handlers
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) => {
-      const nonPositionChanges = changes.filter(
-        change => change.type !== 'position' && change.type !== 'select'
-      );
-      if (nonPositionChanges.length > 0) {
-        saveCurrentState();
-      }
-      setNodes(nds => applyNodeChanges(changes, nds));
-    },
+    (changes) => handleNodesChange(changes, setNodes, saveCurrentState),
     [saveCurrentState, setNodes]
   );
 
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => {
-      const nonSelectChanges = changes.filter(change => change.type !== 'select');
-      if (nonSelectChanges.length > 0) {
-        saveCurrentState();
-      }
-      setEdges(eds => applyEdgeChanges(changes, eds));
-    },
+    (changes) => handleEdgesChange(changes, setEdges, saveCurrentState),
     [saveCurrentState, setEdges]
   );
 
+  // Connection handler
   const onConnect = useCallback(
-    (params: Connection) => {
-      saveCurrentState();
-      setEdges(eds => addEdge({ 
-        ...params, 
-        animated: true,
-        type: 'buttonEdge',
-        style: { strokeWidth: 2, stroke: '#555' },
-        data: { 
-          label: 'Hubungan',
-          onDelete: handleDeleteEdge
-        },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 20,
-          height: 20,
-          color: '#555'
-        }
-      }, eds));
-      toast.success('Elemen berhasil dihubungkan');
-    },
-    [saveCurrentState, setEdges, handleDeleteEdge]
+    (params: Connection) => handleConnect(params, setEdges, saveCurrentState, handleEdgeDelete),
+    [saveCurrentState, setEdges, handleEdgeDelete]
   );
 
+  // Node and edge selection handlers
   const onNodeClick = (_: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
     setSelectedEdge(null);
@@ -232,6 +108,7 @@ const FlowChart = () => {
     saveCurrentState();
   }, [saveCurrentState]);
 
+  // Node modification handlers
   const handleCreateNode = (nodeData: Omit<Node, "id" | "position">) => {
     saveCurrentState();
     const sameColumnNodes = nodes.filter(node => 
@@ -305,6 +182,7 @@ const FlowChart = () => {
     setEdges(eds => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
   };
 
+  // Undo/Redo handlers
   const handleUndo = () => {
     if (undoStack.length === 0) return;
     const currentState = {
@@ -333,143 +211,17 @@ const FlowChart = () => {
     toast.info("Redo berhasil");
   };
 
+  // Save, Export, Import handlers
   const handleSave = () => {
-    const flowData = {
-      nodes: nodes.filter(node => !node.data.isHeader),
-      edges
-    };
-    localStorage.setItem('flowChart', JSON.stringify(flowData));
-    toast.success("Diagram berhasil disimpan");
+    saveToLocalStorage(nodes, edges);
   };
 
   const handleExport = () => {
-    if (reactFlowInstance.current) {
-      const flowData = reactFlowInstance.current.toObject();
-      const dataStr = JSON.stringify(flowData);
-      const dataUri =
-        'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-      const exportFileDefaultName = 'flowchart-export.json';
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', exportFileDefaultName);
-      linkElement.click();
-      toast.success("Diagram berhasil diexport");
-    }
+    exportToJson(reactFlowInstance);
   };
 
   const handleSaveAsImage = () => {
-    if (!reactFlowWrapper.current) {
-      toast.error("Referensi diagram tidak ditemukan");
-      return;
-    }
-  
-    const reactFlowNode = reactFlowWrapper.current.querySelector('.react-flow');
-    
-    if (!reactFlowNode) {
-      toast.error("Tidak dapat menemukan elemen diagram");
-      return;
-    }
-    
-    toast.info("Sedang memproses gambar...");
-    
-    const viewport = reactFlowNode.querySelector('.react-flow__viewport');
-    const targetElement = viewport || reactFlowNode;
-    
-    if (!targetElement) {
-      toast.error("Tidak dapat menemukan konten diagram");
-      return;
-    }
-  
-    // Get all handles
-    const handles = reactFlowWrapper.current.querySelectorAll('.react-flow__handle');
-    
-    // Store their original display values and hide them
-    const originalDisplayValues = Array.from(handles).map(handle => {
-      const originalDisplay = (handle as HTMLElement).style.display;
-      (handle as HTMLElement).style.display = 'none';
-      return originalDisplay;
-    });
-  
-    setTimeout(() => {
-      toPng(targetElement as HTMLElement, { 
-        backgroundColor: '#ffffff',
-        quality: 1,
-        pixelRatio: 2,
-        cacheBust: true, 
-        filter: (node) => {
-          if (!node) return true;
-          
-          let classStr = "";
-          
-          if (node.className !== undefined && node.className !== null) {
-            if (typeof node.className === 'string') {
-              classStr = node.className;
-            } else if (node.className && typeof node.className === 'object') {
-              if ('baseVal' in node.className) {
-                classStr = (node.className as SVGAnimatedString).baseVal;
-              } else if (typeof (node.className as any).toString === 'function') {
-                classStr = (node.className as any).toString();
-              }
-            }
-          }
-          
-          const checkClass = (str: string, className: string) => {
-            return str.indexOf(className) === -1;
-          };
-          
-          // Add handle to the filter
-          return checkClass(classStr, 'react-flow__controls') && 
-                 checkClass(classStr, 'react-flow__minimap') && 
-                 checkClass(classStr, 'react-flow__panel') &&
-                 checkClass(classStr, 'react-flow__handle') && // This filters out any handles that weren't hidden
-                 checkClass(classStr, 'toast-');
-        }
-      })
-      .then((dataUrl) => {
-        const tanggal = new Date().toISOString().split('T')[0];
-        const link = document.createElement('a');
-        link.download = `flowchart-${tanggal}.png`;
-        link.href = dataUrl;
-        link.click();
-        toast.success("Diagram berhasil disimpan sebagai gambar");
-        
-        // Restore handles visibility
-        handles.forEach((handle, index) => {
-          (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
-        });
-      })
-      .catch((error) => {
-        console.error('Error saat menyimpan gambar:', error);
-        toast.error("Gagal menyimpan gambar: " + error.message);
-        
-        // Restore handles visibility even on error
-        handles.forEach((handle, index) => {
-          (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
-        });
-        
-        try {
-          // Fallback method
-          toPng(targetElement as HTMLElement, { 
-            backgroundColor: '#ffffff',
-            quality: 1,
-            pixelRatio: 2
-          })
-          .then((dataUrl) => {
-            const tanggal = new Date().toISOString().split('T')[0];
-            const link = document.createElement('a');
-            link.download = `flowchart-${tanggal}-alt.png`;
-            link.href = dataUrl;
-            link.click();
-            toast.success("Diagram berhasil disimpan dengan metode alternatif");
-          })
-          .catch((fallbackError) => {
-            toast.error("Semua metode gagal menyimpan gambar");
-          });
-        } catch (fallbackError) {
-          toast.error("Gagal menggunakan metode alternatif");
-        }
-      });
-    }, 100);
+    saveAsImage(reactFlowWrapper);
   };
 
   const handleZoomIn = () => {
@@ -514,96 +266,36 @@ const FlowChart = () => {
     }
   };
 
+  // Update edges to include delete handler
   useEffect(() => {
     setEdges(currentEdges => 
-      currentEdges.map(edge => ({
-        ...edge,
-        type: 'buttonEdge',
-        data: {
-          ...edge.data,
-          onDelete: handleDeleteEdge
-        }
-      }))
+      currentEdges.map(edge => createEdgeWithDeleteHandler(edge, handleEdgeDelete))
     );
-  }, [handleDeleteEdge]);
+  }, [handleEdgeDelete]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const activeElement = document.activeElement;
-      if (activeElement && ['INPUT', 'TEXTAREA'].includes(activeElement.tagName)) {
-        return;
-      }
-
-      const ctrlOrCmd = event.ctrlKey || event.metaKey;
-
-      if (ctrlOrCmd && event.key === 'n') {
-        event.preventDefault();
-        setIsModalOpen(true);
-      }
-      else if (ctrlOrCmd && event.shiftKey && event.key === 'c') {
-        event.preventDefault();
-        setIsColumnModalOpen(true);
-      }
-      else if (ctrlOrCmd && !event.shiftKey && event.key === 'z' && undoStack.length > 0) {
-        event.preventDefault();
-        handleUndo();
-      }
-      else if ((ctrlOrCmd && event.shiftKey && event.key === 'z') || 
-               (ctrlOrCmd && event.key === 'y')) {
-        event.preventDefault();
-        if (redoStack.length > 0) handleRedo();
-      }
-      else if (ctrlOrCmd && !event.shiftKey && event.key === 's') {
-        event.preventDefault();
-        handleSave();
-      }
-      else if (ctrlOrCmd && event.key === 'e') {
-        event.preventDefault();
-        handleExport();
-      }
-      else if (ctrlOrCmd && event.key === 'i') {
-        event.preventDefault();
-        handleImport();
-      }
-      else if (ctrlOrCmd && event.shiftKey && event.key === 's') {
-        event.preventDefault();
-        handleSaveAsImage();
-      }
-      else if (ctrlOrCmd && (event.key === '+' || event.key === '=')) {
-        event.preventDefault();
-        handleZoomIn();
-      }
-      else if (ctrlOrCmd && event.key === '-') {
-        event.preventDefault();
-        handleZoomOut();
-      }
-      else if (ctrlOrCmd && event.key === '0') {
-        event.preventDefault();
-        handleFitView();
-      }
-      else if ((event.key === 'Delete' || event.key === 'Backspace') && selectedNode) {
-        event.preventDefault();
+  // Register keyboard shortcuts
+  useFlowShortcuts({
+    onAddNode: () => setIsModalOpen(true),
+    onAddColumn: () => setIsColumnModalOpen(true),
+    onUndo: handleUndo,
+    onRedo: handleRedo,
+    onSave: handleSave,
+    onExport: handleExport,
+    onSaveAsImage: handleSaveAsImage,
+    onZoomIn: handleZoomIn,
+    onZoomOut: handleZoomOut,
+    onFitView: handleFitView,
+    onDeleteSelectedNode: () => {
+      if (selectedNode) {
         deleteNode(selectedNode.id);
         setSelectedNode(null);
       }
-      else if (event.key === '?') {
-        event.preventDefault();
-        setIsShortcutHelpOpen(true);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [
-    setIsModalOpen, setIsColumnModalOpen, 
-    handleUndo, handleRedo, undoStack.length, redoStack.length,
-    handleSave, handleExport, handleSaveAsImage,
-    handleZoomIn, handleZoomOut, handleFitView, 
-    selectedNode, deleteNode, setIsShortcutHelpOpen
-  ]);
+    },
+    onShowShortcuts: () => setIsShortcutHelpOpen(true),
+    canUndo: undoStack.length > 0,
+    canRedo: redoStack.length > 0,
+    selectedNode
+  });
 
   return (
     <div className="h-full flex flex-col">
@@ -661,7 +353,7 @@ const FlowChart = () => {
             defaultEdgeOptions={{
               type: 'buttonEdge',
               data: {
-                onDelete: handleDeleteEdge
+                onDelete: handleEdgeDelete
               },
             }}
           >
@@ -669,24 +361,7 @@ const FlowChart = () => {
             <MiniMap zoomable pannable nodeClassName={node => node.type} />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <Panel position="bottom-right" className="bg-white p-2 rounded shadow-sm">
-              <div className="flex gap-2">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={handleZoomIn}
-                  title="Perbesar (Ctrl+Plus)"
-                >
-                  <ZoomIn size={16} />
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={handleZoomOut}
-                  title="Perkecil (Ctrl+Minus)"
-                >
-                  <ZoomOut size={16} />
-                </Button>
-              </div>
+              <ZoomControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
             </Panel>
           </ReactFlow>
         </ReactFlowProvider>
