@@ -1,6 +1,6 @@
 
 import { Button } from '../ui/button';
-import { Plus, Save, Download, Undo, Redo, Columns, ImageDown, HelpCircle } from 'lucide-react';
+import { Plus, Save, Download, Upload, Undo, Redo, Columns, ImageDown, HelpCircle } from 'lucide-react';
 
 interface FlowToolbarProps {
   onAddNode: () => void;
@@ -9,6 +9,7 @@ interface FlowToolbarProps {
   onRedo: () => void;
   onSave: () => void;
   onExport: () => void;
+  onImport: () => void;
   onSaveAsImage: () => void;
   onShowShortcuts: () => void;
   canUndo: boolean;
@@ -22,6 +23,7 @@ const FlowToolbar = ({
   onRedo,
   onSave,
   onExport,
+  onImport,
   onSaveAsImage,
   onShowShortcuts,
   canUndo,
@@ -94,6 +96,15 @@ const FlowToolbar = ({
         >
           <Download size={16} className="mr-1" />
           Export
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onImport}
+          title="Import (Ctrl+I)"
+        >
+          <Upload size={16} className="mr-1" />
+          Import
         </Button>
         <Button
           size="sm"

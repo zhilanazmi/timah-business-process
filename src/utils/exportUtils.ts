@@ -1,6 +1,7 @@
 
 import { toPng } from 'html-to-image';
 import { toast } from 'sonner';
+import { Edge, Node } from 'reactflow';
 
 /**
  * Saves the flow chart as an image
@@ -113,6 +114,45 @@ export const exportToJson = (reactFlowInstance: any) => {
     linkElement.click();
     toast.success("Diagram berhasil diexport");
   }
+};
+
+/**
+ * Imports flow chart data from JSON file
+ */
+export const importFromJson = (
+  file: File,
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>>,
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>,
+  onImportSuccess?: () => void
+) => {
+  const reader = new FileReader();
+  
+  reader.onload = (event) => {
+    try {
+      const result = event.target?.result;
+      if (typeof result === 'string') {
+        const flowData = JSON.parse(result);
+        
+        if (flowData && flowData.nodes && flowData.edges) {
+          setNodes(flowData.nodes);
+          setEdges(flowData.edges);
+          toast.success("Diagram berhasil diimport");
+          if (onImportSuccess) onImportSuccess();
+        } else {
+          toast.error("Format file tidak valid");
+        }
+      }
+    } catch (error) {
+      console.error('Error importing flow data:', error);
+      toast.error("Gagal mengimport diagram");
+    }
+  };
+  
+  reader.onerror = () => {
+    toast.error("Gagal membaca file");
+  };
+  
+  reader.readAsText(file);
 };
 
 /**

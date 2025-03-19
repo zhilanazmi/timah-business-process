@@ -31,6 +31,7 @@ import {
   Plus, 
   Save, 
   Download, 
+  Upload,
   Trash, 
   Undo, 
   Redo, 
@@ -46,6 +47,8 @@ import AddColumnModal from './AddColumnModal';
 import { columns } from '@/data/flowData';
 import { toPng } from 'html-to-image';
 import ShortcutHelpModal from './ShortcutHelpModal';
+import { importFromJson, saveToLocalStorage, exportToJson, saveAsImage } from '@/utils/exportUtils';
+import FlowToolbar from './flow/FlowToolbar';
 
 const handleDeleteEdge = (edgeId: string, setEdges: React.Dispatch<React.SetStateAction<Edge[]>>, saveCurrentState: () => void) => {
   saveCurrentState();
@@ -141,6 +144,7 @@ const FlowChart = () => {
   
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDeleteEdge = useCallback((edgeId: string) => {
     saveCurrentState();
@@ -486,6 +490,30 @@ const FlowChart = () => {
     }
   };
 
+  const handleImport = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      saveCurrentState();
+      importFromJson(file, setNodes, setEdges, () => {
+        if (reactFlowInstance.current) {
+          setTimeout(() => {
+            reactFlowInstance.current.fitView();
+          }, 50);
+        }
+      });
+      // Reset file input so the same file can be uploaded again
+      if (event.target) {
+        event.target.value = '';
+      }
+    }
+  };
+
   useEffect(() => {
     setEdges(currentEdges => 
       currentEdges.map(edge => ({
@@ -527,11 +555,15 @@ const FlowChart = () => {
       }
       else if (ctrlOrCmd && !event.shiftKey && event.key === 's') {
         event.preventDefault();
-        handleSaveAsImage();
+        handleSave();
       }
       else if (ctrlOrCmd && event.key === 'e') {
         event.preventDefault();
         handleExport();
+      }
+      else if (ctrlOrCmd && event.key === 'i') {
+        event.preventDefault();
+        handleImport();
       }
       else if (ctrlOrCmd && event.shiftKey && event.key === 's') {
         event.preventDefault();
@@ -575,84 +607,27 @@ const FlowChart = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center p-2 bg-gray-100 rounded mb-2">
-        <div className="flex items-center gap-2">
-          <Button 
-            size="sm" 
-            onClick={() => setIsModalOpen(true)} 
-            className="flex items-center gap-1"
-            title="Tambah Elemen (Ctrl+N)"
-          >
-            <Plus size={16} />
-            Tambah Elemen
-          </Button>
-          <Button 
-            size="sm" 
-            onClick={() => setIsColumnModalOpen(true)} 
-            className="flex items-center gap-1"
-            title="Tambah Kolom (Ctrl+Shift+C)"
-          >
-            <Columns size={16} />
-            Tambah Kolom
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleUndo}
-            disabled={undoStack.length === 0}
-            title="Undo (Ctrl+Z)"
-          >
-            <Undo size={16} />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleRedo}
-            disabled={redoStack.length === 0}
-            title="Redo (Ctrl+Shift+Z or Ctrl+Y)"
-          >
-            <Redo size={16} />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setIsShortcutHelpOpen(true)}
-            title="Bantuan Shortcut (Tekan ?)"
-            className="ml-2"
-          >
-            <HelpCircle size={16} />
-          </Button>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleSave}
-            title="Simpan (Ctrl+S)"
-          >
-            <Save size={16} className="mr-1" />
-            Simpan
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleExport}
-            title="Export (Ctrl+E)"
-          >
-            <Download size={16} className="mr-1" />
-            Export
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleSaveAsImage}
-            title="Simpan sebagai Gambar (Ctrl+Shift+S)"
-          >
-            <ImageDown size={16} className="mr-1" />
-            Simpan Gambar
-          </Button>
-        </div>
-      </div>
+      <FlowToolbar 
+        onAddNode={() => setIsModalOpen(true)}
+        onAddColumn={() => setIsColumnModalOpen(true)}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onSave={handleSave}
+        onExport={handleExport}
+        onImport={handleImport}
+        onSaveAsImage={handleSaveAsImage}
+        onShowShortcuts={() => setIsShortcutHelpOpen(true)}
+        canUndo={undoStack.length > 0}
+        canRedo={redoStack.length > 0}
+      />
+      
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="hidden" 
+        accept=".json" 
+        onChange={handleFileUpload} 
+      />
       
       <div 
         className="flex-1 relative" 

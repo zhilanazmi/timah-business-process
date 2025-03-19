@@ -1,4 +1,3 @@
-
 import { Node, Edge, MarkerType } from 'reactflow';
 
 const columnWidth = 200;
@@ -224,32 +223,5 @@ export const initialNodes: Node[] = [
   })),
 ];
 
-// Initialize with some edge connections, now with arrow markers
-export const initialEdges: Edge[] = [
-  // {
-  //   id: 'e1-2',
-  //   source: '1',
-  //   target: '2',
-  //   animated: true,
-  //   style: { strokeWidth: 2, stroke: '#555' },
-  //   markerEnd: {
-  //     type: MarkerType.ArrowClosed,
-  //     width: 20,
-  //     height: 20,
-  //     color: '#555',
-  //   },
-  // },
-  // {
-  //   id: 'e2-3',
-  //   source: '2',
-  //   target: '3',
-  //   animated: true,
-  //   style: { strokeWidth: 2, stroke: '#555' },
-  //   markerEnd: {
-  //     type: MarkerType.ArrowClosed,
-  //     width: 20,
-  //     height: 20,
-  //     color: '#555',
-  //   },
-  // },
-];
+// Initialize with empty edges array
+export const initialEdges: Edge[] = [];
