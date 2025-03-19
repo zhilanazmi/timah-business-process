@@ -1,4 +1,3 @@
-
 import FlowChart from '@/components/FlowChart';
 import { Info } from 'lucide-react';
 
@@ -23,7 +22,7 @@ const Index = () => {
           </div>
         </div> */}
       </div>
-      <div className="h-[calc(100vh-200px)] border rounded-md shadow-sm overflow-hidden">
+      <div className="h-[calc(100vh-100px)] border rounded-md shadow-sm overflow-hidden">
         <FlowChart />
       </div>
     </main>

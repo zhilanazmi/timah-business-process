@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -52,7 +51,6 @@ const FlowChart = () => {
   const reactFlowInstance = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Save current state for undo/redo functionality
   const saveCurrentState = useCallback(() => {
     setUndoStack(prev => [...prev, { 
       nodes: JSON.parse(JSON.stringify(nodes)), 
@@ -61,12 +59,10 @@ const FlowChart = () => {
     setRedoStack([]);
   }, [nodes, edges]);
 
-  // Edge deletion handler
   const handleEdgeDelete = useCallback((edgeId: string) => {
     handleDeleteEdge(edgeId, setEdges, saveCurrentState);
   }, [setEdges, saveCurrentState]);
 
-  // Nodes and edges change handlers
   const onNodesChange = useCallback(
     (changes) => handleNodesChange(changes, setNodes, saveCurrentState),
     [saveCurrentState, setNodes]
@@ -77,13 +73,11 @@ const FlowChart = () => {
     [saveCurrentState, setEdges]
   );
 
-  // Connection handler
   const onConnect = useCallback(
     (params: Connection) => handleConnect(params, setEdges, saveCurrentState, handleEdgeDelete),
     [saveCurrentState, setEdges, handleEdgeDelete]
   );
 
-  // Node and edge selection handlers
   const onNodeClick = (_: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
     setSelectedEdge(null);
@@ -108,7 +102,6 @@ const FlowChart = () => {
     saveCurrentState();
   }, [saveCurrentState]);
 
-  // Node modification handlers
   const handleCreateNode = (nodeData: Omit<Node, "id" | "position">) => {
     saveCurrentState();
     const sameColumnNodes = nodes.filter(node => 
@@ -182,7 +175,6 @@ const FlowChart = () => {
     setEdges(eds => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
   };
 
-  // Undo/Redo handlers
   const handleUndo = () => {
     if (undoStack.length === 0) return;
     const currentState = {
@@ -211,7 +203,6 @@ const FlowChart = () => {
     toast.info("Redo berhasil");
   };
 
-  // Save, Export, Import handlers
   const handleSave = () => {
     saveToLocalStorage(nodes, edges);
   };
@@ -259,21 +250,18 @@ const FlowChart = () => {
           }, 50);
         }
       });
-      // Reset file input so the same file can be uploaded again
       if (event.target) {
         event.target.value = '';
       }
     }
   };
 
-  // Update edges to include delete handler
   useEffect(() => {
     setEdges(currentEdges => 
       currentEdges.map(edge => createEdgeWithDeleteHandler(edge, handleEdgeDelete))
     );
   }, [handleEdgeDelete]);
 
-  // Register keyboard shortcuts
   useFlowShortcuts({
     onAddNode: () => setIsModalOpen(true),
     onAddColumn: () => setIsColumnModalOpen(true),
@@ -298,7 +286,7 @@ const FlowChart = () => {
   });
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full w-full flex flex-col">
       <FlowToolbar 
         onAddNode={() => setIsModalOpen(true)}
         onAddColumn={() => setIsColumnModalOpen(true)}
@@ -322,7 +310,7 @@ const FlowChart = () => {
       />
       
       <div 
-        className="flex-1 relative" 
+        className="flex-1 h-full w-full relative" 
         ref={reactFlowWrapper}
         style={{
           cursor: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\'%3E%3Cpolygon points=\'0,0 0,16 4,12 8,0\' fill=\'black\'/%3E%3C/svg%3E") 0 0, auto'
