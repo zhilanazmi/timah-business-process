@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -35,8 +34,6 @@ import {
 } from '@/utils/flowUtils';
 import { useFlowShortcuts } from '@/hooks/useFlowShortcuts';
 import ZoomControls from './flow/ZoomControls';
-import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
-import { Lock, Unlock } from 'lucide-react';
 
 const FlowChart = () => {
   const [nodes, setNodes] = useNodesState(initialNodes);
@@ -49,7 +46,6 @@ const FlowChart = () => {
   const [availableColumns, setAvailableColumns] = useState(columns);
   const [undoStack, setUndoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
   const [redoStack, setRedoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
-  const [interactionMode, setInteractionMode] = useState<'edit' | 'view'>('edit');
   
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<any>(null);
@@ -260,11 +256,6 @@ const FlowChart = () => {
     }
   };
 
-  const handleToggleInteractivity = () => {
-    setInteractionMode(prev => prev === 'edit' ? 'view' : 'edit');
-    toast.info(`Mode ${interactionMode === 'edit' ? 'Lihat' : 'Edit'} aktif`);
-  };
-
   useEffect(() => {
     setEdges(currentEdges => 
       currentEdges.map(edge => createEdgeWithDeleteHandler(edge, handleEdgeDelete))
@@ -289,7 +280,6 @@ const FlowChart = () => {
       }
     },
     onShowShortcuts: () => setIsShortcutHelpOpen(true),
-    onToggleInteractivity: handleToggleInteractivity,
     canUndo: undoStack.length > 0,
     canRedo: redoStack.length > 0,
     selectedNode
@@ -309,8 +299,6 @@ const FlowChart = () => {
         onShowShortcuts={() => setIsShortcutHelpOpen(true)}
         canUndo={undoStack.length > 0}
         canRedo={redoStack.length > 0}
-        interactionMode={interactionMode}
-        onToggleInteractivity={handleToggleInteractivity}
       />
       
       <input 
@@ -346,13 +334,10 @@ const FlowChart = () => {
             }}
             fitView
             className="bg-gray-50"
-            connectOnClick={interactionMode === 'edit'}
-            nodesDraggable={interactionMode === 'edit'}
-            nodesConnectable={interactionMode === 'edit'}
-            elementsSelectable={interactionMode === 'edit'}
-            deleteKeyCode={interactionMode === 'edit' ? ['Backspace', 'Delete'] : null}
-            multiSelectionKeyCode={interactionMode === 'edit' ? ['Control', 'Meta'] : null}
-            selectionKeyCode={interactionMode === 'edit' ? ['Shift'] : null}
+            connectOnClick={true}
+            deleteKeyCode={['Backspace', 'Delete']}
+            multiSelectionKeyCode={['Control', 'Meta']}
+            selectionKeyCode={['Shift']}
             defaultEdgeOptions={{
               type: 'buttonEdge',
               data: {

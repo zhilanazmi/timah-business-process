@@ -14,7 +14,6 @@ interface ShortcutsProps {
   onFitView: () => void;
   onDeleteSelectedNode: () => void;
   onShowShortcuts: () => void;
-  onToggleInteractivity: () => void;
   canUndo: boolean;
   canRedo: boolean;
   selectedNode: any | null;
@@ -33,7 +32,6 @@ export const useFlowShortcuts = ({
   onFitView,
   onDeleteSelectedNode,
   onShowShortcuts,
-  onToggleInteractivity,
   canUndo,
   canRedo,
   selectedNode
@@ -96,10 +94,6 @@ export const useFlowShortcuts = ({
         event.preventDefault();
         onShowShortcuts();
       }
-      else if (ctrlOrCmd && event.key === 'i') {
-        event.preventDefault();
-        onToggleInteractivity();
-      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
@@ -122,7 +116,6 @@ export const useFlowShortcuts = ({
     onFitView, 
     selectedNode, 
     onDeleteSelectedNode, 
-    onShowShortcuts,
-    onToggleInteractivity
+    onShowShortcuts
   ]);
 };

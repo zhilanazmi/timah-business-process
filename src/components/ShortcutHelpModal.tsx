@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 const ShortcutHelpModal = ({ open, onOpenChange }) => {
@@ -14,7 +13,6 @@ const ShortcutHelpModal = ({ open, onOpenChange }) => {
     { action: "Perkecil", shortcut: "Ctrl/Cmd + Minus" },
     { action: "Tampilkan Seluruh Diagram", shortcut: "Ctrl/Cmd + 0" },
     { action: "Hapus Elemen Terpilih", shortcut: "Delete/Backspace" },
-    { action: "Toggle Interaktivitas", shortcut: "Ctrl/Cmd + I" },
     { action: "Bantuan Shortcut", shortcut: "?" },
   ];
 

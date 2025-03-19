@@ -1,6 +1,6 @@
 
 import { Button } from '../ui/button';
-import { Plus, Save, Download, Upload, Undo, Redo, Columns, ImageDown, HelpCircle, Lock, Unlock } from 'lucide-react';
+import { Plus, Save, Download, Upload, Undo, Redo, Columns, ImageDown, HelpCircle } from 'lucide-react';
 
 interface FlowToolbarProps {
   onAddNode: () => void;
@@ -12,8 +12,6 @@ interface FlowToolbarProps {
   onImport: () => void;
   onSaveAsImage: () => void;
   onShowShortcuts: () => void;
-  onToggleInteractivity: () => void;
-  interactionMode: 'edit' | 'view';
   canUndo: boolean;
   canRedo: boolean;
 }
@@ -28,8 +26,6 @@ const FlowToolbar = ({
   onImport,
   onSaveAsImage,
   onShowShortcuts,
-  onToggleInteractivity,
-  interactionMode,
   canUndo,
   canRedo
 }: FlowToolbarProps) => {
@@ -41,7 +37,6 @@ const FlowToolbar = ({
           onClick={onAddNode} 
           className="flex items-center gap-1"
           title="Tambah Elemen (Ctrl+N)"
-          disabled={interactionMode === 'view'}
         >
           <Plus size={16} />
           Tambah Elemen
@@ -51,7 +46,6 @@ const FlowToolbar = ({
           onClick={onAddColumn} 
           className="flex items-center gap-1"
           title="Tambah Kolom (Ctrl+Shift+C)"
-          disabled={interactionMode === 'view'}
         >
           <Columns size={16} />
           Tambah Kolom
@@ -60,7 +54,7 @@ const FlowToolbar = ({
           size="sm"
           variant="outline"
           onClick={onUndo}
-          disabled={!canUndo || interactionMode === 'view'}
+          disabled={!canUndo}
           title="Undo (Ctrl+Z)"
         >
           <Undo size={16} />
@@ -69,20 +63,10 @@ const FlowToolbar = ({
           size="sm"
           variant="outline"
           onClick={onRedo}
-          disabled={!canRedo || interactionMode === 'view'}
+          disabled={!canRedo}
           title="Redo (Ctrl+Shift+Z or Ctrl+Y)"
         >
           <Redo size={16} />
-        </Button>
-        <Button
-          size="sm"
-          variant={interactionMode === 'view' ? 'secondary' : 'outline'}
-          onClick={onToggleInteractivity}
-          title={`${interactionMode === 'edit' ? 'Mode Lihat' : 'Mode Edit'} (Ctrl+I)`}
-          className="ml-2"
-        >
-          {interactionMode === 'edit' ? <Lock size={16} /> : <Unlock size={16} />}
-          {interactionMode === 'edit' ? 'Kunci' : 'Edit'}
         </Button>
         <Button
           size="sm"
