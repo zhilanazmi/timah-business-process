@@ -62,17 +62,13 @@ export const useFlowShortcuts = ({
         event.preventDefault();
         if (canRedo) onRedo();
       }
-      else if (ctrlOrCmd && !event.shiftKey && event.key === 's') {
+      else if (ctrlOrCmd && event.key === 's') {
         event.preventDefault();
-        onSave();
+        onSaveAsImage();
       }
       else if (ctrlOrCmd && event.key === 'e') {
         event.preventDefault();
         onExport();
-      }
-      else if (ctrlOrCmd && event.shiftKey && event.key === 's') {
-        event.preventDefault();
-        onSaveAsImage();
       }
       else if (ctrlOrCmd && (event.key === '+' || event.key === '=')) {
         event.preventDefault();

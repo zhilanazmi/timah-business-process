@@ -29,6 +29,16 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
     return;
   }
 
+  // Get all handles (connection points)
+  const handles = wrapperRef.current.querySelectorAll('.react-flow__handle');
+  
+  // Store their original display values and hide them
+  const originalDisplayValues = Array.from(handles).map(handle => {
+    const originalDisplay = (handle as HTMLElement).style.display;
+    (handle as HTMLElement).style.display = 'none';
+    return originalDisplay;
+  });
+
   setTimeout(() => {
     toPng(targetElement as HTMLElement, { 
       backgroundColor: '#ffffff',
@@ -57,9 +67,10 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
         };
         
         return checkClass(classStr, 'react-flow__controls') && 
-                checkClass(classStr, 'react-flow__minimap') && 
-                checkClass(classStr, 'react-flow__panel') &&
-                checkClass(classStr, 'toast-');
+               checkClass(classStr, 'react-flow__minimap') && 
+               checkClass(classStr, 'react-flow__panel') &&
+               checkClass(classStr, 'react-flow__handle') && // Added handle filtering
+               checkClass(classStr, 'toast-');
       }
     })
     .then((dataUrl) => {
@@ -69,12 +80,23 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
       link.href = dataUrl;
       link.click();
       toast.success("Diagram berhasil disimpan sebagai gambar");
+      
+      // Restore handles visibility
+      handles.forEach((handle, index) => {
+        (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
+      });
     })
     .catch((error) => {
       console.error('Error saat menyimpan gambar:', error);
       toast.error("Gagal menyimpan gambar: " + error.message);
       
+      // Restore handles visibility even on error
+      handles.forEach((handle, index) => {
+        (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
+      });
+      
       try {
+        // Fallback method with handles still hidden
         toPng(targetElement as HTMLElement, { 
           backgroundColor: '#ffffff',
           quality: 1,

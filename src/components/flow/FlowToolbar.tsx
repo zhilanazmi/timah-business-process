@@ -79,7 +79,7 @@ const FlowToolbar = ({
         </Button>
       </div>
       <div className="flex items-center gap-2">
-        <Button
+        {/* <Button
           size="sm"
           variant="outline"
           onClick={onSave}
@@ -87,7 +87,7 @@ const FlowToolbar = ({
         >
           <Save size={16} className="mr-1" />
           Simpan
-        </Button>
+        </Button> */}
         <Button
           size="sm"
           variant="outline"
