@@ -1,7 +1,9 @@
 
 import { useEffect } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { toast } from 'sonner';
 
-interface ShortcutsProps {
+interface UseFlowShortcutsProps {
   onAddNode: () => void;
   onAddColumn: () => void;
   onUndo: () => void;
@@ -14,6 +16,9 @@ interface ShortcutsProps {
   onFitView: () => void;
   onDeleteSelectedNode: () => void;
   onShowShortcuts: () => void;
+  onPrevPage?: () => void;
+  onNextPage?: () => void;
+  onNewPage?: () => void;
   canUndo: boolean;
   canRedo: boolean;
   selectedNode: any | null;
@@ -32,86 +37,118 @@ export const useFlowShortcuts = ({
   onFitView,
   onDeleteSelectedNode,
   onShowShortcuts,
+  onPrevPage,
+  onNextPage,
+  onNewPage,
   canUndo,
   canRedo,
-  selectedNode
-}: ShortcutsProps) => {
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const activeElement = document.activeElement;
-      if (activeElement && ['INPUT', 'TEXTAREA'].includes(activeElement.tagName)) {
-        return;
-      }
+  selectedNode,
+}: UseFlowShortcutsProps) => {
+  // Add node shortcut (Ctrl+N)
+  useHotkeys('ctrl+n', (e) => {
+    e.preventDefault();
+    onAddNode();
+  }, { enableOnFormTags: true });
 
-      const ctrlOrCmd = event.ctrlKey || event.metaKey;
+  // Add column shortcut (Ctrl+Shift+C)
+  useHotkeys('ctrl+shift+c', (e) => {
+    e.preventDefault();
+    onAddColumn();
+  }, { enableOnFormTags: true });
 
-      if (ctrlOrCmd && event.key === 'n') {
-        event.preventDefault();
-        onAddNode();
-      }
-      else if (ctrlOrCmd && event.shiftKey && event.key === 'c') {
-        event.preventDefault();
-        onAddColumn();
-      }
-      else if (ctrlOrCmd && !event.shiftKey && event.key === 'z' && canUndo) {
-        event.preventDefault();
-        onUndo();
-      }
-      else if ((ctrlOrCmd && event.shiftKey && event.key === 'z') || 
-               (ctrlOrCmd && event.key === 'y')) {
-        event.preventDefault();
-        if (canRedo) onRedo();
-      }
-      else if (ctrlOrCmd && event.key === 's') {
-        event.preventDefault();
-        onSaveAsImage();
-      }
-      else if (ctrlOrCmd && event.key === 'e') {
-        event.preventDefault();
-        onExport();
-      }
-      else if (ctrlOrCmd && (event.key === '+' || event.key === '=')) {
-        event.preventDefault();
-        onZoomIn();
-      }
-      else if (ctrlOrCmd && event.key === '-') {
-        event.preventDefault();
-        onZoomOut();
-      }
-      else if (ctrlOrCmd && event.key === '0') {
-        event.preventDefault();
-        onFitView();
-      }
-      else if ((event.key === 'Delete' || event.key === 'Backspace') && selectedNode) {
-        event.preventDefault();
+  // Undo shortcut (Ctrl+Z)
+  useHotkeys('ctrl+z', (e) => {
+    e.preventDefault();
+    if (canUndo) {
+      onUndo();
+    } else {
+      toast.info("Tidak ada tindakan yang dapat dibatalkan");
+    }
+  }, { enableOnFormTags: true });
+
+  // Redo shortcuts (Ctrl+Shift+Z or Ctrl+Y)
+  useHotkeys(['ctrl+shift+z', 'ctrl+y'], (e) => {
+    e.preventDefault();
+    if (canRedo) {
+      onRedo();
+    } else {
+      toast.info("Tidak ada tindakan yang dapat diulangi");
+    }
+  }, { enableOnFormTags: true });
+
+  // Save shortcut (Ctrl+S)
+  useHotkeys('ctrl+s', (e) => {
+    e.preventDefault();
+    onSave();
+  }, { enableOnFormTags: true });
+
+  // Export shortcut (Ctrl+E)
+  useHotkeys('ctrl+e', (e) => {
+    e.preventDefault();
+    onExport();
+  }, { enableOnFormTags: true });
+
+  // Save as image shortcut (Ctrl+Shift+S)
+  useHotkeys('ctrl+shift+s', (e) => {
+    e.preventDefault();
+    onSaveAsImage();
+  }, { enableOnFormTags: true });
+
+  // Zoom in shortcut (Ctrl+ +)
+  useHotkeys('ctrl+=', (e) => {
+    e.preventDefault();
+    onZoomIn();
+  }, { enableOnFormTags: true });
+
+  // Zoom out shortcut (Ctrl+ -)
+  useHotkeys('ctrl+-', (e) => {
+    e.preventDefault();
+    onZoomOut();
+  }, { enableOnFormTags: true });
+
+  // Fit view shortcut (Ctrl+0)
+  useHotkeys('ctrl+0', (e) => {
+    e.preventDefault();
+    onFitView();
+  }, { enableOnFormTags: true });
+
+  // Delete node shortcut (Delete or Backspace)
+  useHotkeys(['delete', 'backspace'], (e) => {
+    // Only if we're not in an input field
+    if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+      if (selectedNode && !selectedNode.data.isHeader) {
         onDeleteSelectedNode();
       }
-      else if (event.key === '?') {
-        event.preventDefault();
-        onShowShortcuts();
-      }
-    };
+    }
+  });
 
-    document.addEventListener('keydown', handleKeyDown);
-    
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [
-    onAddNode, 
-    onAddColumn, 
-    onUndo, 
-    onRedo, 
-    canUndo, 
-    canRedo,
-    onSave, 
-    onExport, 
-    onSaveAsImage,
-    onZoomIn, 
-    onZoomOut, 
-    onFitView, 
-    selectedNode, 
-    onDeleteSelectedNode, 
-    onShowShortcuts
-  ]);
+  // Show shortcuts dialog (?)
+  useHotkeys('shift+/', (e) => {
+    e.preventDefault();
+    onShowShortcuts();
+  }, { enableOnFormTags: true });
+
+  // Previous page (Ctrl+Page Up)
+  useHotkeys('ctrl+pageup', (e) => {
+    e.preventDefault();
+    if (onPrevPage) {
+      onPrevPage();
+    }
+  }, { enableOnFormTags: true });
+
+  // Next page (Ctrl+Page Down)
+  useHotkeys('ctrl+pagedown', (e) => {
+    e.preventDefault();
+    if (onNextPage) {
+      onNextPage();
+    }
+  }, { enableOnFormTags: true });
+
+  // New page (Ctrl+T)
+  useHotkeys('ctrl+t', (e) => {
+    e.preventDefault();
+    if (onNewPage) {
+      onNewPage();
+    }
+  }, { enableOnFormTags: true });
 };

@@ -188,3 +188,18 @@ export const saveToLocalStorage = (nodes: any[], edges: any[]) => {
   localStorage.setItem('flowChart', JSON.stringify(flowData));
   toast.success("Diagram berhasil disimpan");
 };
+
+/**
+ * Export all pages to JSON
+ */
+export const exportAllPagesToJson = (pages: any[]) => {
+  const dataStr = JSON.stringify(pages);
+  const dataUri =
+    'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+  const exportFileDefaultName = 'flowchart-all-pages.json';
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', dataUri);
+  linkElement.setAttribute('download', exportFileDefaultName);
+  linkElement.click();
+  toast.success("Semua halaman berhasil diexport");
+};

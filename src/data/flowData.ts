@@ -1,3 +1,4 @@
+
 import { Node, Edge, MarkerType } from 'reactflow';
 
 const columnWidth = 200;
@@ -17,6 +18,7 @@ export const columns = [
 // Calculate x position based on column index
 const getColumnX = (columnIndex: number) => columnIndex * (columnWidth + gap) + (columnWidth - nodeWidth) / 2;
 
+// Initial nodes for the first page
 export const initialNodes: Node[] = [
   // Pelanggan column
   {
@@ -225,3 +227,47 @@ export const initialNodes: Node[] = [
 
 // Initialize with empty edges array
 export const initialEdges: Edge[] = [];
+
+// Default pages structure
+export const defaultPages = [
+  {
+    id: 'page1',
+    title: 'Halaman 1',
+    nodes: initialNodes,
+    edges: initialEdges
+  },
+  {
+    id: 'page2',
+    title: 'Halaman 2',
+    nodes: [...columns.map((column, index) => ({
+      id: `header-${column.id}-page2`,
+      type: 'customNode',
+      position: { x: getColumnX(index), y: 10 },
+      data: { 
+        label: column.title,
+        isHeader: true,
+        column: column.id,
+        color: column.color
+      },
+      draggable: false
+    }))],
+    edges: []
+  },
+  {
+    id: 'page3',
+    title: 'Halaman 3',
+    nodes: [...columns.map((column, index) => ({
+      id: `header-${column.id}-page3`,
+      type: 'customNode',
+      position: { x: getColumnX(index), y: 10 },
+      data: { 
+        label: column.title,
+        isHeader: true,
+        column: column.id,
+        color: column.color
+      },
+      draggable: false
+    }))],
+    edges: []
+  }
+];

@@ -1,46 +1,49 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
-const ShortcutHelpModal = ({ open, onOpenChange }) => {
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+interface ShortcutHelpModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const ShortcutHelpModal = ({ open, onOpenChange }: ShortcutHelpModalProps) => {
   const shortcuts = [
-    { action: "Tambah Elemen", shortcut: "Ctrl/Cmd + N" },
-    { action: "Tambah Kolom", shortcut: "Ctrl/Cmd + Shift + C" },
-    { action: "Undo", shortcut: "Ctrl/Cmd + Z" },
-    { action: "Redo", shortcut: "Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y" },
-    { action: "Simpan", shortcut: "Ctrl/Cmd + S" },
-    { action: "Export", shortcut: "Ctrl/Cmd + E" },
-    { action: "Simpan sebagai Gambar", shortcut: "Ctrl/Cmd + Shift + S" },
-    { action: "Perbesar", shortcut: "Ctrl/Cmd + Plus" },
-    { action: "Perkecil", shortcut: "Ctrl/Cmd + Minus" },
-    { action: "Tampilkan Seluruh Diagram", shortcut: "Ctrl/Cmd + 0" },
-    { action: "Hapus Elemen Terpilih", shortcut: "Delete/Backspace" },
-    { action: "Bantuan Shortcut", shortcut: "?" },
+    { key: 'Ctrl+N', description: 'Tambah Elemen Baru' },
+    { key: 'Ctrl+Shift+C', description: 'Tambah Kolom Baru' },
+    { key: 'Ctrl+Z', description: 'Undo' },
+    { key: 'Ctrl+Shift+Z / Ctrl+Y', description: 'Redo' },
+    { key: 'Ctrl+S', description: 'Simpan Flow Chart' },
+    { key: 'Ctrl+E', description: 'Export Flow Chart' },
+    { key: 'Ctrl+I', description: 'Import Flow Chart' },
+    { key: 'Ctrl+Shift+S', description: 'Simpan sebagai Gambar' },
+    { key: 'Delete / Backspace', description: 'Hapus Elemen Terpilih' },
+    { key: 'Ctrl+Plus (+)', description: 'Zoom In' },
+    { key: 'Ctrl+Minus (-)', description: 'Zoom Out' },
+    { key: 'Ctrl+0', description: 'Fit View' },
+    { key: 'Ctrl+Page Up', description: 'Pindah ke Halaman Sebelumnya' },
+    { key: 'Ctrl+Page Down', description: 'Pindah ke Halaman Berikutnya' },
+    { key: 'Ctrl+T', description: 'Tambah Halaman Baru' },
+    { key: '?', description: 'Tampilkan Bantuan Shortcut' },
   ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Bantuan Shortcut Keyboard</DialogTitle>
+          <DialogTitle>Shortcut Keyboard</DialogTitle>
+          <DialogDescription>
+            Gunakan shortcut keyboard berikut untuk mempercepat pekerjaan Anda
+          </DialogDescription>
         </DialogHeader>
-        <div className="mt-4">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <th className="text-left border-b pb-2">Aksi</th>
-                <th className="text-left border-b pb-2">Shortcut</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shortcuts.map((item, index) => (
-                <tr key={index} className="border-b border-gray-100">
-                  <td className="py-2">{item.action}</td>
-                  <td className="py-2">
-                    <kbd className="px-2 py-1 bg-gray-100 rounded">{item.shortcut}</kbd>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-2 gap-2">
+          {shortcuts.map((shortcut, index) => (
+            <div key={index} className="flex justify-between py-1">
+              <kbd className="px-2 py-1 bg-gray-100 rounded border border-gray-300 mr-2 text-sm font-mono">
+                {shortcut.key}
+              </kbd>
+              <span className="text-sm">{shortcut.description}</span>
+            </div>
+          ))}
         </div>
       </DialogContent>
     </Dialog>
