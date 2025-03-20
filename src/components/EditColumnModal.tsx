@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { ChromePicker } from 'react-color';
 import { Switch } from "@/components/ui/switch";
 
 interface EditColumnModalProps {
@@ -16,11 +17,14 @@ interface EditColumnModalProps {
 
 const EditColumnModal = ({ open, onOpenChange, column, onUpdateColumn }: EditColumnModalProps) => {
   const [columnTitle, setColumnTitle] = useState("");
+  const [columnColor, setColumnColor] = useState("#3b82f6");
   const [isLocked, setIsLocked] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   useEffect(() => {
     if (column) {
       setColumnTitle(column.title);
+      setColumnColor(column.color);
       setIsLocked(column.locked);
     }
   }, [column]);
@@ -51,7 +55,7 @@ const EditColumnModal = ({ open, onOpenChange, column, onUpdateColumn }: EditCol
     
     onUpdateColumn(column.id, {
       title: columnTitle,
-      color: column.color, // Keep the original color
+      color: columnColor,
       locked: isLocked
     });
     
@@ -84,13 +88,28 @@ const EditColumnModal = ({ open, onOpenChange, column, onUpdateColumn }: EditCol
             </Label>
             <div className="col-span-3">
               <div 
-                className="w-full h-10 rounded border flex items-center px-3"
-                style={{ backgroundColor: column?.color }}
+                className="w-full h-10 rounded border cursor-pointer flex items-center px-3"
+                style={{ backgroundColor: columnColor }}
+                onClick={() => setShowColorPicker(!showColorPicker)}
               >
-                <span className={column ? getTextColor(column.color) : ''}>
-                  {column?.color || ''}
+                <span className={getTextColor(columnColor)}>
+                  {columnColor}
                 </span>
               </div>
+              
+              {showColorPicker && (
+                <div className="absolute z-10 mt-2">
+                  <div 
+                    className="fixed inset-0" 
+                    onClick={() => setShowColorPicker(false)}
+                  />
+                  <ChromePicker 
+                    color={columnColor} 
+                    onChange={(color) => setColumnColor(color.hex)} 
+                    disableAlpha={true}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

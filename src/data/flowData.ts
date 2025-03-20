@@ -1,3 +1,4 @@
+
 import { Node, Edge, MarkerType } from 'reactflow';
 
 const columnWidth = 200;
@@ -17,8 +18,7 @@ export const columns = [
 // Calculate x position based on column index
 const getColumnX = (columnIndex: number) => columnIndex * (columnWidth + gap) + (columnWidth - nodeWidth) / 2;
 
-// Create initial nodes for process flow
-const processNodes: Node[] = [
+export const initialNodes: Node[] = [
   // Pelanggan column
   {
     id: '1',
@@ -208,25 +208,21 @@ const processNodes: Node[] = [
       }
     }
   },
+
+  // Column headers
+  ...columns.map((column, index) => ({
+    id: `header-${column.id}`,
+    type: 'customNode',
+    position: { x: getColumnX(index), y: 10 },
+    data: { 
+      label: column.title,
+      isHeader: true,
+      column: column.id,
+      color: column.color
+    },
+    draggable: false
+  })),
 ];
-
-// Create column header nodes
-const headerNodes: Node[] = columns.map((column, index) => ({
-  id: `header-${column.id}`,
-  type: 'columnHeader',
-  position: { x: getColumnX(index), y: 10 },
-  data: { 
-    label: column.title,
-    isHeader: true,
-    column: column.id,
-    color: column.color,
-    locked: column.locked
-  },
-  draggable: !column.locked
-}));
-
-// Combine process nodes and header nodes
-export const initialNodes: Node[] = [...processNodes, ...headerNodes];
 
 // Initialize with empty edges array
 export const initialEdges: Edge[] = [];
