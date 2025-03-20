@@ -1,3 +1,4 @@
+
 import { Node, Edge, MarkerType } from 'reactflow';
 
 const columnWidth = 200;
@@ -6,12 +7,12 @@ const gap = 80;
 
 // Define columns
 export const columns = [
-  { id: 'pelanggan', title: 'Pelanggan', color: 'bg-blue-900' },
-  { id: 'pemasaran', title: 'Pemasaran', color: 'bg-blue-900' },
-  { id: 'renbang', title: 'Renbang', color: 'bg-blue-900' },
-  { id: 'produksi', title: 'Produksi', color: 'bg-blue-900' },
-  { id: 'logistik', title: 'Logistik', color: 'bg-blue-900' },
-  { id: 'mitra', title: 'Mitra Usaha', color: 'bg-blue-900' },
+  { id: 'pelanggan', title: 'Pelanggan', color: '#3b82f6', locked: false },
+  { id: 'pemasaran', title: 'Pemasaran', color: '#3b82f6', locked: false },
+  { id: 'renbang', title: 'Renbang', color: '#3b82f6', locked: false },
+  { id: 'produksi', title: 'Produksi', color: '#3b82f6', locked: false },
+  { id: 'logistik', title: 'Logistik', color: '#3b82f6', locked: false },
+  { id: 'mitra', title: 'Mitra Usaha', color: '#3b82f6', locked: false },
 ];
 
 // Calculate x position based on column index

@@ -1,46 +1,86 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
-const ShortcutHelpModal = ({ open, onOpenChange }) => {
-  const shortcuts = [
-    { action: "Tambah Elemen", shortcut: "Ctrl/Cmd + N" },
-    { action: "Tambah Kolom", shortcut: "Ctrl/Cmd + Shift + C" },
-    { action: "Undo", shortcut: "Ctrl/Cmd + Z" },
-    { action: "Redo", shortcut: "Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y" },
-    { action: "Simpan", shortcut: "Ctrl/Cmd + S" },
-    { action: "Export", shortcut: "Ctrl/Cmd + E" },
-    { action: "Simpan sebagai Gambar", shortcut: "Ctrl/Cmd + Shift + S" },
-    { action: "Perbesar", shortcut: "Ctrl/Cmd + Plus" },
-    { action: "Perkecil", shortcut: "Ctrl/Cmd + Minus" },
-    { action: "Tampilkan Seluruh Diagram", shortcut: "Ctrl/Cmd + 0" },
-    { action: "Hapus Elemen Terpilih", shortcut: "Delete/Backspace" },
-    { action: "Bantuan Shortcut", shortcut: "?" },
-  ];
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
+interface ShortcutHelpModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const ShortcutHelpModal = ({ open, onOpenChange }: ShortcutHelpModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Bantuan Shortcut Keyboard</DialogTitle>
         </DialogHeader>
-        <div className="mt-4">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <th className="text-left border-b pb-2">Aksi</th>
-                <th className="text-left border-b pb-2">Shortcut</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shortcuts.map((item, index) => (
-                <tr key={index} className="border-b border-gray-100">
-                  <td className="py-2">{item.action}</td>
-                  <td className="py-2">
-                    <kbd className="px-2 py-1 bg-gray-100 rounded">{item.shortcut}</kbd>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="py-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Shortcut</TableHead>
+                <TableHead>Fungsi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell className="font-mono">Ctrl + N</TableCell>
+                <TableCell>Tambah elemen baru</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">Ctrl + Shift + C</TableCell>
+                <TableCell>Tambah kolom baru</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">Ctrl + Z</TableCell>
+                <TableCell>Undo</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">Ctrl + Shift + Z</TableCell>
+                <TableCell>Redo</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">Ctrl + Y</TableCell>
+                <TableCell>Redo (alternatif)</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">Ctrl + S</TableCell>
+                <TableCell>Simpan sebagai gambar</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">Ctrl + E</TableCell>
+                <TableCell>Export data</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">Ctrl + +</TableCell>
+                <TableCell>Perbesar tampilan</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">Ctrl + -</TableCell>
+                <TableCell>Perkecil tampilan</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">Ctrl + 0</TableCell>
+                <TableCell>Tampilkan semua elemen</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">Delete / Backspace</TableCell>
+                <TableCell>Hapus elemen yang dipilih</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-mono">?</TableCell>
+                <TableCell>Tampilkan bantuan shortcut</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+          
+          <div className="mt-4">
+            <h3 className="font-semibold mb-2">Mengedit Kolom</h3>
+            <p className="text-sm">
+              Untuk mengedit nama atau warna kolom, arahkan mouse ke judul kolom dan klik ikon pensil (✏️).
+              Untuk mengunci atau membuka kunci kolom, gunakan ikon kunci (🔒/🔓) di header kolom.
+            </p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
