@@ -94,7 +94,7 @@ const FlowToolbar = ({
           onClick={onExport}
           title="Export (Ctrl+E)"
         >
-          <Download size={16} className="mr-1" />
+          <Upload size={16} className="mr-1" />
           Export
         </Button>
         <Button
@@ -103,7 +103,7 @@ const FlowToolbar = ({
           onClick={onImport}
           title="Import (Ctrl+I)"
         >
-          <Upload size={16} className="mr-1" />
+          <Download size={16} className="mr-1" />
           Import
         </Button>
         <Button
