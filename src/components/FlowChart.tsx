@@ -20,7 +20,6 @@ import { initialNodes, initialEdges } from '@/data/flowData';
 import { toast } from 'sonner';
 import NodeCreationModal from './NodeCreationModal';
 import AddColumnModal from './AddColumnModal';
-import EditColumnModal from './EditColumnModal';
 import { columns } from '@/data/flowData';
 import ShortcutHelpModal from './ShortcutHelpModal';
 import { importFromJson, saveToLocalStorage, exportToJson, saveAsImage } from '@/utils/exportUtils';
@@ -43,15 +42,8 @@ const FlowChart = () => {
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
-  const [isEditColumnModalOpen, setIsEditColumnModalOpen] = useState(false);
   const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false);
   const [availableColumns, setAvailableColumns] = useState(columns);
-  const [selectedColumn, setSelectedColumn] = useState<{
-    id: string;
-    title: string;
-    color: string;
-    locked: boolean;
-  } | null>(null);
   const [undoStack, setUndoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
   const [redoStack, setRedoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
   
@@ -72,26 +64,8 @@ const FlowChart = () => {
   }, [setEdges, saveCurrentState]);
 
   const onNodesChange = useCallback(
-    (changes) => {
-      const hasLockedHeaderChanges = changes.some(change => {
-        if (change.type === 'position' && change.id) {
-          const node = nodes.find(n => n.id === change.id);
-          if (node?.data?.isHeader && node?.data?.column) {
-            const column = availableColumns.find(col => col.id === node.data.column);
-            return column?.locked;
-          }
-        }
-        return false;
-      });
-
-      if (hasLockedHeaderChanges) {
-        toast.error("Tidak dapat memindahkan kolom yang terkunci");
-        return;
-      }
-
-      handleNodesChange(changes, setNodes, saveCurrentState);
-    },
-    [nodes, availableColumns, saveCurrentState, setNodes]
+    (changes) => handleNodesChange(changes, setNodes, saveCurrentState),
+    [saveCurrentState, setNodes]
   );
 
   const onEdgesChange = useCallback(
@@ -128,77 +102,6 @@ const FlowChart = () => {
     saveCurrentState();
   }, [saveCurrentState]);
 
-  const handleEditColumn = (columnId: string) => {
-    const column = availableColumns.find(col => col.id === columnId);
-    if (column) {
-      setSelectedColumn(column);
-      setIsEditColumnModalOpen(true);
-    }
-  };
-
-  const handleToggleLockColumn = (columnId: string) => {
-    saveCurrentState();
-    
-    setAvailableColumns(prevColumns => 
-      prevColumns.map(col => 
-        col.id === columnId 
-          ? { ...col, locked: !col.locked }
-          : col
-      )
-    );
-    
-    setNodes(prevNodes => 
-      prevNodes.map(node => {
-        if (node.data?.isHeader && node.data?.column === columnId) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              locked: !node.data.locked
-            },
-            draggable: node.data.locked
-          };
-        }
-        return node;
-      })
-    );
-    
-    const column = availableColumns.find(col => col.id === columnId);
-    if (column) {
-      toast.success(`Kolom ${column.title} ${column.locked ? 'dibuka' : 'dikunci'}`);
-    }
-  };
-
-  const handleUpdateColumn = (columnId: string, data: { title: string; color: string; locked: boolean }) => {
-    saveCurrentState();
-    
-    setAvailableColumns(prevColumns => 
-      prevColumns.map(col => 
-        col.id === columnId 
-          ? { ...col, ...data }
-          : col
-      )
-    );
-    
-    setNodes(prevNodes => 
-      prevNodes.map(node => {
-        if (node.data?.isHeader && node.data?.column === columnId) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              label: data.title,
-              color: data.color,
-              locked: data.locked
-            },
-            style: { backgroundColor: data.color }
-          };
-        }
-        return node;
-      })
-    );
-  };
-
   const handleCreateNode = (nodeData: Omit<Node, "id" | "position">) => {
     saveCurrentState();
     const sameColumnNodes = nodes.filter(node => 
@@ -229,12 +132,7 @@ const FlowChart = () => {
   const addColumn = (columnData: { id: string; title: string; color: string }) => {
     saveCurrentState();
     
-    const newColumn = {
-      ...columnData,
-      locked: false
-    };
-    
-    setAvailableColumns(prevColumns => [...prevColumns, newColumn]);
+    setAvailableColumns(prevColumns => [...prevColumns, columnData]);
     
     const columnIndex = availableColumns.length;
     const columnWidth = 200;
@@ -244,18 +142,18 @@ const FlowChart = () => {
     
     const headerNode = {
       id: `header-${columnData.id}`,
-      type: 'columnHeader',
+      type: 'customNode',
       position: { x, y: 10 },
       data: { 
         label: columnData.title,
         isHeader: true,
         column: columnData.id,
-        color: columnData.color,
-        locked: false,
-        onEdit: handleEditColumn,
-        onToggleLock: handleToggleLockColumn
+        color: columnData.color
       },
-      draggable: true
+      draggable: false,
+      style: { 
+        backgroundColor: columnData.color 
+      }
     };
     
     setNodes(nds => [...nds, headerNode]);
@@ -295,7 +193,7 @@ const FlowChart = () => {
     if (redoStack.length === 0) return;
     const currentState = {
       nodes: JSON.parse(JSON.stringify(nodes)),
-      edges: JSON.stringify(edges)
+      edges: JSON.parse(JSON.stringify(edges))
     };
     const nextState = redoStack[redoStack.length - 1];
     setUndoStack(prev => [...prev, currentState]);
@@ -359,27 +257,6 @@ const FlowChart = () => {
   };
 
   useEffect(() => {
-    setNodes(prevNodes => 
-      prevNodes.map(node => {
-        if (node.data?.isHeader) {
-          const column = availableColumns.find(col => col.id === node.data.column);
-          return {
-            ...node,
-            type: 'columnHeader',
-            data: {
-              ...node.data,
-              locked: column?.locked || false,
-              onEdit: handleEditColumn,
-              onToggleLock: handleToggleLockColumn
-            }
-          };
-        }
-        return node;
-      })
-    );
-  }, [availableColumns, setNodes]);
-
-  useEffect(() => {
     setEdges(currentEdges => 
       currentEdges.map(edge => createEdgeWithDeleteHandler(edge, handleEdgeDelete))
     );
@@ -435,6 +312,9 @@ const FlowChart = () => {
       <div 
         className="flex-1 h-full w-full relative" 
         ref={reactFlowWrapper}
+        style={{
+          cursor: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\'%3E%3Cpolygon points=\'0,0 0,16 4,12 8,0\' fill=\'black\'/%3E%3C/svg%3E") 0 0, auto'
+        }}
       >
         <ReactFlowProvider>
           <ReactFlow
@@ -495,13 +375,6 @@ const FlowChart = () => {
         open={isColumnModalOpen}
         onOpenChange={setIsColumnModalOpen}
         onAddColumn={addColumn}
-      />
-      
-      <EditColumnModal
-        open={isEditColumnModalOpen}
-        onOpenChange={setIsEditColumnModalOpen}
-        column={selectedColumn}
-        onUpdateColumn={handleUpdateColumn}
       />
       
       <ShortcutHelpModal
