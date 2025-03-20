@@ -156,7 +156,7 @@ const FlowChart = () => {
               ...node.data,
               locked: !node.data.locked
             },
-            draggable: node.data.locked
+            draggable: !node.data.locked
           };
         }
         return node;
@@ -175,7 +175,7 @@ const FlowChart = () => {
     setAvailableColumns(prevColumns => 
       prevColumns.map(col => 
         col.id === columnId 
-          ? { ...col, ...data }
+          ? { ...col, title: data.title, locked: data.locked }
           : col
       )
     );
@@ -188,15 +188,15 @@ const FlowChart = () => {
             data: {
               ...node.data,
               label: data.title,
-              color: data.color,
               locked: data.locked
-            },
-            style: { backgroundColor: data.color }
+            }
           };
         }
         return node;
       })
     );
+    
+    toast.success(`Kolom "${data.title}" berhasil diperbarui`);
   };
 
   const handleCreateNode = (nodeData: Omit<Node, "id" | "position">) => {
@@ -363,16 +363,18 @@ const FlowChart = () => {
       prevNodes.map(node => {
         if (node.data?.isHeader) {
           const column = availableColumns.find(col => col.id === node.data.column);
-          return {
-            ...node,
-            type: 'columnHeader',
-            data: {
-              ...node.data,
-              locked: column?.locked || false,
-              onEdit: handleEditColumn,
-              onToggleLock: handleToggleLockColumn
-            }
-          };
+          if (column) {
+            return {
+              ...node,
+              type: 'columnHeader',
+              data: {
+                ...node.data,
+                locked: column.locked || false,
+                onEdit: handleEditColumn,
+                onToggleLock: handleToggleLockColumn
+              }
+            };
+          }
         }
         return node;
       })
