@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Node } from 'reactflow';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
@@ -17,7 +16,21 @@ interface NodeDetailProps {
 
 const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDelete }) => {
   const [nodeData, setNodeData] = useState({ ...node.data });
-  
+
+  // Close detail on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
   // Skip editing for header nodes
   if (nodeData.isHeader === true) {
     return (
@@ -60,7 +73,6 @@ const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDele
   };
 
   const openLink = (url: string) => {
-    // Add protocol if not present
     const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
     window.open(formattedUrl, '_blank', 'noopener,noreferrer');
   };
@@ -137,30 +149,6 @@ const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDele
                 onChange={(e) => handleDetailChange('Process Owner', e.target.value)}
               />
             </div>
-            {/* <div>
-              <Label htmlFor="duration">Duration</Label>
-              <Input 
-                id="duration" 
-                value={nodeData.details?.["Duration"] || ''} 
-                onChange={(e) => handleDetailChange('Duration', e.target.value)}
-              />
-            </div> */}
-            {/* <div>
-              <Label htmlFor="input">Input</Label>
-              <Input 
-                id="input" 
-                value={nodeData.details?.["Input"] || ''} 
-                onChange={(e) => handleDetailChange('Input', e.target.value)}
-              />
-            </div> */}
-            {/* <div>
-              <Label htmlFor="output">Output</Label>
-              <Input 
-                id="output" 
-                value={nodeData.details?.["Output"] || ''} 
-                onChange={(e) => handleDetailChange('Output', e.target.value)}
-              />
-            </div> */}
           </div>
           
           {/* Action buttons */}
