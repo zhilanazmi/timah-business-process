@@ -17,11 +17,18 @@ interface NodeDetailProps {
 const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDelete }) => {
   const [nodeData, setNodeData] = useState({ ...node.data });
 
-  // Close detail on Escape key press
+  // Function to handle closing with auto-save
+  const handleCloseWithSave = () => {
+    // Save any changes before closing
+    onUpdate(node.id, nodeData);
+    onClose();
+  };
+
+  // Close detail on Escape key press - now with auto-save
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose();
+        handleCloseWithSave();
       }
     };
 
@@ -29,7 +36,7 @@ const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDele
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, node.id, nodeData]);
 
   // Skip editing for header nodes
   if (nodeData.isHeader === true) {
@@ -82,7 +89,7 @@ const NodeDetail: React.FC<NodeDetailProps> = ({ node, onClose, onUpdate, onDele
       <div className="bg-white shadow-lg border p-4 w-[350px] h-full overflow-y-auto">
         <div className="flex justify-between items-center">
           <h3 className="font-medium">Detail Elemen</h3>
-          <Button variant="ghost" size="sm" onClick={onClose}>×</Button>
+          <Button variant="ghost" size="sm" onClick={handleCloseWithSave}>×</Button>
         </div>
         <div className="mt-4 space-y-4">
           <div>
