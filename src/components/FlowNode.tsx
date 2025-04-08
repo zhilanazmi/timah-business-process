@@ -17,17 +17,17 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
   const getBgColor = () => {
     const column = data.column;
     switch(column) {
-      case 'pelanggan':
+      case 'kolomsatu':
         return 'bg-blue-50 border-blue-200 hover:border-blue-400';
-      case 'pemasaran':
+      case 'kolomdua':
         return 'bg-green-50 border-green-200 hover:border-green-400';
-      case 'renbang':
+      case 'kolomtiga':
         return 'bg-amber-50 border-amber-200 hover:border-amber-400';
-      case 'produksi':
+      case 'kolomempat':
         return 'bg-red-50 border-red-200 hover:border-red-400';
-      case 'logistik':
+      case 'kolomlima':
         return 'bg-purple-50 border-purple-200 hover:border-purple-400';
-      case 'mitra':
+      case 'kolomenam':
         return 'bg-teal-50 border-teal-200 hover:border-teal-400';
       default:
         return 'bg-white border-gray-200 hover:border-blue-400';

@@ -7,12 +7,12 @@ const gap = 80;
 
 // Define columns
 export const columns = [
-  { id: 'pelanggan', title: 'Pelanggan', color: 'bg-blue-900' },
-  { id: 'pemasaran', title: 'Pemasaran', color: 'bg-blue-900' },
-  { id: 'renbang', title: 'Renbang', color: 'bg-blue-900' },
-  { id: 'produksi', title: 'Produksi', color: 'bg-blue-900' },
-  { id: 'logistik', title: 'Logistik', color: 'bg-blue-900' },
-  { id: 'mitra', title: 'Mitra Usaha', color: 'bg-blue-900' },
+  { id: 'kolomsatu', title: 'Manager QPP', color: 'bg-blue-900' },
+  { id: 'kolomdua', title: 'Supervisor PP', color: 'bg-blue-900' },
+  { id: 'kolomtiga', title: 'Admin Sales', color: 'bg-blue-900' },
+  { id: 'kolomempat', title: 'Supervisor Lab', color: 'bg-blue-900' },
+  { id: 'kolomlima', title: 'Supervisor Gudang', color: 'bg-blue-900' },
+  { id: 'kolomenam', title: 'Mitra Usaha', color: 'bg-blue-900' },
 ];
 
 // Calculate x position based on column index
