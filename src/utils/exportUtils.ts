@@ -39,28 +39,12 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
     return originalDisplay;
   });
 
-  // Set the viewport to fit all nodes before taking the image
-  // Access the reactflow instance using the right property
-  const rfNode = wrapperRef.current.querySelector('.react-flow') as any;
-  const instance = rfNode?.__reactFlowInstance;
-  
-  if (instance) {
-    instance.fitView({ 
-      padding: 0.2,
-      includeHiddenNodes: false,
-      minZoom: 0.1,
-      maxZoom: 1.5
-    });
-  }
-
   setTimeout(() => {
     toPng(targetElement as HTMLElement, { 
       backgroundColor: '#ffffff',
       quality: 1,
       pixelRatio: 2,
-      cacheBust: true,
-      width: targetElement.scrollWidth,
-      height: targetElement.scrollHeight,
+      cacheBust: true, 
       filter: (node) => {
         if (!node) return true;
         

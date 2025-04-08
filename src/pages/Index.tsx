@@ -1,10 +1,9 @@
-
 import FlowChart from '@/components/FlowChart';
 import { Info } from 'lucide-react';
 
 const Index = () => {
   return (
-    <main className="container mx-auto p-4 h-screen overflow-hidden">
+    <main className="container mx-auto p-4 h-screen">
       <div className="mb-4">
         <h1 className="text-2xl font-bold mb-2">PT. Timah Industri</h1>
         {/* <div className="flex items-start gap-2 text-gray-600 bg-blue-50 p-3 rounded-md border border-blue-100">

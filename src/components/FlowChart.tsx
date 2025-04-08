@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -56,6 +57,7 @@ const FlowChart = () => {
   const reactFlowInstance = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Update nodes and edges whenever the page changes
   useEffect(() => {
     const page = pages.find(p => p.id === currentPageId);
     if (page) {
@@ -65,21 +67,12 @@ const FlowChart = () => {
       setSelectedEdge(null);
       setUndoStack([]);
       setRedoStack([]);
-      
-      setTimeout(() => {
-        if (reactFlowInstance.current) {
-          reactFlowInstance.current.fitView({ 
-            padding: 0.2,
-            includeHiddenNodes: false,
-            minZoom: 0.1,
-            maxZoom: 1.5
-          });
-        }
-      }, 50);
     }
   }, [currentPageId, setNodes, setEdges]);
 
+  // Save current page state when nodes or edges change
   useEffect(() => {
+    // Update the current page data in the pages array
     setPages(prevPages => 
       prevPages.map(page => 
         page.id === currentPageId ? { ...page, nodes, edges } : page
@@ -265,12 +258,7 @@ const FlowChart = () => {
 
   const handleFitView = () => {
     if (reactFlowInstance.current) {
-      reactFlowInstance.current.fitView({ 
-        padding: 0.2,
-        includeHiddenNodes: false,
-        minZoom: 0.1,
-        maxZoom: 1.5
-      });
+      reactFlowInstance.current.fitView();
     }
   };
 
@@ -287,12 +275,7 @@ const FlowChart = () => {
       importFromJson(file, setNodes, setEdges, () => {
         if (reactFlowInstance.current) {
           setTimeout(() => {
-            reactFlowInstance.current.fitView({ 
-              padding: 0.2,
-              includeHiddenNodes: false,
-              minZoom: 0.1,
-              maxZoom: 1.5
-            });
+            reactFlowInstance.current.fitView();
           }, 50);
         }
       });
@@ -302,6 +285,7 @@ const FlowChart = () => {
     }
   };
 
+  // Page management functions
   const handleChangePage = (pageId: string) => {
     setCurrentPageId(pageId);
   };
@@ -309,6 +293,7 @@ const FlowChart = () => {
   const handleAddPage = (pageTitle: string) => {
     const newPageId = `page-${Date.now()}`;
     
+    // Create a new page with column headers
     const newPageNodes = availableColumns.map((column, index) => {
       const nodeWidth = 180;
       const gap = 80;
@@ -350,13 +335,16 @@ const FlowChart = () => {
   };
 
   const handleDeletePage = (pageId: string) => {
+    // Don't allow deleting the last page
     if (pages.length <= 1) {
       toast.error("Tidak dapat menghapus halaman terakhir");
       return;
     }
     
+    // Find the current index of the page to be deleted
     const currentIndex = pages.findIndex(p => p.id === pageId);
     
+    // Determine which page to show after deletion
     let newPageId = pages[0].id;
     if (currentIndex > 0) {
       newPageId = pages[currentIndex - 1].id;
@@ -364,10 +352,12 @@ const FlowChart = () => {
       newPageId = pages[1].id;
     }
     
+    // If we're deleting the current page, switch to another page first
     if (currentPageId === pageId) {
       setCurrentPageId(newPageId);
     }
     
+    // Remove the page
     setPages(prevPages => prevPages.filter(page => page.id !== pageId));
     toast.success(`Halaman berhasil dihapus`);
   };
@@ -400,17 +390,6 @@ const FlowChart = () => {
     canRedo: redoStack.length > 0,
     selectedNode
   });
-
-  useEffect(() => {
-    if (nodes.length > 0 && reactFlowInstance.current) {
-      reactFlowInstance.current.fitView({ 
-        padding: 0.2,
-        includeHiddenNodes: false,
-        minZoom: 0.1,
-        maxZoom: 1.5
-      });
-    }
-  }, [nodes.length]);
 
   return (
     <div className="h-full w-full flex flex-col">
@@ -467,22 +446,8 @@ const FlowChart = () => {
             edgeTypes={edgeTypes}
             onInit={(instance) => {
               reactFlowInstance.current = instance;
-              setTimeout(() => {
-                instance.fitView({ 
-                  padding: 0.2,
-                  includeHiddenNodes: false,
-                  minZoom: 0.1,
-                  maxZoom: 1.5
-                });
-              }, 100);
             }}
             fitView
-            fitViewOptions={{ 
-              padding: 0.2,
-              includeHiddenNodes: false,
-              minZoom: 0.1,
-              maxZoom: 1.5
-            }}
             className="bg-gray-50"
             connectOnClick={true}
             deleteKeyCode={['Backspace', 'Delete']}
@@ -499,11 +464,7 @@ const FlowChart = () => {
             <MiniMap zoomable pannable nodeClassName={node => node.type} />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <Panel position="bottom-right" className="bg-white p-2 rounded shadow-sm">
-              <ZoomControls 
-                onZoomIn={handleZoomIn} 
-                onZoomOut={handleZoomOut} 
-                onFitView={handleFitView}
-              />
+              <ZoomControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
             </Panel>
           </ReactFlow>
         </ReactFlowProvider>
