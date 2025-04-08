@@ -1,4 +1,3 @@
-
 import { toPng } from 'html-to-image';
 import { toast } from 'sonner';
 import { Edge, Node } from 'reactflow';
@@ -39,101 +38,178 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
     return originalDisplay;
   });
 
-  // Set the viewport to fit all nodes before taking the image
-  // Access the reactflow instance using the right property
+  // Access the reactflow instance
   const rfNode = wrapperRef.current.querySelector('.react-flow') as any;
   const instance = rfNode?.__reactFlowInstance;
   
   if (instance) {
-    instance.fitView({ 
-      padding: 0.2,
-      includeHiddenNodes: false,
-      minZoom: 0.1,
-      maxZoom: 1.5
-    });
-  }
-
-  setTimeout(() => {
-    toPng(targetElement as HTMLElement, { 
-      backgroundColor: '#ffffff',
-      quality: 1,
-      pixelRatio: 2,
-      cacheBust: true,
-      width: targetElement.scrollWidth,
-      height: targetElement.scrollHeight,
-      filter: (node) => {
-        if (!node) return true;
-        
-        let classStr = "";
-        
-        if (node.className !== undefined && node.className !== null) {
-          if (typeof node.className === 'string') {
-            classStr = node.className;
-          } else if (node.className && typeof node.className === 'object') {
-            if ('baseVal' in node.className) {
-              classStr = (node.className as SVGAnimatedString).baseVal;
-            } else if (typeof (node.className as any).toString === 'function') {
-              classStr = (node.className as any).toString();
-            }
-          }
-        }
-        
-        const checkClass = (str: string, className: string) => {
-          return str.indexOf(className) === -1;
-        };
-        
-        return checkClass(classStr, 'react-flow__controls') && 
-               checkClass(classStr, 'react-flow__minimap') && 
-               checkClass(classStr, 'react-flow__panel') &&
-               checkClass(classStr, 'react-flow__handle') && // Added handle filtering
-               checkClass(classStr, 'toast-');
-      }
-    })
-    .then((dataUrl) => {
-      const tanggal = new Date().toISOString().split('T')[0];
-      const link = document.createElement('a');
-      link.download = `flowchart-${tanggal}.png`;
-      link.href = dataUrl;
-      link.click();
-      toast.success("Diagram berhasil disimpan sebagai gambar");
+    // Before taking the image, get the bounds of all nodes to determine the exact area to capture
+    const nodes = instance.getNodes();
+    if (nodes.length === 0) {
+      toast.error("Tidak ada node untuk disimpan");
       
       // Restore handles visibility
       handles.forEach((handle, index) => {
         (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
       });
-    })
-    .catch((error) => {
-      console.error('Error saat menyimpan gambar:', error);
-      toast.error("Gagal menyimpan gambar: " + error.message);
+      return;
+    }
+
+    // Calculate the bounds of the content (all nodes)
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    // Find the min/max coordinates to get the actual content bounds
+    nodes.forEach(node => {
+      // Skip hidden nodes
+      if (node.hidden) return;
       
-      // Restore handles visibility even on error
-      handles.forEach((handle, index) => {
-        (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
-      });
+      const x = node.position.x;
+      const y = node.position.y;
+      const width = node.width || 180; // Default node width if not specified
+      const height = node.height || 80; // Default node height if not specified
       
-      try {
-        // Fallback method with handles still hidden
-        toPng(targetElement as HTMLElement, { 
-          backgroundColor: '#ffffff',
-          quality: 1,
-          pixelRatio: 2
-        })
-        .then((dataUrl) => {
-          const tanggal = new Date().toISOString().split('T')[0];
-          const link = document.createElement('a');
-          link.download = `flowchart-${tanggal}-alt.png`;
-          link.href = dataUrl;
-          link.click();
-          toast.success("Diagram berhasil disimpan dengan metode alternatif");
-        })
-        .catch((fallbackError) => {
-          toast.error("Semua metode gagal menyimpan gambar");
-        });
-      } catch (fallbackError) {
-        toast.error("Gagal menggunakan metode alternatif");
-      }
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x + width);
+      maxY = Math.max(maxY, y + height);
     });
-  }, 100);
+    
+    // Add some padding
+    const padding = 50;
+    minX -= padding;
+    minY -= padding;
+    maxX += padding;
+    maxY += padding;
+    
+    // Get the SVG transform for the viewport
+    const viewportEl = targetElement as HTMLElement;
+    const transform = viewportEl.style.transform;
+    const originalTransform = transform;
+    
+    // Set the viewport to focus exactly on our content area
+    instance.setViewport({ 
+      x: -minX, 
+      y: -minY, 
+      zoom: 1 
+    });
+    
+    // Set a fixed width/height based on our content bounds
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+    
+    setTimeout(() => {
+      // Capture only the content area
+      toPng(targetElement as HTMLElement, { 
+        backgroundColor: '#ffffff',
+        quality: 1,
+        pixelRatio: 2,
+        cacheBust: true,
+        width: contentWidth,
+        height: contentHeight,
+        filter: (node) => {
+          if (!node) return true;
+          
+          let classStr = "";
+          
+          if (node.className !== undefined && node.className !== null) {
+            if (typeof node.className === 'string') {
+              classStr = node.className;
+            } else if (node.className && typeof node.className === 'object') {
+              if ('baseVal' in node.className) {
+                classStr = (node.className as SVGAnimatedString).baseVal;
+              } else if (typeof (node.className as any).toString === 'function') {
+                classStr = (node.className as any).toString();
+              }
+            }
+          }
+          
+          const checkClass = (str: string, className: string) => {
+            return str.indexOf(className) === -1;
+          };
+          
+          return checkClass(classStr, 'react-flow__controls') && 
+                 checkClass(classStr, 'react-flow__minimap') && 
+                 checkClass(classStr, 'react-flow__panel') &&
+                 checkClass(classStr, 'react-flow__handle') && 
+                 checkClass(classStr, 'toast-');
+        }
+      })
+      .then((dataUrl) => {
+        const tanggal = new Date().toISOString().split('T')[0];
+        const link = document.createElement('a');
+        link.download = `flowchart-${tanggal}.png`;
+        link.href = dataUrl;
+        link.click();
+        toast.success("Diagram berhasil disimpan sebagai gambar");
+        
+        // Restore handles visibility
+        handles.forEach((handle, index) => {
+          (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
+        });
+        
+        // Restore the original viewport
+        if (instance) {
+          instance.fitView({ 
+            padding: 0.2,
+            includeHiddenNodes: false,
+            minZoom: 0.1,
+            maxZoom: 1.5
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error saat menyimpan gambar:', error);
+        toast.error("Gagal menyimpan gambar: " + error.message);
+        
+        // Restore handles visibility even on error
+        handles.forEach((handle, index) => {
+          (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
+        });
+        
+        // Restore the original viewport
+        if (instance) {
+          instance.fitView({ 
+            padding: 0.2,
+            includeHiddenNodes: false,
+            minZoom: 0.1,
+            maxZoom: 1.5
+          });
+        }
+        
+        try {
+          // Fallback method
+          toPng(targetElement as HTMLElement, { 
+            backgroundColor: '#ffffff',
+            quality: 1,
+            pixelRatio: 2
+          })
+          .then((dataUrl) => {
+            const tanggal = new Date().toISOString().split('T')[0];
+            const link = document.createElement('a');
+            link.download = `flowchart-${tanggal}-alt.png`;
+            link.href = dataUrl;
+            link.click();
+            toast.success("Diagram berhasil disimpan dengan metode alternatif");
+          })
+          .catch((fallbackError) => {
+            toast.error("Semua metode gagal menyimpan gambar");
+          });
+        } catch (fallbackError) {
+          toast.error("Gagal menggunakan metode alternatif");
+        }
+      });
+    }, 100);
+  } else {
+    toast.error("Tidak dapat mengakses instance diagram");
+    
+    // Restore handles visibility if instance not found
+    handles.forEach((handle, index) => {
+      (handle as HTMLElement).style.display = originalDisplayValues[index] || '';
+    });
+  }
 };
 
 /**
