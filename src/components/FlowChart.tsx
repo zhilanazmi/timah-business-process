@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -67,6 +66,13 @@ const FlowChart = () => {
       setSelectedEdge(null);
       setUndoStack([]);
       setRedoStack([]);
+      
+      // Auto-fit view when changing pages
+      setTimeout(() => {
+        if (reactFlowInstance.current) {
+          reactFlowInstance.current.fitView({ padding: 0.2 });
+        }
+      }, 50);
     }
   }, [currentPageId, setNodes, setEdges]);
 
@@ -258,7 +264,7 @@ const FlowChart = () => {
 
   const handleFitView = () => {
     if (reactFlowInstance.current) {
-      reactFlowInstance.current.fitView();
+      reactFlowInstance.current.fitView({ padding: 0.2 });
     }
   };
 
@@ -275,7 +281,7 @@ const FlowChart = () => {
       importFromJson(file, setNodes, setEdges, () => {
         if (reactFlowInstance.current) {
           setTimeout(() => {
-            reactFlowInstance.current.fitView();
+            reactFlowInstance.current.fitView({ padding: 0.2 });
           }, 50);
         }
       });
@@ -391,6 +397,12 @@ const FlowChart = () => {
     selectedNode
   });
 
+  useEffect(() => {
+    if (nodes.length > 0 && reactFlowInstance.current) {
+      reactFlowInstance.current.fitView({ padding: 0.2 });
+    }
+  }, [nodes.length]);
+
   return (
     <div className="h-full w-full flex flex-col">
       <FlowToolbar 
@@ -446,8 +458,13 @@ const FlowChart = () => {
             edgeTypes={edgeTypes}
             onInit={(instance) => {
               reactFlowInstance.current = instance;
+              // Auto-fit on initial load
+              setTimeout(() => {
+                instance.fitView({ padding: 0.2 });
+              }, 100);
             }}
             fitView
+            fitViewOptions={{ padding: 0.2 }}
             className="bg-gray-50"
             connectOnClick={true}
             deleteKeyCode={['Backspace', 'Delete']}

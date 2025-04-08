@@ -39,12 +39,20 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
     return originalDisplay;
   });
 
+  // Set the viewport to fit all nodes before taking the image
+  const instance = wrapperRef.current?.__reactFlowInstance;
+  if (instance) {
+    instance.fitView({ padding: 0.2 });
+  }
+
   setTimeout(() => {
     toPng(targetElement as HTMLElement, { 
       backgroundColor: '#ffffff',
       quality: 1,
       pixelRatio: 2,
-      cacheBust: true, 
+      cacheBust: true,
+      width: targetElement.scrollWidth,
+      height: targetElement.scrollHeight,
       filter: (node) => {
         if (!node) return true;
         
