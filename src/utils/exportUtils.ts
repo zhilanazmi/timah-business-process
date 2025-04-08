@@ -40,9 +40,17 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
   });
 
   // Set the viewport to fit all nodes before taking the image
-  const instance = wrapperRef.current?.__reactFlowInstance;
+  // Access the reactflow instance using the right property
+  const rfNode = wrapperRef.current.querySelector('.react-flow') as any;
+  const instance = rfNode?.__reactFlowInstance;
+  
   if (instance) {
-    instance.fitView({ padding: 0.2 });
+    instance.fitView({ 
+      padding: 0.2,
+      includeHiddenNodes: false,
+      minZoom: 0.1,
+      maxZoom: 1.5
+    });
   }
 
   setTimeout(() => {
