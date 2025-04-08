@@ -95,8 +95,8 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         style={{ top: '50%', right: 0, transform: 'translate(50%, -50%)' }}
       />
       <div className="absolute right-[-20px] top-[50%] -translate-y-1/2">
-        <span className="text-xs font-medium text-green-600 block whitespace-nowrap">
-          {data.rightPathLabel || "Yes"}
+        <span className="text-xs font-medium text-red-600 block whitespace-nowrap">
+          {data.rightPathLabel || "No"}
         </span>
       </div>
 
@@ -110,8 +110,8 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
       />
       <div className="absolute bottom-[-20px] left-[50%] -translate-x-1/2">
-        <span className="text-xs font-medium text-red-600 block">
-          {data.bottomPathLabel || "No"}
+        <span className="text-xs font-medium text-green-600 block">
+          {data.bottomPathLabel || "Yes"}
         </span>
       </div>
 
@@ -172,7 +172,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
 
       {/* Content */}
       <div className="absolute inset-0 p-3 flex flex-col justify-center pointer-events-none">
-        <div className="font-medium text-sm truncate">{data.label}</div>
+        <div className="font-medium text-sm truncate text-center">{data.label}</div>
         {data.description && (
           <div className="text-xs text-gray-600 mt-1 line-clamp-2">
             {data.description}
