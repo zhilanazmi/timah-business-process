@@ -102,7 +102,6 @@ export const addEdge = (edgeParams: Edge | Connection, edges: Edge[]): Edge[] =>
     id: `e${edgeParams.source}-${edgeParams.target}-${Date.now()}`,
     source: edgeParams.source,
     target: edgeParams.target,
-    type: 'smoothstep', // Set all edges to use smoothstep
     ...edgeParams
   };
 

@@ -55,35 +55,21 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         handleClassName="h-3 w-3 bg-white border-2 border-blue-400"
       />
       
-      {/* Top handle - now accepts both source and target connections */}
-      <Handle
-        type="source"
-        position={Position.Top}
-        id="top-source"
-        style={{ width: 8, height: 8, background: '#555', right: 'auto', left: '50%', transform: 'translateX(-50%)' }}
-        isConnectable={isConnectable}
-      />
+      {/* Top handle with unique ID */}
       <Handle
         type="target"
         position={Position.Top}
-        id="top-target"
-        style={{ width: 8, height: 8, background: '#555', right: 'auto', left: '50%', transform: 'translateX(-50%)' }}
+        id="top"
+        style={{ width: 8, height: 8, background: '#555' }}
         isConnectable={isConnectable}
       />
       
-      {/* Left handle - now accepts both source and target connections */}
-      <Handle
-        type="source"
-        position={Position.Left}
-        id="left-source"
-        style={{ width: 8, height: 8, background: '#555', top: '50%', transform: 'translateY(-50%)' }}
-        isConnectable={isConnectable}
-      />
+      {/* Left handle with unique ID */}
       <Handle
         type="target"
         position={Position.Left}
-        id="left-target"
-        style={{ width: 8, height: 8, background: '#555', top: '50%', transform: 'translateY(-50%)' }}
+        id="left"
+        style={{ width: 8, height: 8, background: '#555' }}
         isConnectable={isConnectable}
       />
       
@@ -112,35 +98,21 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         </div>
       )}
       
-      {/* Right handle - now accepts both source and target connections */}
+      {/* Right handle with unique ID */}
       <Handle
         type="source"
         position={Position.Right}
-        id="right-source"
-        style={{ width: 8, height: 8, background: '#555', top: '50%', transform: 'translateY(-50%)' }}
-        isConnectable={isConnectable}
-      />
-      <Handle
-        type="target"
-        position={Position.Right}
-        id="right-target"
-        style={{ width: 8, height: 8, background: '#555', top: '50%', transform: 'translateY(-50%)' }}
+        id="right"
+        style={{ width: 8, height: 8, background: '#555' }}
         isConnectable={isConnectable}
       />
       
-      {/* Bottom handle - now accepts both source and target connections */}
+      {/* Bottom handle with unique ID */}
       <Handle
         type="source"
         position={Position.Bottom}
-        id="bottom-source"
-        style={{ width: 8, height: 8, background: '#555', left: '50%', transform: 'translateX(-50%)' }}
-        isConnectable={isConnectable}
-      />
-      <Handle
-        type="target"
-        position={Position.Bottom}
-        id="bottom-target"
-        style={{ width: 8, height: 8, background: '#555', left: '50%', transform: 'translateX(-50%)' }}
+        id="bottom"
+        style={{ width: 8, height: 8, background: '#555' }}
         isConnectable={isConnectable}
       />
     </div>
