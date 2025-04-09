@@ -75,7 +75,9 @@ export const handleConnect = (
       width: 20,
       height: 20,
       color: '#555'
-    }
+    },
+    // Use smoothstep for all edges
+    type: 'smoothstep'
   }, eds));
   toast.success('Elemen berhasil dihubungkan');
 };
@@ -102,6 +104,7 @@ export const addEdge = (edgeParams: Edge | Connection, edges: Edge[]): Edge[] =>
     id: `e${edgeParams.source}-${edgeParams.target}-${Date.now()}`,
     source: edgeParams.source,
     target: edgeParams.target,
+    type: 'smoothstep', // Set all edges to use smoothstep
     ...edgeParams
   };
 
