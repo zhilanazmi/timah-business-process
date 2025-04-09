@@ -48,7 +48,15 @@ export const handleEdgesChange = (
     saveCurrentState();
   }
   
-  setEdges(eds => applyEdgeChanges(changes, eds));
+  setEdges(eds => {
+    // First apply the changes
+    const updatedEdges = applyEdgeChanges(changes, eds);
+    // Then ensure all edges use smoothstep type
+    return updatedEdges.map(edge => ({
+      ...edge,
+      type: 'smoothstep'
+    }));
+  });
 };
 
 /**
@@ -102,6 +110,7 @@ export const addEdge = (edgeParams: Edge | Connection, edges: Edge[]): Edge[] =>
     id: `e${edgeParams.source}-${edgeParams.target}-${Date.now()}`,
     source: edgeParams.source,
     target: edgeParams.target,
+    type: 'smoothstep', // Ensure type is set here too
     ...edgeParams
   };
 

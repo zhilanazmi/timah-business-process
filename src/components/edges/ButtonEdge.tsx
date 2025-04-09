@@ -17,6 +17,7 @@ const ButtonEdge = ({
   data,
   selected
 }: EdgeProps) => {
+  // Get a smooth step path instead of a bezier path
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -24,6 +25,7 @@ const ButtonEdge = ({
     targetX,
     targetY,
     targetPosition,
+    curvature: 0.25 // Add curvature for smoother edges
   });
 
   const onEdgeClick = (e: React.MouseEvent) => {
@@ -37,7 +39,7 @@ const ButtonEdge = ({
     <>
       <path 
         id={id} 
-        style={style} 
+        style={{...style, strokeDasharray: style.strokeDasharray || 'none'}} 
         className="react-flow__edge-path" 
         d={edgePath} 
         markerEnd={markerEnd}

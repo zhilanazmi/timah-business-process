@@ -42,7 +42,10 @@ const FlowChart = () => {
   const currentPage = pages.find(p => p.id === currentPageId) || pages[0];
   
   const [nodes, setNodes] = useNodesState(currentPage.nodes);
-  const [edges, setEdges] = useEdgesState(currentPage.edges);
+  const [edges, setEdges] = useEdgesState(currentPage.edges.map(edge => ({
+    ...edge,
+    type: 'smoothstep'
+  })));
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,7 +63,22 @@ const FlowChart = () => {
     const page = pages.find(p => p.id === currentPageId);
     if (page) {
       setNodes(page.nodes);
-      setEdges(page.edges.map(edge => ({ ...edge, type: 'smoothstep' })));
+      setEdges(page.edges.map(edge => ({ 
+        ...edge, 
+        type: 'smoothstep',
+        animated: true,
+        style: { 
+          ...(edge.style || {}),
+          strokeWidth: 2, 
+          stroke: '#555' 
+        },
+        markerEnd: edge.markerEnd || {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: '#555'
+        }
+      })));
       setSelectedNode(null);
       setSelectedEdge(null);
       setUndoStack([]);
@@ -353,7 +371,26 @@ const FlowChart = () => {
 
   useEffect(() => {
     setEdges(currentEdges => 
-      currentEdges.map(edge => createEdgeWithDeleteHandler(edge, handleEdgeDelete))
+      currentEdges.map(edge => ({
+        ...edge,
+        type: 'smoothstep',
+        animated: true,
+        style: { 
+          ...(edge.style || {}), 
+          strokeWidth: 2, 
+          stroke: '#555' 
+        },
+        data: {
+          ...edge.data,
+          onDelete: handleEdgeDelete
+        },
+        markerEnd: edge.markerEnd || {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: '#555'
+        }
+      }))
     );
   }, [handleEdgeDelete]);
 
@@ -362,9 +399,21 @@ const FlowChart = () => {
       currentEdges.map(edge => ({
         ...edge,
         type: 'smoothstep',
+        animated: true,
+        style: { 
+          ...(edge.style || {}), 
+          strokeWidth: 2, 
+          stroke: '#555' 
+        },
         data: {
           ...edge.data,
           onDelete: handleEdgeDelete
+        },
+        markerEnd: edge.markerEnd || {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: '#555'
         }
       }))
     );
@@ -448,9 +497,22 @@ const FlowChart = () => {
             edgeTypes={edgeTypes}
             onInit={(instance) => {
               reactFlowInstance.current = instance;
-              instance.setEdges(instance.getEdges().map(edge => ({
+              const currentEdges = instance.getEdges();
+              instance.setEdges(currentEdges.map(edge => ({
                 ...edge,
-                type: 'smoothstep'
+                type: 'smoothstep',
+                animated: true,
+                style: { 
+                  ...(edge.style || {}), 
+                  strokeWidth: 2, 
+                  stroke: '#555' 
+                },
+                markerEnd: edge.markerEnd || {
+                  type: MarkerType.ArrowClosed,
+                  width: 20,
+                  height: 20,
+                  color: '#555'
+                }
               })));
             }}
             fitView
