@@ -75,9 +75,7 @@ export const handleConnect = (
       width: 20,
       height: 20,
       color: '#555'
-    },
-    // Set the edge type to smoothstep
-    type: 'smoothstep'
+    }
   }, eds));
   toast.success('Elemen berhasil dihubungkan');
 };
