@@ -60,7 +60,7 @@ const FlowChart = () => {
     const page = pages.find(p => p.id === currentPageId);
     if (page) {
       setNodes(page.nodes);
-      setEdges(page.edges);
+      setEdges(page.edges.map(edge => ({ ...edge, type: 'smoothstep' })));
       setSelectedNode(null);
       setSelectedEdge(null);
       setUndoStack([]);
@@ -357,6 +357,19 @@ const FlowChart = () => {
     );
   }, [handleEdgeDelete]);
 
+  useEffect(() => {
+    setEdges(currentEdges => 
+      currentEdges.map(edge => ({
+        ...edge,
+        type: 'smoothstep',
+        data: {
+          ...edge.data,
+          onDelete: handleEdgeDelete
+        }
+      }))
+    );
+  }, [handleEdgeDelete]);
+
   useFlowShortcuts({
     onAddNode: () => setIsModalOpen(true),
     onAddColumn: () => setIsColumnModalOpen(true),
@@ -435,6 +448,10 @@ const FlowChart = () => {
             edgeTypes={edgeTypes}
             onInit={(instance) => {
               reactFlowInstance.current = instance;
+              instance.setEdges(instance.getEdges().map(edge => ({
+                ...edge,
+                type: 'smoothstep'
+              })));
             }}
             fitView
             className="bg-gray-50"
@@ -444,9 +461,17 @@ const FlowChart = () => {
             selectionKeyCode={['Shift']}
             defaultEdgeOptions={{
               type: 'smoothstep',
+              animated: true,
+              style: { strokeWidth: 2, stroke: '#555' },
               data: {
                 onDelete: handleEdgeDelete
               },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: '#555'
+              }
             }}
           >
             <Controls />

@@ -86,7 +86,7 @@ export const handleConnect = (
 export const createEdgeWithDeleteHandler = (edge: Edge, deleteHandler: (edgeId: string) => void): Edge => {
   return {
     ...edge,
-    type: 'buttonEdge',
+    type: 'smoothstep', // Ensure all edges use smoothstep type
     data: {
       ...edge.data,
       onDelete: deleteHandler
