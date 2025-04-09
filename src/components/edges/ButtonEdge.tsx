@@ -17,13 +17,16 @@ const ButtonEdge = ({
   data,
   selected
 }: EdgeProps) => {
+
   const [edgePath, labelX, labelY] = getSmoothStepPath({
+
     sourceX,
     sourceY,
     sourcePosition,
     targetX,
     targetY,
     targetPosition,
+    curvature: 0.25 // Add curvature for smoother edges
   });
 
   const onEdgeClick = (e: React.MouseEvent) => {
@@ -37,7 +40,7 @@ const ButtonEdge = ({
     <>
       <path 
         id={id} 
-        style={style} 
+        style={{...style, strokeDasharray: style.strokeDasharray || 'none'}} 
         className="react-flow__edge-path" 
         d={edgePath} 
         markerEnd={markerEnd}

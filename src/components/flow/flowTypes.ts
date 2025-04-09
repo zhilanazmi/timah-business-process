@@ -18,4 +18,5 @@ export const nodeTypes = {
  */
 export const edgeTypes = {
   buttonEdge: ButtonEdge,
+  smoothstep: ButtonEdge, // Register the smoothstep type to use our custom edge
 };
