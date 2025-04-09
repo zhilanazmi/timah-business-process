@@ -64,7 +64,7 @@ export const handleConnect = (
   setEdges(eds => addEdge({ 
     ...params, 
     animated: true,
-    type: 'buttonEdge',
+    type: 'smoothstep', // Changed to smoothstep for smoother connection lines
     style: { strokeWidth: 2, stroke: '#555' },
     data: { 
       label: 'Hubungan',
