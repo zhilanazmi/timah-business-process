@@ -1,5 +1,5 @@
 
-import { EdgeProps, getBezierPath, EdgeLabelRenderer } from 'reactflow';
+import { EdgeProps, getBezierPath, getSmoothStepPath, EdgeLabelRenderer } from 'reactflow';
 
 /**
  * Custom edge component with a delete button that appears when the edge is selected
@@ -17,7 +17,7 @@ const ButtonEdge = ({
   data,
   selected
 }: EdgeProps) => {
-  const [edgePath, labelX, labelY] = getBezierPath({
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
