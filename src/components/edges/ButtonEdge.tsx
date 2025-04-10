@@ -25,8 +25,7 @@ const ButtonEdge = ({
     sourcePosition,
     targetX,
     targetY,
-    targetPosition,
-    curvature: 0.25 // Add curvature for smoother edges
+    targetPosition
   });
 
   const onEdgeClick = (e: React.MouseEvent) => {

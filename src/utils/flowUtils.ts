@@ -113,7 +113,7 @@ export const addEdge = (edgeParams: Edge | Connection, edges: Edge[]): Edge[] =>
     source: edgeParams.source,
     target: edgeParams.target,
     type: 'smoothstep',
-    animated: edgeParams.animated === false ? false : true,
+    animated: edgeParams.hasOwnProperty('animated') ? (edgeParams as Edge).animated : true,
     ...edgeParams
   };
 
