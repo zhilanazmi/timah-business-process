@@ -51,10 +51,11 @@ export const handleEdgesChange = (
   setEdges(eds => {
     // First apply the changes
     const updatedEdges = applyEdgeChanges(changes, eds);
-    // Then ensure all edges use smoothstep type
+    // Then ensure all edges use smoothstep type and maintain animated property
     return updatedEdges.map(edge => ({
       ...edge,
-      type: 'smoothstep'
+      type: 'smoothstep',
+      animated: edge.animated === false ? false : true
     }));
   });
 };
@@ -72,7 +73,7 @@ export const handleConnect = (
   setEdges(eds => addEdge({ 
     ...params, 
     animated: true,
-    type: 'smoothstep', // Changed to smoothstep for smoother connection lines
+    type: 'smoothstep',
     style: { strokeWidth: 2, stroke: '#555' },
     data: { 
       label: 'Hubungan',
@@ -94,7 +95,8 @@ export const handleConnect = (
 export const createEdgeWithDeleteHandler = (edge: Edge, deleteHandler: (edgeId: string) => void): Edge => {
   return {
     ...edge,
-    type: 'smoothstep', // Ensure all edges use smoothstep type
+    type: 'smoothstep',
+    animated: edge.animated === false ? false : true,
     data: {
       ...edge.data,
       onDelete: deleteHandler
@@ -110,7 +112,8 @@ export const addEdge = (edgeParams: Edge | Connection, edges: Edge[]): Edge[] =>
     id: `e${edgeParams.source}-${edgeParams.target}-${Date.now()}`,
     source: edgeParams.source,
     target: edgeParams.target,
-    type: 'smoothstep', // Ensure type is set here too
+    type: 'smoothstep',
+    animated: edgeParams.animated === false ? false : true,
     ...edgeParams
   };
 

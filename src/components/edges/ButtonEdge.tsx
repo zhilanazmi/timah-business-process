@@ -1,5 +1,5 @@
 
-import { EdgeProps, getBezierPath, getSmoothStepPath, EdgeLabelRenderer } from 'reactflow';
+import { EdgeProps, getSmoothStepPath, EdgeLabelRenderer } from 'reactflow';
 
 /**
  * Custom edge component with a delete button that appears when the edge is selected
@@ -15,11 +15,11 @@ const ButtonEdge = ({
   style = {}, 
   markerEnd, 
   data,
-  selected
+  selected,
+  animated
 }: EdgeProps) => {
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
-
     sourceX,
     sourceY,
     sourcePosition,
@@ -40,7 +40,11 @@ const ButtonEdge = ({
     <>
       <path 
         id={id} 
-        style={{...style, strokeDasharray: style.strokeDasharray || 'none'}} 
+        style={{
+          ...style, 
+          strokeDasharray: animated ? '5,5' : style.strokeDasharray || 'none',
+          animation: animated ? 'flowLineAnimation 0.5s linear infinite' : 'none'
+        }} 
         className="react-flow__edge-path" 
         d={edgePath} 
         markerEnd={markerEnd}
