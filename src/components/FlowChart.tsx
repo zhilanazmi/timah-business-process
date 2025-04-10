@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -43,7 +42,10 @@ const FlowChart = () => {
   const currentPage = pages.find(p => p.id === currentPageId) || pages[0];
   
   const [nodes, setNodes] = useNodesState(currentPage.nodes);
-  const [edges, setEdges] = useEdgesState(currentPage.edges);
+  const [edges, setEdges] = useEdgesState(currentPage.edges.map(edge => ({
+    ...edge,
+    type: 'smoothstep'
+  })));
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,12 +59,26 @@ const FlowChart = () => {
   const reactFlowInstance = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Update nodes and edges whenever the page changes
   useEffect(() => {
     const page = pages.find(p => p.id === currentPageId);
     if (page) {
       setNodes(page.nodes);
-      setEdges(page.edges);
+      setEdges(page.edges.map(edge => ({ 
+        ...edge, 
+        type: 'smoothstep',
+        animated: true,
+        style: { 
+          ...(edge.style || {}),
+          strokeWidth: 2, 
+          stroke: '#555' 
+        },
+        markerEnd: edge.markerEnd || {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: '#555'
+        }
+      })));
       setSelectedNode(null);
       setSelectedEdge(null);
       setUndoStack([]);
@@ -70,9 +86,7 @@ const FlowChart = () => {
     }
   }, [currentPageId, setNodes, setEdges]);
 
-  // Save current page state when nodes or edges change
   useEffect(() => {
-    // Update the current page data in the pages array
     setPages(prevPages => 
       prevPages.map(page => 
         page.id === currentPageId ? { ...page, nodes, edges } : page
@@ -285,7 +299,6 @@ const FlowChart = () => {
     }
   };
 
-  // Page management functions
   const handleChangePage = (pageId: string) => {
     setCurrentPageId(pageId);
   };
@@ -293,7 +306,6 @@ const FlowChart = () => {
   const handleAddPage = (pageTitle: string) => {
     const newPageId = `page-${Date.now()}`;
     
-    // Create a new page with column headers
     const newPageNodes = availableColumns.map((column, index) => {
       const nodeWidth = 180;
       const gap = 80;
@@ -335,16 +347,13 @@ const FlowChart = () => {
   };
 
   const handleDeletePage = (pageId: string) => {
-    // Don't allow deleting the last page
     if (pages.length <= 1) {
       toast.error("Tidak dapat menghapus halaman terakhir");
       return;
     }
     
-    // Find the current index of the page to be deleted
     const currentIndex = pages.findIndex(p => p.id === pageId);
     
-    // Determine which page to show after deletion
     let newPageId = pages[0].id;
     if (currentIndex > 0) {
       newPageId = pages[currentIndex - 1].id;
@@ -352,19 +361,61 @@ const FlowChart = () => {
       newPageId = pages[1].id;
     }
     
-    // If we're deleting the current page, switch to another page first
     if (currentPageId === pageId) {
       setCurrentPageId(newPageId);
     }
     
-    // Remove the page
     setPages(prevPages => prevPages.filter(page => page.id !== pageId));
     toast.success(`Halaman berhasil dihapus`);
   };
 
   useEffect(() => {
     setEdges(currentEdges => 
-      currentEdges.map(edge => createEdgeWithDeleteHandler(edge, handleEdgeDelete))
+      currentEdges.map(edge => ({
+        ...edge,
+        type: 'smoothstep',
+        animated: true,
+        style: { 
+          ...(edge.style || {}), 
+          strokeWidth: 2, 
+          stroke: '#555' 
+        },
+        data: {
+          ...edge.data,
+          onDelete: handleEdgeDelete
+        },
+        markerEnd: edge.markerEnd || {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: '#555'
+        }
+      }))
+    );
+  }, [handleEdgeDelete]);
+
+  useEffect(() => {
+    setEdges(currentEdges => 
+      currentEdges.map(edge => ({
+        ...edge,
+        type: 'smoothstep',
+        animated: true,
+        style: { 
+          ...(edge.style || {}), 
+          strokeWidth: 2, 
+          stroke: '#555' 
+        },
+        data: {
+          ...edge.data,
+          onDelete: handleEdgeDelete
+        },
+        markerEnd: edge.markerEnd || {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: '#555'
+        }
+      }))
     );
   }, [handleEdgeDelete]);
 
@@ -446,6 +497,23 @@ const FlowChart = () => {
             edgeTypes={edgeTypes}
             onInit={(instance) => {
               reactFlowInstance.current = instance;
+              const currentEdges = instance.getEdges();
+              instance.setEdges(currentEdges.map(edge => ({
+                ...edge,
+                type: 'smoothstep',
+                animated: true,
+                style: { 
+                  ...(edge.style || {}), 
+                  strokeWidth: 2, 
+                  stroke: '#555' 
+                },
+                markerEnd: edge.markerEnd || {
+                  type: MarkerType.ArrowClosed,
+                  width: 20,
+                  height: 20,
+                  color: '#555'
+                }
+              })));
             }}
             fitView
             className="bg-gray-50"
@@ -454,10 +522,18 @@ const FlowChart = () => {
             multiSelectionKeyCode={['Control', 'Meta']}
             selectionKeyCode={['Shift']}
             defaultEdgeOptions={{
-              type: 'buttonEdge',
+              type: 'smoothstep',
+              animated: true,
+              style: { strokeWidth: 2, stroke: '#555' },
               data: {
                 onDelete: handleEdgeDelete
               },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: '#555'
+              }
             }}
           >
             <Controls />
