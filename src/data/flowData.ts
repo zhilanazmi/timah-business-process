@@ -7,12 +7,11 @@ const gap = 80;
 
 // Define columns
 export const columns = [
-  { id: 'kolomsatu', title: 'Manager QPP', color: 'bg-blue-900' },
-  { id: 'kolomdua', title: 'Supervisor PP', color: 'bg-blue-900' },
-  { id: 'kolomtiga', title: 'Admin Sales', color: 'bg-blue-900' },
-  { id: 'kolomempat', title: 'Supervisor Lab', color: 'bg-blue-900' },
-  { id: 'kolomlima', title: 'Supervisor Gudang', color: 'bg-blue-900' },
-  { id: 'kolomenam', title: 'Mitra Usaha', color: 'bg-blue-900' },
+  { id: 'kolomsatu', title: 'QPP Manager', color: 'bg-blue-900' },
+  { id: 'kolomdua', title: 'PP Supervisor', color: 'bg-blue-900' },
+  { id: 'kolomtiga', title: 'Sales Admin', color: 'bg-blue-900' },
+  { id: 'kolomempat', title: 'Lab Supervisor', color: 'bg-blue-900' },
+  { id: 'kolomlima', title: 'Warehouse Supervisor', color: 'bg-blue-900' },
 ];
 
 // Calculate x position based on column index
@@ -157,24 +156,7 @@ export const initialNodes: Node[] = [
       }
     }
   },
-  
-  // Mitra column
-  {
-    id: '9',
-    type: 'customNode',
-    position: { x: getColumnX(5), y: 160 },
-    data: { 
-      label: 'Delivery',
-      description: 'Deliver product to customer',
-      column: 'mitra',
-      details: {
-        'Process Owner': 'Delivery Partner',
-        'Duration': '1-3 days',
-        'Input': 'Packaged products',
-        'Output': 'Delivered products'
-      }
-    }
-  },
+
   
   // Pelanggan column (closing the loop)
   {
