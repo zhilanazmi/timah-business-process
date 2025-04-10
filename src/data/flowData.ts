@@ -7,11 +7,11 @@ const gap = 80;
 
 // Define columns
 export const columns = [
-  { id: 'kolomsatu', title: 'Manager QPP', color: 'bg-blue-900' },
-  { id: 'kolomdua', title: 'Supervisor PP', color: 'bg-blue-900' },
+  { id: 'kolomsatu', title: 'QPP Manager', color: 'bg-blue-900' },
+  { id: 'kolomdua', title: 'PP Supervisor', color: 'bg-blue-900' },
   { id: 'kolomtiga', title: 'Admin Sales', color: 'bg-blue-900' },
-  { id: 'kolomempat', title: 'Supervisor Lab', color: 'bg-blue-900' },
-  { id: 'kolomlima', title: 'Supervisor Gudang', color: 'bg-blue-900' },
+  { id: 'kolomempat', title: 'Lab Supervisor', color: 'bg-blue-900' },
+  { id: 'kolomlima', title: 'Gudang Supervisor', color: 'bg-blue-900' },
   { id: 'kolomenam', title: 'Mitra Usaha', color: 'bg-blue-900' },
 ];
 

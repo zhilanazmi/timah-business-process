@@ -5,11 +5,19 @@ import { Handle, Position, NodeResizer } from 'reactflow';
 export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
   return (
     <div className="relative inline-block">
-      {/* Top input handle - positioned absolutely */}
+        {/* Top handle - both input and output */}
       <Handle
-        type="target"
+        type="target"  // Input handle
         position={Position.Top}
-        id="input"
+        id="top-target"
+        isConnectable={isConnectable}
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
+      />
+      <Handle
+        type="source"  // Output handle (overlapping with input)
+        position={Position.Top}
+        id="top-source"
         isConnectable={isConnectable}
         className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
         style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
@@ -40,11 +48,19 @@ export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
         </div>
       </div>
 
-      {/* Bottom output handle - positioned absolutelny */}
+      {/* Bottom handle - both input and output */}
       <Handle
-        type="source"
+        type="target"  // Input handle
         position={Position.Bottom}
-        id="output"
+        id="bottom-target"
+        isConnectable={isConnectable}
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
+      />
+      <Handle
+        type="source"  // Output handle (overlapping with input)
+        position={Position.Bottom}
+        id="bottom-source"
         isConnectable={isConnectable}
         className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
         style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
@@ -76,20 +92,37 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         handleClassName="h-3 w-3 bg-white border-2 border-purple-400"
       />
 
-      {/* Handle atas */}
+      {/* Handle atas - both input and output */}
       <Handle
         type="target"
         position={Position.Top}
+        id="top-target"
+        isConnectable={isConnectable}
+        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
+      />
+      <Handle
+        type="source"
+        position={Position.Top}
+        id="top-source"
         isConnectable={isConnectable}
         className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
         style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
       />
 
-      {/* Handle kanan (Yes) */}
+      {/* Handle kanan - both input and output */}
+      <Handle
+        type="target"
+        position={Position.Right}
+        id="right-target"
+        isConnectable={isConnectable}
+        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        style={{ top: '50%', right: 0, transform: 'translate(50%, -50%)' }}
+      />
       <Handle
         type="source"
         position={Position.Right}
-        id="yes"
+        id="right-source"
         isConnectable={isConnectable}
         className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
         style={{ top: '50%', right: 0, transform: 'translate(50%, -50%)' }}
@@ -100,11 +133,19 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         </span>
       </div>
 
-      {/* Handle bawah (No) */}
+      {/* Handle bawah - both input and output */}
+      <Handle
+        type="target"
+        position={Position.Bottom}
+        id="bottom-target"
+        isConnectable={isConnectable}
+        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
+      />
       <Handle
         type="source"
         position={Position.Bottom}
-        id="no"
+        id="bottom-source"
         isConnectable={isConnectable}
         className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
         style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
@@ -114,6 +155,24 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
           {data.bottomPathLabel || "Yes"}
         </span>
       </div>
+
+      {/* Tambahkan handle kiri - both input and output */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="left-target"
+        isConnectable={isConnectable}
+        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        style={{ top: '50%', left: 0, transform: 'translate(-50%, -50%)' }}
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        id="left-source"
+        isConnectable={isConnectable}
+        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        style={{ top: '50%', left: 0, transform: 'translate(-50%, -50%)' }}
+      />
 
       {/* Konten teks */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -142,25 +201,23 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
     <div 
       className="relative inline-block" 
       style={{ 
-        width: data.width || 180, // Increased default width
-        height: data.height || 90  // Increased default height
+        width: data.width || 180,
+        height: data.height || 90
       }}
     >
       <NodeResizer 
-        minWidth={120} // Increased minimum width
-        minHeight={70} // Increased minimum height
+        minWidth={120}
+        minHeight={70}
         isVisible={selected}
         lineClassName="border-cyan-400"
-        handleClassName="h-4 w-4 bg-white border-2 border-cyan-400" // Larger handles
+        handleClassName="h-4 w-4 bg-white border-2 border-cyan-400"
         onResize={(event, params) => {
-          // Store size in node data if needed
           if (data.onResize) {
             data.onResize(params.width, params.height);
           }
         }}
       />
 
-      {/* SVG Shape (flipped horizontal) */}
       <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
         <path 
           d="M100,0 L0,0 L0,45 Q40,55 65,40 Q80,35 100,45 Z" 
@@ -170,7 +227,6 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         />
       </svg>
 
-      {/* Content */}
       <div className="absolute inset-0 p-3 flex flex-col justify-center pointer-events-none">
         <div className="font-medium text-sm truncate text-center">{data.label}</div>
         {data.description && (
@@ -185,35 +241,73 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         )}
       </div>
 
-      {/* Handles with better positioning */}
+      {/* Top handles - both input and output */}
       <Handle
         type="target"
         position={Position.Top}
-        id="target-top"
+        id="top-target"
         isConnectable={isConnectable}
         className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
         style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
       />
       <Handle
+        type="source"
+        position={Position.Top}
+        id="top-source"
+        isConnectable={isConnectable}
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
+      />
+      
+      {/* Left handles - both input and output */}
+      <Handle
         type="target"
         position={Position.Left}
-        id="target-left"
+        id="left-target"
         isConnectable={isConnectable}
         className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
         style={{ left: 0, top: '50%', transform: 'translate(-50%, -50%)' }}
       />
       <Handle
         type="source"
+        position={Position.Left}
+        id="left-source"
+        isConnectable={isConnectable}
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        style={{ left: 0, top: '50%', transform: 'translate(-50%, -50%)' }}
+      />
+      
+      {/* Right handles - both input and output */}
+      <Handle
+        type="target"
         position={Position.Right}
-        id="source-right"
+        id="right-target"
         isConnectable={isConnectable}
         className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
         style={{ right: 0, top: '50%', transform: 'translate(50%, -50%)' }}
       />
       <Handle
         type="source"
+        position={Position.Right}
+        id="right-source"
+        isConnectable={isConnectable}
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        style={{ right: 0, top: '50%', transform: 'translate(50%, -50%)' }}
+      />
+      
+      {/* Bottom handles - both input and output */}
+      <Handle
+        type="target"
         position={Position.Bottom}
-        id="source-bottom"
+        id="bottom-target"
+        isConnectable={isConnectable}
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="bottom-source"
         isConnectable={isConnectable}
         className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
         style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
