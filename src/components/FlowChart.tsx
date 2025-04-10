@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -478,9 +479,6 @@ const FlowChart = () => {
       <div 
         className="flex-1 h-full w-full relative" 
         ref={reactFlowWrapper}
-        style={{
-          cursor: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\'%3E%3Cpolygon points=\'0,0 0,16 4,12 8,0\' fill=\'black\'/%3E%3C/svg%3E") 0 0, auto'
-        }}
       >
         <ReactFlowProvider>
           <ReactFlow
@@ -537,7 +535,7 @@ const FlowChart = () => {
             }}
           >
             <Controls />
-            <MiniMap zoomable pannable nodeClassName={node => node.type} />
+            <MiniMap zoomable pannable nodeClassName={node => node.type || ''} />
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <Panel position="bottom-right" className="bg-white p-2 rounded shadow-sm">
               <ZoomControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />

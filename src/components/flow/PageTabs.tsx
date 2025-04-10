@@ -14,6 +14,16 @@ export interface FlowPage {
   edges: any[];
 }
 
+// Default pages for initializing the flow chart
+export const defaultPages: FlowPage[] = [
+  {
+    id: 'page-1',
+    title: 'Halaman 1',
+    nodes: [],
+    edges: []
+  }
+];
+
 interface PageTabsProps {
   pages: FlowPage[];
   currentPage: string;
@@ -81,7 +91,7 @@ const PageTabs = ({ pages, currentPage, onChangePage, onAddPage, onRenamePage, o
               value={page.id}
               className="flex items-center gap-1 px-3 whitespace-nowrap"
             >
-              {page.title}
+              <span>{page.title}</span>
               <div className="flex items-center ml-1">
                 <button 
                   onClick={(e) => handleStartRenamePage(page, e)}
