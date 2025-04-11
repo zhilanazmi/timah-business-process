@@ -32,7 +32,8 @@ export const onConnect = (params: Connection, edges: Edge[]) => {
       strokeWidth: 2,
     },
     // Only use properties that exist on Connection type
-    ...(params.animated ? { animated: params.animated } : {}),
+    ...(params.sourceHandle ? { sourceHandle: params.sourceHandle } : {}),
+    ...(params.targetHandle ? { targetHandle: params.targetHandle } : {})
   };
 
   return [...edges, newEdge];
@@ -89,7 +90,9 @@ export const createEdgeWithDeleteHandler = (params: Connection, onDelete: (edgeI
       width: 20,
       height: 20,
       color: '#555'
-    }
+    },
+    ...(params.sourceHandle ? { sourceHandle: params.sourceHandle } : {}),
+    ...(params.targetHandle ? { targetHandle: params.targetHandle } : {})
   };
 };
 
@@ -110,4 +113,3 @@ export const updateEdgeWithAnimation = (edge: Edge | Connection): Edge => {
 export const getAnimatedEdgeParams = (animated: boolean = false) => {
   return animated ? { animated: true } : {};
 };
-
