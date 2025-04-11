@@ -7,7 +7,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
   // For header nodes, render a special header style
   if (data.isHeader) {
     return (
-      <div className={`p-3 text-center text-white font-bold rounded-t-md shadow-md ${data.color || 'bg-blue-900'} w-[180px] select-none transition-all duration-200`}>
+      <div className={`p-2 text-center text-white font-bold rounded-t-md shadow-md ${data.color || 'bg-blue-900'} w-[180px] select-none`}>
         {data.label}
       </div>
     );
@@ -18,19 +18,19 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
     const column = data.column;
     switch(column) {
       case 'kolomsatu':
-        return 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:border-blue-400 shadow-blue-100/50';
+        return 'bg-blue-50 border-blue-200 hover:border-blue-400';
       case 'kolomdua':
-        return 'bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:border-green-400 shadow-green-100/50';
+        return 'bg-green-50 border-green-200 hover:border-green-400';
       case 'kolomtiga':
-        return 'bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 hover:border-amber-400 shadow-amber-100/50';
+        return 'bg-amber-50 border-amber-200 hover:border-amber-400';
       case 'kolomempat':
-        return 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 hover:border-red-400 shadow-red-100/50';
+        return 'bg-red-50 border-red-200 hover:border-red-400';
       case 'kolomlima':
-        return 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:border-purple-400 shadow-purple-100/50';
+        return 'bg-purple-50 border-purple-200 hover:border-purple-400';
       case 'kolomenam':
-        return 'bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200 hover:border-teal-400 shadow-teal-100/50';
+        return 'bg-teal-50 border-teal-200 hover:border-teal-400';
       default:
-        return 'bg-gradient-to-br from-white to-gray-50 border-gray-200 hover:border-blue-400 shadow-gray-100/50';
+        return 'bg-white border-gray-200 hover:border-blue-400';
     }
   };
 
@@ -46,7 +46,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
   };
 
   return (
-    <div className={`p-3.5 rounded-md shadow-md border-2 transition-all duration-200 ${nodeStyle} relative ${selected ? 'ring-2 ring-blue-400' : ''}`}>
+    <div className={`p-3.5 rounded-md shadow-md border-2 transition-colors ${nodeStyle} relative`}>
       <NodeResizer 
         minWidth={150}
         minHeight={40}
@@ -61,7 +61,6 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         position={Position.Top}
         id="top"
         style={{ width: 8, height: 8, background: '#555' }}
-        className="transition-all hover:w-10 hover:bg-blue-500"
         isConnectable={isConnectable}
       />
       
@@ -71,7 +70,6 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         position={Position.Left}
         id="left"
         style={{ width: 8, height: 8, background: '#555' }}
-        className="transition-all hover:h-10 hover:bg-blue-500"
         isConnectable={isConnectable}
       />
       
@@ -80,7 +78,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         {data.link && (
           <ExternalLink 
             size={14} 
-            className="text-blue-500 flex-shrink-0 cursor-pointer hover:text-blue-700 transition-colors" 
+            className="text-blue-500 flex-shrink-0 cursor-pointer" 
             onClick={handleLinkClick}
             aria-label="Open link in new tab"
           />
@@ -106,7 +104,6 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         position={Position.Right}
         id="right"
         style={{ width: 8, height: 8, background: '#555' }}
-        className="transition-all hover:h-10 hover:bg-blue-500"
         isConnectable={isConnectable}
       />
       
@@ -116,7 +113,6 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         position={Position.Bottom}
         id="bottom"
         style={{ width: 8, height: 8, background: '#555' }}
-        className="transition-all hover:w-10 hover:bg-blue-500"
         isConnectable={isConnectable}
       />
     </div>

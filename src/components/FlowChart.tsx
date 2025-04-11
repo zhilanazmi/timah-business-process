@@ -31,7 +31,7 @@ import {
   handleEdgesChange, 
   handleConnect,
   createEdgeWithDeleteHandler
-} from '@/utils/flow';
+} from '@/utils/flowUtils';
 import { useFlowShortcuts } from '@/hooks/useFlowShortcuts';
 import ZoomControls from './flow/ZoomControls';
 import PageTabs, { FlowPage } from './flow/PageTabs';
