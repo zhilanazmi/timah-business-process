@@ -1,121 +1,212 @@
 
-import { Edge, Node, NodeChange, EdgeChange, Connection, applyNodeChanges, applyEdgeChanges, MarkerType } from 'reactflow';
-import { toast } from 'sonner';
+import { Connection, Edge, EdgeChange, MarkerType, Node, NodeChange, applyEdgeChanges, applyNodeChanges } from 'reactflow';
+import { v4 as uuidv4 } from 'uuid';
 
-/**
- * Handles the deletion of an edge
- */
-export const handleDeleteEdge = (
-  edgeId: string, 
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>, 
-  saveCurrentState: () => void
-) => {
-  saveCurrentState();
-  setEdges((eds) => eds.filter((edge) => edge.id !== edgeId));
-  toast.success('Koneksi berhasil dihapus');
+// Function untuk menangani perubahan node
+export const onNodesChange = (changes: NodeChange[], nodes: Node[]) => {
+  return applyNodeChanges(changes, nodes);
 };
 
-/**
- * Applies changes to nodes and handles non-position changes that require state saving
- */
-export const handleNodesChange = (
-  changes: NodeChange[],
-  setNodes: React.Dispatch<React.SetStateAction<Node[]>>,
-  saveCurrentState: () => void
-) => {
-  const nonPositionChanges = changes.filter(
-    change => change.type !== 'position' && change.type !== 'select'
+// Function untuk menangani perubahan edge
+export const onEdgesChange = (changes: EdgeChange[], edges: Edge[]) => {
+  return applyEdgeChanges(changes, edges);
+};
+
+// Function untuk menambahkan edge baru
+export const onConnect = (params: Connection, edges: Edge[]) => {
+  // Cek apakah edge sudah ada
+  const isDuplicate = edges.some(
+    (edge) => edge.source === params.source && edge.target === params.target
   );
-  
-  if (nonPositionChanges.length > 0) {
-    saveCurrentState();
-  }
-  
-  setNodes(nds => applyNodeChanges(changes, nds));
-};
 
-/**
- * Applies changes to edges and handles non-select changes that require state saving
- */
-export const handleEdgesChange = (
-  changes: EdgeChange[],
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>,
-  saveCurrentState: () => void
-) => {
-  const nonSelectChanges = changes.filter(change => change.type !== 'select');
-  
-  if (nonSelectChanges.length > 0) {
-    saveCurrentState();
+  if (isDuplicate) {
+    return edges;
   }
-  
-  setEdges(eds => {
-    // First apply the changes
-    const updatedEdges = applyEdgeChanges(changes, eds);
-    // Then ensure all edges use smoothstep type and maintain animated property
-    return updatedEdges.map(edge => ({
-      ...edge,
-      type: 'smoothstep',
-      animated: edge.animated === false ? false : true
-    }));
-  });
-};
 
-/**
- * Creates a connection between nodes
- */
-export const handleConnect = (
-  params: Connection,
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>,
-  saveCurrentState: () => void,
-  handleDeleteEdge: (edgeId: string) => void
-) => {
-  saveCurrentState();
-  setEdges(eds => addEdge({ 
-    ...params, 
-    animated: true,
-    type: 'smoothstep',
-    style: { strokeWidth: 2, stroke: '#555' },
-    data: { 
-      label: 'Hubungan',
-      onDelete: handleDeleteEdge
-    },
+  const id = `e${params.source}-${params.target}`;
+  const newEdge = {
+    id,
+    source: params.source || '',
+    target: params.target || '',
+    type: 'buttonedge',
     markerEnd: {
       type: MarkerType.ArrowClosed,
       width: 20,
       height: 20,
-      color: '#555'
-    }
-  }, eds));
-  toast.success('Elemen berhasil dihubungkan');
+    },
+    style: {
+      strokeWidth: 2,
+    },
+    // Hanya menambahkan animated jika ini adalah Edge, bukan Connection
+    ...(Object.prototype.hasOwnProperty.call(params, 'animated') ? { animated: params.animated } : {}),
+  };
+
+  return [...edges, newEdge];
 };
 
-/**
- * Creates a new edge object for edge updates
- */
-export const createEdgeWithDeleteHandler = (edge: Edge, deleteHandler: (edgeId: string) => void): Edge => {
+// Membuat node baru
+export const createNode = (
+  nodeType: string,
+  position: { x: number; y: number },
+  label: string = 'Node Baru',
+  column: string = ''
+) => {
+  const id = `node_${uuidv4()}`;
+
+  // Basis node properties
+  const baseNodeProps = {
+    id,
+    position,
+    data: { 
+      label,
+      column
+    },
+    draggable: true,
+  };
+
+  // Sesuaikan berdasarkan tipe node
+  switch (nodeType) {
+    case 'terminator':
+      return {
+        ...baseNodeProps,
+        type: 'terminator',
+        style: { width: 150, height: 60 },
+      };
+    case 'diamond':
+      return {
+        ...baseNodeProps,
+        type: 'diamond',
+        style: { width: 150, height: 100 },
+      };
+    case 'document':
+      return {
+        ...baseNodeProps,
+        type: 'document',
+        data: { 
+          ...baseNodeProps.data, 
+          width: 180, 
+          height: 90,
+          onResize: (width: number, height: number) => {
+            // Atur ukuran document node
+          }
+        },
+      };
+    default:
+      return {
+        ...baseNodeProps,
+        style: { width: 180, minHeight: 60 },
+      };
+  }
+};
+
+// Helper untuk membuat header node
+export const createColumnHeaderNode = (columnId: string, title: string, position: { x: number; y: number }) => {
   return {
-    ...edge,
-    type: 'smoothstep',
-    animated: edge.animated === false ? false : true,
-    data: {
-      ...edge.data,
-      onDelete: deleteHandler
-    }
+    id: `header_${columnId}`,
+    position,
+    type: 'default',
+    data: { 
+      label: title,
+      isHeader: true,
+      color: getColumnColor(columnId)
+    },
+    draggable: false,
   };
 };
 
-// Helper function needed by addEdge function
-export const addEdge = (edgeParams: Edge | Connection, edges: Edge[]): Edge[] => {
-  if (!edgeParams.source || !edgeParams.target) return edges;
-  
-  const newEdge = {
-    id: `e${edgeParams.source}-${edgeParams.target}-${Date.now()}`,
-    source: edgeParams.source,
-    target: edgeParams.target,
-    type: 'smoothstep',
-    animated: edgeParams.animated === false ? false : true,
-    ...edgeParams
-  };
+// Function untuk mendapatkan warna kolom
+export const getColumnColor = (columnId: string) => {
+  switch (columnId) {
+    case 'kolomsatu':
+      return 'bg-blue-800';
+    case 'kolomdua':
+      return 'bg-green-800';
+    case 'kolomtiga':
+      return 'bg-amber-800';
+    case 'kolomempat':
+      return 'bg-red-800';
+    case 'kolomlima':
+      return 'bg-purple-800';
+    case 'kolomenam':
+      return 'bg-teal-800';
+    default:
+      return 'bg-gray-800';
+  }
+};
 
-  return [...edges, newEdge as Edge];
+// Function untuk menambahkan animasi pada edge saat menghubungkan node
+export const updateEdgeWithAnimation = (edge: Edge | Connection): Edge => {
+  if ('id' in edge) {
+    // Pastikan hanya menambahkan animated jika ini adalah Edge
+    return {
+      ...edge,
+      animated: true,
+    };
+  }
+  // Untuk Connection (bukan Edge), kembalikan edge tanpa animated
+  return edge as Edge;
+};
+
+// Function untuk mendapatkan keterangan animasi edge
+export const getAnimatedEdgeParams = (animated: boolean = false) => {
+  return animated ? { animated: true } : {};
+};
+
+// Function untuk meng-update data node
+export const updateNodeData = (nodes: Node[], nodeId: string, newData: any) => {
+  return nodes.map(node => 
+    node.id === nodeId ? { ...node, data: { ...node.data, ...newData } } : node
+  );
+};
+
+// Function untuk membuat grid kolom
+export const createColumnGrid = (columns: any[]) => {
+  const startX = 50;
+  const spacing = 250;
+  const startY = 50;
+  
+  let nodes: Node[] = [];
+  
+  columns.forEach((column, index) => {
+    const x = startX + index * spacing;
+    const headerId = `header_${column.id}`;
+    
+    // Buat node header
+    nodes.push({
+      id: headerId,
+      position: { x, y: startY },
+      type: 'default',
+      data: { 
+        label: column.title,
+        isHeader: true,
+        color: getColumnColor(column.id)
+      },
+      draggable: false,
+    });
+  });
+  
+  return nodes;
+};
+
+// Function untuk mendapatkan posisi node baru dalam kolom
+export const getNodePosition = (columnIndex: number, nodeCount: number) => {
+  const startX = 50;
+  const spacing = 250;
+  const startY = 130; // Di bawah header
+  const verticalSpacing = 120;
+  
+  return {
+    x: startX + columnIndex * spacing,
+    y: startY + nodeCount * verticalSpacing
+  };
+};
+
+// Function untuk menghitung node dalam kolom
+export const countNodesInColumn = (nodes: Node[], columnId: string) => {
+  return nodes.filter(node => !node.data.isHeader && node.data.column === columnId).length;
+};
+
+// Function untuk membuat ID kolom yang unik
+export const generateColumnId = () => {
+  return `kolom_${uuidv4().substring(0, 8)}`;
 };

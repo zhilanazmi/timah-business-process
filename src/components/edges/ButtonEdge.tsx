@@ -1,24 +1,22 @@
 
-import { EdgeProps, getSmoothStepPath, EdgeLabelRenderer } from 'reactflow';
+import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath, getSmoothStepPath } from 'reactflow';
+import { Button } from '../ui/button';
+import { X } from 'lucide-react';
 
-/**
- * Custom edge component with a delete button that appears when the edge is selected
- */
-const ButtonEdge = ({ 
-  id, 
-  sourceX, 
-  sourceY, 
-  targetX, 
-  targetY, 
-  sourcePosition, 
-  targetPosition, 
-  style = {}, 
-  markerEnd, 
+const ButtonEdge = ({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  style = {},
+  markerEnd,
   data,
   selected,
-  animated
 }: EdgeProps) => {
-
+  // Gunakan getSmoothStepPath untuk edge yang lebih mulus
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
@@ -26,47 +24,37 @@ const ButtonEdge = ({
     targetX,
     targetY,
     targetPosition,
-    curvature: 0.25 // Add curvature for smoother edges
+    // Hapus properti curvature yang tidak valid
   });
 
-  const onEdgeClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (data && data.onDelete) {
-      data.onDelete(id);
+  const onEdgeClick = (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>, id: string) => {
+    evt.stopPropagation();
+    if (data?.onEdgeClick) {
+      data.onEdgeClick(id);
     }
   };
 
   return (
     <>
-      <path 
-        id={id} 
-        style={{
-          ...style, 
-          strokeDasharray: animated ? '5,5' : style.strokeDasharray || 'none',
-          animation: animated ? 'flowLineAnimation 0.5s linear infinite' : 'none'
-        }} 
-        className="react-flow__edge-path" 
-        d={edgePath} 
-        markerEnd={markerEnd}
-      />
+      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
       {selected && (
         <EdgeLabelRenderer>
           <div
             style={{
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-              zIndex: 1,
               pointerEvents: 'all',
             }}
             className="nodrag nopan"
           >
-            <button
-              onClick={onEdgeClick}
-              className="w-5 h-5 flex items-center justify-center bg-white rounded-full border border-gray-300 shadow-sm hover:bg-red-100 hover:border-red-300 transition-colors"
-              title="Delete connection"
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              className="h-6 w-6 p-0 rounded-full" 
+              onClick={(event) => onEdgeClick(event, id)}
             >
-              ×
-            </button>
+              <X size={12} />
+            </Button>
           </div>
         </EdgeLabelRenderer>
       )}

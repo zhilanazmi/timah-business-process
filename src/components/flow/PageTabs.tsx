@@ -89,7 +89,7 @@ const PageTabs = ({ pages, currentPage, onChangePage, onAddPage, onRenamePage, o
             <TabsTrigger 
               key={page.id} 
               value={page.id}
-              className="flex items-center gap-1 px-3 whitespace-nowrap"
+              className="flex items-center gap-1 px-3 whitespace-nowrap hover:bg-white/70"
             >
               <span>{page.title}</span>
               <div className="flex items-center ml-1">
@@ -115,7 +115,7 @@ const PageTabs = ({ pages, currentPage, onChangePage, onAddPage, onRenamePage, o
           <Button 
             variant="ghost" 
             size="sm" 
-            className="ml-2 flex items-center gap-1"
+            className="ml-2 flex items-center gap-1 hover:bg-blue-100/50"
             onClick={() => setOpenNewPageDialog(true)}
             title="Tambah halaman baru"
           >
@@ -126,7 +126,7 @@ const PageTabs = ({ pages, currentPage, onChangePage, onAddPage, onRenamePage, o
 
       {/* New Page Dialog */}
       <Dialog open={openNewPageDialog} onOpenChange={setOpenNewPageDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Tambah Halaman Baru</DialogTitle>
             <DialogDescription>
@@ -138,8 +138,9 @@ const PageTabs = ({ pages, currentPage, onChangePage, onAddPage, onRenamePage, o
             onChange={(e) => setNewPageTitle(e.target.value)}
             placeholder="Nama Halaman"
             autoFocus
+            className="mt-2"
           />
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setOpenNewPageDialog(false)}>Batal</Button>
             <Button onClick={handleAddPage}>Tambah</Button>
           </DialogFooter>
@@ -148,7 +149,7 @@ const PageTabs = ({ pages, currentPage, onChangePage, onAddPage, onRenamePage, o
 
       {/* Rename Page Dialog */}
       <Dialog open={openRenamePageDialog} onOpenChange={setOpenRenamePageDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Ganti Nama Halaman</DialogTitle>
             <DialogDescription>
@@ -160,8 +161,9 @@ const PageTabs = ({ pages, currentPage, onChangePage, onAddPage, onRenamePage, o
             onChange={(e) => setNewPageTitle(e.target.value)}
             placeholder="Nama Halaman"
             autoFocus
+            className="mt-2"
           />
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setOpenRenamePageDialog(false)}>Batal</Button>
             <Button onClick={handleConfirmRename}>Simpan</Button>
           </DialogFooter>
@@ -170,14 +172,14 @@ const PageTabs = ({ pages, currentPage, onChangePage, onAddPage, onRenamePage, o
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={openDeleteConfirm} onOpenChange={setOpenDeleteConfirm}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Hapus Halaman</DialogTitle>
             <DialogDescription>
               Anda yakin ingin menghapus halaman "{editingPage?.title}"? Tindakan ini tidak dapat dibatalkan.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setOpenDeleteConfirm(false)}>Batal</Button>
             <Button variant="destructive" onClick={handleConfirmDelete}>Hapus</Button>
           </DialogFooter>
