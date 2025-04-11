@@ -44,6 +44,91 @@ export const onConnect = (params: Connection, edges: Edge[]) => {
   return [...edges, newEdge];
 };
 
+// Function untuk menangani perubahan nodes dengan saveState callback
+export const handleNodesChange = (changes: NodeChange[], setNodes: React.Dispatch<React.SetStateAction<Node[]>>, saveState: () => void) => {
+  setNodes((nds) => {
+    const updatedNodes = applyNodeChanges(changes, nds);
+    
+    // Only save state for non-selection changes
+    const hasNonSelectionChanges = changes.some(change => change.type !== 'select');
+    if (hasNonSelectionChanges) {
+      setTimeout(saveState, 0);
+    }
+    
+    return updatedNodes;
+  });
+};
+
+// Function untuk menangani perubahan edges dengan saveState callback
+export const handleEdgesChange = (changes: EdgeChange[], setEdges: React.Dispatch<React.SetStateAction<Edge[]>>, saveState: () => void) => {
+  setEdges((eds) => {
+    const updatedEdges = applyEdgeChanges(changes, eds);
+    
+    // Only save state for non-selection changes
+    const hasNonSelectionChanges = changes.some(change => change.type !== 'select');
+    if (hasNonSelectionChanges) {
+      setTimeout(saveState, 0);
+    }
+    
+    return updatedEdges;
+  });
+};
+
+// Function untuk menghapus edge
+export const handleDeleteEdge = (edgeId: string, setEdges: React.Dispatch<React.SetStateAction<Edge[]>>, saveState: () => void) => {
+  setEdges((eds) => {
+    const newEdges = eds.filter(e => e.id !== edgeId);
+    saveState();
+    return newEdges;
+  });
+};
+
+// Function untuk menangani koneksi dengan saveState callback dan delete handler
+export const handleConnect = (
+  params: Connection, 
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>, 
+  saveState: () => void,
+  onDelete: (edgeId: string) => void
+) => {
+  setEdges((eds) => {
+    const newEdge = createEdgeWithDeleteHandler(params, onDelete);
+    if (!newEdge) return eds;
+    
+    const newEdges = [...eds, newEdge];
+    saveState();
+    return newEdges;
+  });
+};
+
+// Function untuk membuat edge dengan delete handler
+export const createEdgeWithDeleteHandler = (params: Connection, onDelete: (edgeId: string) => void): Edge | null => {
+  // Cek apakah source dan target valid
+  if (!params.source || !params.target) return null;
+  
+  const id = `e${params.source}-${params.target}`;
+  
+  return {
+    id,
+    source: params.source,
+    target: params.target,
+    type: 'smoothstep',
+    animated: true,
+    style: { 
+      strokeWidth: 2,
+      stroke: '#555' 
+    },
+    data: {
+      onDelete: () => onDelete(id)
+    },
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 20,
+      height: 20,
+      color: '#555'
+    }
+  };
+};
+
 // Membuat node baru
 export const createNode = (
   nodeType: string,

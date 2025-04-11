@@ -16,7 +16,7 @@ const ButtonEdge = ({
   data,
   selected,
 }: EdgeProps) => {
-  // Gunakan getSmoothStepPath untuk edge yang lebih mulus
+  // Use getSmoothStepPath for smoother edges
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
@@ -24,19 +24,22 @@ const ButtonEdge = ({
     targetX,
     targetY,
     targetPosition,
-    // Hapus properti curvature yang tidak valid
   });
 
   const onEdgeClick = (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>, id: string) => {
     evt.stopPropagation();
-    if (data?.onEdgeClick) {
-      data.onEdgeClick(id);
+    if (data?.onDelete) {
+      data.onDelete(id);
     }
   };
 
   return (
     <>
-      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+      <BaseEdge path={edgePath} markerEnd={markerEnd} style={{
+        ...style,
+        strokeWidth: 2,
+        stroke: '#555',
+      }} />
       {selected && (
         <EdgeLabelRenderer>
           <div
@@ -44,14 +47,16 @@ const ButtonEdge = ({
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
               pointerEvents: 'all',
+              zIndex: 1000,
             }}
             className="nodrag nopan"
           >
             <Button 
               variant="destructive" 
               size="sm" 
-              className="h-6 w-6 p-0 rounded-full" 
+              className="h-6 w-6 p-0 rounded-full shadow-md hover:shadow-lg transition-shadow" 
               onClick={(event) => onEdgeClick(event, id)}
+              title="Hapus koneksi"
             >
               <X size={12} />
             </Button>
