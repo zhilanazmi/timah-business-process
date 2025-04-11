@@ -515,6 +515,7 @@ const FlowChart = () => {
             }}
             fitView
             className="bg-gray-50"
+            minZoom={0.01}
             connectOnClick={true}
             deleteKeyCode={['Backspace', 'Delete']}
             multiSelectionKeyCode={['Control', 'Meta']}
