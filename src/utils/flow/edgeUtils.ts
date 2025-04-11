@@ -110,3 +110,4 @@ export const updateEdgeWithAnimation = (edge: Edge | Connection): Edge => {
 export const getAnimatedEdgeParams = (animated: boolean = false) => {
   return animated ? { animated: true } : {};
 };
+
