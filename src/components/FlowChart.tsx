@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -14,6 +13,7 @@ import ReactFlow, {
   BackgroundVariant,
   Panel,
   MarkerType,
+  ReactFlowInstance
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import NodeDetail from './NodeDetail';
@@ -35,6 +35,7 @@ import {
 import { useFlowShortcuts } from '@/hooks/useFlowShortcuts';
 import ZoomControls from './flow/ZoomControls';
 import PageTabs, { FlowPage } from './flow/PageTabs';
+import { Heart, Info, Mail, ExternalLink } from 'lucide-react';
 
 const FlowChart = () => {
   const [pages, setPages] = useState<FlowPage[]>(defaultPages);
@@ -57,7 +58,7 @@ const FlowChart = () => {
   const [redoStack, setRedoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
   
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const reactFlowInstance = useRef<any>(null);
+  const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -544,6 +545,48 @@ const FlowChart = () => {
           </ReactFlow>
         </ReactFlowProvider>
       </div>
+      
+      {/* Footer */}
+      <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-3 px-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <span>© {new Date().getFullYear()} PT. Timah Industri</span>
+            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:flex items-center gap-1.5">
+              <span>Versi 1.0.0</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <a 
+              href="mailto:support@timahindustri.com" 
+              className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+              title="Hubungi dukungan"
+            >
+              <Mail size={14} />
+              <span className="hidden sm:inline">Dukungan</span>
+            </a>
+            <a 
+              href="#" 
+              onClick={() => setIsShortcutHelpOpen(true)}
+              className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+              title="Bantuan"
+            >
+              <Info size={14} />
+              <span className="hidden sm:inline">Bantuan</span>
+            </a>
+            <a 
+              href="https://timahindustri.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+              title="Kunjungi situs kami"
+            >
+              <ExternalLink size={14} />
+              <span className="hidden sm:inline">Situs Web</span>
+            </a>
+          </div>
+        </div>
+      </footer>
       
       {selectedNode && (
         <NodeDetail 
