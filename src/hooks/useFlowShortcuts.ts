@@ -76,11 +76,7 @@ export const useFlowShortcuts = ({
     }
   }, { enableOnFormTags: true });
 
-  // Save shortcut (Ctrl+S)
-  useHotkeys('ctrl+s', (e) => {
-    e.preventDefault();
-    onSave();
-  }, { enableOnFormTags: true });
+
 
   // Export shortcut (Ctrl+E)
   useHotkeys('ctrl+e', (e) => {
@@ -89,7 +85,7 @@ export const useFlowShortcuts = ({
   }, { enableOnFormTags: true });
 
   // Save as image shortcut (Ctrl+Shift+S)
-  useHotkeys('ctrl+shift+s', (e) => {
+  useHotkeys('ctrl+s', (e) => {
     e.preventDefault();
     onSaveAsImage();
   }, { enableOnFormTags: true });
