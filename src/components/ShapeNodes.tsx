@@ -11,7 +11,7 @@ export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Top}
         id="top-target"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
       />
       <Handle
@@ -19,11 +19,11 @@ export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Top}
         id="top-source"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
       />
       
-      <div className="min-w-[50px] px-2 py-2 rounded-full shadow-md border-2 bg-yellow-50 border-yellow-200 hover:border-yellow-400 transition-colors">
+      <div className="min-w-[50px] px-2 py-2 rounded-full shadow-md border-2 bg-amber-100 border-amber-300 hover:border-amber-400 transition-colors">
         <NodeResizer 
           minWidth={150}
           minHeight={40}
@@ -54,7 +54,7 @@ export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Bottom}
         id="bottom-target"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
       />
       <Handle
@@ -62,7 +62,7 @@ export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Bottom}
         id="bottom-source"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
       />
     </div>
@@ -80,7 +80,7 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
       <svg width={width} height={height}>
         <polygon
           points={`${width / 2},0 ${width},${height / 2} ${width / 2},${height} 0,${height / 2}`}
-          className="fill-purple-50 stroke-purple-200 stroke-2 hover:stroke-purple-400 transition-colors"
+          className="fill-violet-100 stroke-violet-300 stroke-2 hover:stroke-violet-400 transition-colors"
         />
       </svg>
 
@@ -98,7 +98,7 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Top}
         id="top-target"
         isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        className="w-2 h-2 !bg-gray-500 hover:!bg-gray-700"
         style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
       />
       <Handle
@@ -106,7 +106,7 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Top}
         id="top-source"
         isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        className="w-2 h-2 !bg-gray-500 hover:!bg-gray-700"
         style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
       />
 
@@ -116,7 +116,7 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Right}
         id="right-target"
         isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        className="w-2 h-2 !bg-gray-500 hover:!bg-gray-700"
         style={{ top: '50%', right: 0, transform: 'translate(50%, -50%)' }}
       />
       <Handle
@@ -124,11 +124,11 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Right}
         id="right-source"
         isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        className="w-2 h-2 !bg-gray-500 hover:!bg-gray-700"
         style={{ top: '50%', right: 0, transform: 'translate(50%, -50%)' }}
       />
       <div className="absolute right-[-20px] top-[50%] -translate-y-1/2">
-        <span className="text-xs font-medium text-red-600 block whitespace-nowrap">
+        <span className="text-xs font-medium text-red-700 block whitespace-nowrap">
           {data.rightPathLabel || "No"}
         </span>
       </div>
@@ -139,7 +139,7 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Bottom}
         id="bottom-target"
         isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        className="w-2 h-2 !bg-gray-500 hover:!bg-gray-700"
         style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
       />
       <Handle
@@ -147,11 +147,11 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Bottom}
         id="bottom-source"
         isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        className="w-2 h-2 !bg-gray-500 hover:!bg-gray-700"
         style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
       />
       <div className="absolute bottom-[-20px] left-[50%] -translate-x-1/2">
-        <span className="text-xs font-medium text-green-600 block">
+        <span className="text-xs font-medium text-green-700 block">
           {data.bottomPathLabel || "Yes"}
         </span>
       </div>
@@ -162,7 +162,7 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Left}
         id="left-target"
         isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        className="w-2 h-2 !bg-gray-500 hover:!bg-gray-700"
         style={{ top: '50%', left: 0, transform: 'translate(-50%, -50%)' }}
       />
       <Handle
@@ -170,7 +170,7 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Left}
         id="left-source"
         isConnectable={isConnectable}
-        className="w-2 h-2 !bg-gray-400 hover:!bg-blue-600"
+        className="w-2 h-2 !bg-gray-500 hover:!bg-gray-700"
         style={{ top: '50%', left: 0, transform: 'translate(-50%, -50%)' }}
       />
 
@@ -209,8 +209,8 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         minWidth={120}
         minHeight={70}
         isVisible={selected}
-        lineClassName="border-cyan-400"
-        handleClassName="h-4 w-4 bg-white border-2 border-cyan-400"
+        lineClassName="border-indigo-400"
+        handleClassName="h-4 w-4 bg-white border-2 border-indigo-400"
         onResize={(event, params) => {
           if (data.onResize) {
             data.onResize(params.width, params.height);
@@ -221,8 +221,8 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
       <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
         <path 
           d="M100,0 L0,0 L0,45 Q40,55 65,40 Q80,35 100,45 Z" 
-          fill="#ecfeff" 
-          stroke="#a5f3fc" 
+          fill="#418df0" 
+          stroke="#60a5fa" 
           strokeWidth="2"
         />
       </svg>
@@ -235,7 +235,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
           </div>
         )}
         {data.details?.["Process Owner"] && (
-          <div className="text-xs bg-gray-100 px-1.5 py-0.5 rounded mt-1 inline-block truncate max-w-full">
+          <div className="text-xs bg-gray-200 px-1.5 py-0.5 rounded mt-1 inline-block truncate max-w-full">
             {data.details["Process Owner"]}
           </div>
         )}
@@ -247,7 +247,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Top}
         id="top-target"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
       />
       <Handle
@@ -255,7 +255,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Top}
         id="top-source"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
       />
       
@@ -265,7 +265,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Left}
         id="left-target"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ left: 0, top: '50%', transform: 'translate(-50%, -50%)' }}
       />
       <Handle
@@ -273,7 +273,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Left}
         id="left-source"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ left: 0, top: '50%', transform: 'translate(-50%, -50%)' }}
       />
       
@@ -283,7 +283,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Right}
         id="right-target"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ right: 0, top: '50%', transform: 'translate(50%, -50%)' }}
       />
       <Handle
@@ -291,7 +291,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Right}
         id="right-source"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ right: 0, top: '50%', transform: 'translate(50%, -50%)' }}
       />
       
@@ -301,7 +301,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Bottom}
         id="bottom-target"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
       />
       <Handle
@@ -309,7 +309,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         position={Position.Bottom}
         id="bottom-source"
         isConnectable={isConnectable}
-        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-400 hover:!bg-blue-600"
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ bottom: 0, left: '50%', transform: 'translate(-50%, 50%)' }}
       />
     </div>
