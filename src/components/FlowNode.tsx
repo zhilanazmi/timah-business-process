@@ -1,4 +1,3 @@
-
 import { memo } from 'react';
 import { Handle, Position, NodeProps, NodeResizer } from 'reactflow';
 import { ExternalLink } from 'lucide-react';
@@ -18,19 +17,19 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
     const column = data.column;
     switch(column) {
       case 'kolomsatu':
-        return 'bg-blue-50 border-blue-200 hover:border-blue-400';
+        return 'bg-blue-100 border-blue-300 hover:border-blue-400';
       case 'kolomdua':
-        return 'bg-green-50 border-green-200 hover:border-green-400';
+        return 'bg-green-100 border-green-300 hover:border-green-400';
       case 'kolomtiga':
-        return 'bg-amber-50 border-amber-200 hover:border-amber-400';
+        return 'bg-amber-100 border-amber-300 hover:border-amber-400';
       case 'kolomempat':
-        return 'bg-red-50 border-red-200 hover:border-red-400';
+        return 'bg-red-100 border-red-300 hover:border-red-400';
       case 'kolomlima':
-        return 'bg-purple-50 border-purple-200 hover:border-purple-400';
+        return 'bg-violet-100 border-violet-300 hover:border-violet-400';
       case 'kolomenam':
-        return 'bg-teal-50 border-teal-200 hover:border-teal-400';
+        return 'bg-teal-100 border-teal-300 hover:border-teal-400';
       default:
-        return 'bg-white border-gray-200 hover:border-blue-400';
+        return 'bg-gray-50 border-gray-300 hover:border-gray-400';
     }
   };
 
@@ -60,7 +59,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         type="target"
         position={Position.Top}
         id="top"
-        style={{ width: 8, height: 8, background: '#555' }}
+        style={{ width: 8, height: 8, background: '#6b7280' }}
         isConnectable={isConnectable}
       />
       
@@ -69,7 +68,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         type="target"
         position={Position.Left}
         id="left"
-        style={{ width: 8, height: 8, background: '#555' }}
+        style={{ width: 8, height: 8, background: '#6b7280' }}
         isConnectable={isConnectable}
       />
       
@@ -93,7 +92,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
       
       {/* Tampilkan process owner jika ada */}
       {data.details?.["Process Owner"] && (
-        <div className="text-xs bg-gray-100 px-1.5 py-0.5 rounded mt-1.5 inline-block">
+        <div className="text-xs bg-gray-200 px-1.5 py-0.5 rounded mt-1.5 inline-block">
           {data.details["Process Owner"]}
         </div>
       )}
@@ -103,7 +102,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         type="source"
         position={Position.Right}
         id="right"
-        style={{ width: 8, height: 8, background: '#555' }}
+        style={{ width: 8, height: 8, background: '#6b7280' }}
         isConnectable={isConnectable}
       />
       
@@ -112,7 +111,7 @@ const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
         type="source"
         position={Position.Bottom}
         id="bottom"
-        style={{ width: 8, height: 8, background: '#555' }}
+        style={{ width: 8, height: 8, background: '#6b7280' }}
         isConnectable={isConnectable}
       />
     </div>
