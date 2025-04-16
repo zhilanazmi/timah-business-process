@@ -38,12 +38,41 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
     return originalDisplay;
   });
 
+  // Get all nodes to calculate content bounds
+  const nodes = targetElement.querySelectorAll('.react-flow__node');
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+  nodes.forEach((node) => {
+    const rect = node.getBoundingClientRect();
+    const { left, top, right, bottom } = rect;
+    minX = Math.min(minX, left);
+    minY = Math.min(minY, top);
+    maxX = Math.max(maxX, right);
+    maxY = Math.max(maxY, bottom);
+  });
+
+  // Add padding
+  const padding = 50;
+  minX -= padding;
+  minY -= padding;
+  maxX += padding;
+  maxY += padding;
+
+  // Calculate dimensions
+  const width = maxX - minX;
+  const height = maxY - minY;
+
   setTimeout(() => {
     toPng(targetElement as HTMLElement, { 
       backgroundColor: '#ffffff',
       quality: 1,
       pixelRatio: 2,
-      cacheBust: true, 
+      cacheBust: true,
+      width: width,
+      height: height,
+      style: {
+        transform: `translate(${-minX}px, ${-minY}px)`,
+      },
       filter: (node) => {
         if (!node) return true;
         
@@ -68,7 +97,7 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
         return checkClass(classStr, 'react-flow__controls') && 
                checkClass(classStr, 'react-flow__minimap') && 
                checkClass(classStr, 'react-flow__panel') &&
-               checkClass(classStr, 'react-flow__handle') && // Added handle filtering
+               checkClass(classStr, 'react-flow__handle') && 
                checkClass(classStr, 'toast-');
       }
     })
