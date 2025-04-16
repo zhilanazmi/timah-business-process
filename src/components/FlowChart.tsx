@@ -318,7 +318,7 @@ const FlowChart = () => {
             reactFlowInstance.current.fitView();
           }, 50);
         }
-      });
+      }, handleHeaderUpdate);
       if (event.target) {
         event.target.value = '';
       }
@@ -460,7 +460,7 @@ const FlowChart = () => {
         return node;
       })
     );
-  }, []);
+  }, [currentPageId]);
 
   useFlowShortcuts({
     onAddNode: () => setIsModalOpen(true),

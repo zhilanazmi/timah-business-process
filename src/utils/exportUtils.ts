@@ -1,4 +1,3 @@
-
 import { toPng } from 'html-to-image';
 import { toast } from 'sonner';
 import { Edge, Node } from 'reactflow';
@@ -145,7 +144,8 @@ export const importFromJson = (
   file: File,
   setNodes: React.Dispatch<React.SetStateAction<Node[]>>,
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>,
-  onImportSuccess?: () => void
+  onImportSuccess?: () => void,
+  onHeaderUpdate?: (nodeId: string, newTitle: string, newColor: string) => void
 ) => {
   const reader = new FileReader();
   
@@ -156,7 +156,25 @@ export const importFromJson = (
         const flowData = JSON.parse(result);
         
         if (flowData && flowData.nodes && flowData.edges) {
-          setNodes(flowData.nodes);
+          // Apply onHeaderUpdate function to header nodes if provided
+          if (onHeaderUpdate) {
+            const updatedNodes = flowData.nodes.map((node: Node) => {
+              if (node.data && node.data.isHeader) {
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    onHeaderUpdate
+                  }
+                };
+              }
+              return node;
+            });
+            setNodes(updatedNodes);
+          } else {
+            setNodes(flowData.nodes);
+          }
+          
           setEdges(flowData.edges);
           toast.success("Diagram berhasil diimport");
           if (onImportSuccess) onImportSuccess();
