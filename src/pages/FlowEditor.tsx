@@ -7,9 +7,7 @@ import { Home } from 'lucide-react';
 const FlowEditor = () => {
   return (
     <main className="h-screen relative">
-      <FlowChart onHeaderUpdate={(nodeId, newTitle, newColor) => {
-        // Header update logic will be handled by FlowChart component
-      }} />
+      <FlowChart />
     </main>
   );
 };

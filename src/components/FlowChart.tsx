@@ -123,11 +123,35 @@ const FlowChart = () => {
     [saveCurrentState, setEdges, handleEdgeDelete]
   );
 
+  const handleHeaderUpdate = (nodeId: string, newTitle: string, newColor: string) => {
+    saveCurrentState();
+    
+    setNodes(nds => 
+      nds.map(node => 
+        node.id === nodeId 
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                label: newTitle,
+                color: newColor
+              }
+            } 
+          : node
+      )
+    );
+    
+    toast.success("Kolom berhasil diperbarui");
+  };
+
   const onNodeClick = (_: React.MouseEvent, node: Node) => {
+    if (node.data.isHeader) {
+      return;
+    }
     setSelectedNode(node);
     setSelectedEdge(null);
   };
-  
+
   const onEdgeClick = (_: React.MouseEvent, edge: Edge) => {
     setSelectedEdge(edge);
     setSelectedNode(null);
@@ -421,6 +445,23 @@ const FlowChart = () => {
     );
   }, [handleEdgeDelete]);
 
+  useEffect(() => {
+    setNodes(nds => 
+      nds.map(node => {
+        if (node.data.isHeader) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              onHeaderUpdate: handleHeaderUpdate
+            }
+          };
+        }
+        return node;
+      })
+    );
+  }, []);
+
   useFlowShortcuts({
     onAddNode: () => setIsModalOpen(true),
     onAddColumn: () => setIsColumnModalOpen(true),
@@ -496,6 +537,20 @@ const FlowChart = () => {
             edgeTypes={edgeTypes}
             onInit={(instance) => {
               reactFlowInstance.current = instance;
+              const updatedNodes = instance.getNodes().map(node => {
+                if (node.data.isHeader) {
+                  return {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      onHeaderUpdate: handleHeaderUpdate
+                    }
+                  };
+                }
+                return node;
+              });
+              instance.setNodes(updatedNodes);
+              
               const currentEdges = instance.getEdges();
               instance.setEdges(currentEdges.map(edge => ({
                 ...edge,
@@ -505,6 +560,10 @@ const FlowChart = () => {
                   ...(edge.style || {}), 
                   strokeWidth: 2, 
                   stroke: '#555' 
+                },
+                data: {
+                  ...edge.data,
+                  onDelete: handleEdgeDelete
                 },
                 markerEnd: edge.markerEnd || {
                   type: MarkerType.ArrowClosed,

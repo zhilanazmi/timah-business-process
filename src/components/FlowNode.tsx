@@ -1,3 +1,4 @@
+
 import { memo, useState } from 'react';
 import { Handle, Position, NodeProps, NodeResizer } from 'reactflow';
 import { ExternalLink, Edit2 } from 'lucide-react';
@@ -9,8 +10,9 @@ const FlowNode = ({ data, isConnectable, selected, id }: NodeProps) => {
   // For header nodes, render a special header style with edit button
   if (data.isHeader) {
     const handleSaveHeader = (newTitle: string, newColor: string) => {
-      if (data.onUpdateHeader) {
-        data.onUpdateHeader(id, newTitle, newColor);
+      if (typeof data.onHeaderUpdate === 'function') {
+        data.onHeaderUpdate(id, newTitle, newColor);
+        setIsEditingHeader(false);
       }
     };
 

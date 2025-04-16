@@ -55,7 +55,7 @@ export const handleEdgesChange = (
     return updatedEdges.map(edge => ({
       ...edge,
       type: 'smoothstep',
-      animated: edge.animated === false ? false : true
+      animated: 'animated' in edge ? edge.animated : true
     }));
   });
 };
@@ -96,7 +96,7 @@ export const createEdgeWithDeleteHandler = (edge: Edge, deleteHandler: (edgeId: 
   return {
     ...edge,
     type: 'smoothstep',
-    animated: edge.animated === false ? false : true,
+    animated: 'animated' in edge ? edge.animated : true,
     data: {
       ...edge.data,
       onDelete: deleteHandler
@@ -113,7 +113,7 @@ export const addEdge = (edgeParams: Edge | Connection, edges: Edge[]): Edge[] =>
     source: edgeParams.source,
     target: edgeParams.target,
     type: 'smoothstep',
-    animated: edgeParams.animated === false ? false : true,
+    animated: 'animated' in edgeParams ? edgeParams.animated : true,
     ...edgeParams
   };
 
