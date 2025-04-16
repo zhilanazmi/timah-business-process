@@ -1,14 +1,38 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Handle, Position, NodeProps, NodeResizer } from 'reactflow';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Edit2 } from 'lucide-react';
+import ColumnHeaderEdit from './ColumnHeaderEdit';
 
-const FlowNode = ({ data, isConnectable, selected }: NodeProps) => {
-  // For header nodes, render a special header style
+const FlowNode = ({ data, isConnectable, selected, id }: NodeProps) => {
+  const [isEditingHeader, setIsEditingHeader] = useState(false);
+
+  // For header nodes, render a special header style with edit button
   if (data.isHeader) {
+    const handleSaveHeader = (newTitle: string, newColor: string) => {
+      if (data.onUpdateHeader) {
+        data.onUpdateHeader(id, newTitle, newColor);
+      }
+    };
+
     return (
-      <div className={`p-2 text-center text-white font-bold rounded-t-md shadow-md ${data.color || 'bg-gradient-to-r from-blue-800 to-blue-900'} w-[180px] select-none`}>
-        {data.label}
-      </div>
+      <>
+        <div className={`relative p-2 text-center text-white font-bold rounded-t-md shadow-md bg-gradient-to-r ${data.color || 'from-blue-800 to-blue-900'} w-[180px] select-none group`}>
+          {data.label}
+          <button
+            onClick={() => setIsEditingHeader(true)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/80 hover:text-white"
+          >
+            <Edit2 size={14} />
+          </button>
+        </div>
+        <ColumnHeaderEdit
+          isOpen={isEditingHeader}
+          onClose={() => setIsEditingHeader(false)}
+          onSave={handleSaveHeader}
+          initialTitle={data.label}
+          initialColor={data.color || 'from-blue-800 to-blue-900'}
+        />
+      </>
     );
   }
 
