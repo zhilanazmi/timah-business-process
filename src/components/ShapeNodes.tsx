@@ -221,8 +221,8 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
       <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
         <path 
           d="M100,0 L0,0 L0,45 Q40,55 65,40 Q80,35 100,45 Z" 
-          fill="#418df0" 
-          stroke="#60a5fa" 
+          fill="#FFF085" 
+          stroke="#FCB454" 
           strokeWidth="2"
         />
       </svg>

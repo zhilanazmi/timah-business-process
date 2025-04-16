@@ -1,4 +1,3 @@
-
 import { memo, useState } from 'react';
 import { Handle, Position, NodeProps, NodeResizer } from 'reactflow';
 import { ExternalLink, Edit2 } from 'lucide-react';
@@ -16,23 +15,45 @@ const FlowNode = ({ data, isConnectable, selected, id }: NodeProps) => {
       }
     };
 
+    // Check if the color is a hex value or a Tailwind class
+    const isHexColor = data.color && (data.color.startsWith('#') || data.color.startsWith('rgb'));
+    const defaultGradient = 'from-blue-800 to-blue-900';
+
     return (
       <>
-        <div className={`relative p-2 text-center text-white font-bold rounded-t-md shadow-md bg-gradient-to-r ${data.color || 'from-blue-800 to-blue-900'} w-[180px] select-none group`}>
-          {data.label}
-          <button
-            onClick={() => setIsEditingHeader(true)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/80 hover:text-white"
+        {isHexColor ? (
+          <div 
+            className="relative p-2 text-center text-white font-bold rounded-t-md shadow-md w-[180px] select-none group"
+            style={{ 
+              background: data.color,
+              backgroundImage: `linear-gradient(to right, ${data.color}, ${data.color})`
+            }}
           >
-            <Edit2 size={14} />
-          </button>
-        </div>
+            {data.label}
+            <button
+              onClick={() => setIsEditingHeader(true)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/80 hover:text-white"
+            >
+              <Edit2 size={14} />
+            </button>
+          </div>
+        ) : (
+          <div className={`relative p-2 text-center text-white font-bold rounded-t-md shadow-md bg-gradient-to-r ${data.color || defaultGradient} w-[180px] select-none group`}>
+            {data.label}
+            <button
+              onClick={() => setIsEditingHeader(true)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/80 hover:text-white"
+            >
+              <Edit2 size={14} />
+            </button>
+          </div>
+        )}
         <ColumnHeaderEdit
           isOpen={isEditingHeader}
           onClose={() => setIsEditingHeader(false)}
           onSave={handleSaveHeader}
           initialTitle={data.label}
-          initialColor={data.color || 'from-blue-800 to-blue-900'}
+          initialColor={data.color || defaultGradient}
         />
       </>
     );
