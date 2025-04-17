@@ -15,39 +15,36 @@ const FlowNode = ({ data, isConnectable, selected, id }: NodeProps) => {
       }
     };
 
-    // Check if the color is a hex value or a Tailwind class
-    const isHexColor = data.color && (data.color.startsWith('#') || data.color.startsWith('rgb'));
+    // Selalu gunakan format yang konsisten untuk header kolom,
+    // baik itu warna hex atau gradient Tailwind
+    // Defaultnya selalu menggunakan gradient Tailwind
     const defaultGradient = 'from-blue-800 to-blue-900';
-
+    
     return (
       <>
-        {isHexColor ? (
-          <div 
-            className="relative p-2 text-center text-white font-bold rounded-t-md shadow-md w-[180px] select-none group"
-            style={{ 
-              background: data.color,
-              backgroundImage: `linear-gradient(to right, ${data.color}, ${data.color})`
-            }}
+        <div 
+          className="relative p-2 text-center text-white font-bold rounded-t-md shadow-md w-[180px] select-none group"
+          style={{ 
+            background: data.color && (data.color.startsWith('#') || data.color.startsWith('rgb')) 
+              ? `linear-gradient(to right, ${data.color}, ${data.color})`
+              : undefined,
+            backgroundImage: data.color && (data.color.startsWith('#') || data.color.startsWith('rgb'))
+              ? `linear-gradient(to right, ${data.color}, ${data.color})` 
+              : undefined
+          }}
+        >
+          <div className={`absolute inset-0 rounded-t-md ${data.color && !(data.color.startsWith('#') || data.color.startsWith('rgb')) 
+            ? `bg-gradient-to-r ${data.color || defaultGradient}` 
+            : ''}`}
+          />
+          <span className="relative z-10">{data.label}</span>
+          <button
+            onClick={() => setIsEditingHeader(true)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/80 hover:text-white z-10"
           >
-            {data.label}
-            <button
-              onClick={() => setIsEditingHeader(true)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/80 hover:text-white"
-            >
-              <Edit2 size={14} />
-            </button>
-          </div>
-        ) : (
-          <div className={`relative p-2 text-center text-white font-bold rounded-t-md shadow-md bg-gradient-to-r ${data.color || defaultGradient} w-[180px] select-none group`}>
-            {data.label}
-            <button
-              onClick={() => setIsEditingHeader(true)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/80 hover:text-white"
-            >
-              <Edit2 size={14} />
-            </button>
-          </div>
-        )}
+            <Edit2 size={14} />
+          </button>
+        </div>
         <ColumnHeaderEdit
           isOpen={isEditingHeader}
           onClose={() => setIsEditingHeader(false)}

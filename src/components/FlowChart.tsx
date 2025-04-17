@@ -178,10 +178,7 @@ const FlowChart = () => {
                 label: newTitle,
                 color: newColor
               },
-              style: {
-                ...node.style,
-                backgroundColor: newColor.startsWith('#') || newColor.startsWith('rgb') ? newColor : undefined
-              }
+              style: {}
             } 
           : node
       )
@@ -263,21 +260,20 @@ const FlowChart = () => {
         label: columnData.title,
         isHeader: true,
         column: columnData.id,
-        color: columnData.color
+        color: columnData.color,
+        onHeaderUpdate: handleHeaderUpdate
       },
       draggable: false,
-      style: { 
-        backgroundColor: columnData.color 
-      }
+      style: {}
     };
     
     setNodes(nds => [...nds, headerNode]);
     toast.success(`Kolom ${columnData.title} berhasil ditambahkan`);
   };
 
-  const updateNode = (nodeId: string, data: any) => {
+  const updateNode = (nodeId: string, data: Record<string, unknown>) => {
     saveCurrentState();
-    setNodes(nds =>
+    setNodes(nds => 
       nds.map(node => 
         node.id === nodeId ? { ...node, data: data } : node
       )
@@ -391,9 +387,11 @@ const FlowChart = () => {
           label: column.title,
           isHeader: true,
           column: column.id,
-          color: column.color
+          color: column.color,
+          onHeaderUpdate: handleHeaderUpdate
         },
-        draggable: false
+        draggable: false,
+        style: {}
       };
     });
     
