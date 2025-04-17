@@ -148,13 +148,35 @@ const ColumnHeaderEdit = ({
               <div className="flex items-center space-x-2">
                 <div 
                   className="w-4 h-12 rounded-sm"
-                  style={{ backgroundColor: color }}
-                ></div>
-                <div 
-                  className="py-2 px-3 rounded-md shadow-sm w-40 bg-white border-l-4 text-center"
-                  style={{ borderLeftColor: color }}
+                  style={{ 
+                    backgroundColor: color && (color.startsWith('#') || color.startsWith('rgb')) 
+                      ? color 
+                      : undefined,
+                    backgroundImage: color && !color.startsWith('#') && !color.startsWith('rgb')
+                      ? undefined
+                      : undefined,
+                  }}
                 >
-                  <div className="text-sm font-medium truncate">{title || "Nama Kolom"}</div>
+                  {!color.startsWith('#') && !color.startsWith('rgb') && (
+                    <div className={`h-full w-full rounded-sm bg-gradient-to-r ${color}`}></div>
+                  )}
+                </div>
+                <div className="relative py-2 px-3 rounded-md shadow-sm w-40 overflow-hidden">
+                  <div 
+                    className="absolute inset-0"
+                    style={{ 
+                      background: color && (color.startsWith('#') || color.startsWith('rgb')) 
+                        ? `linear-gradient(to right, ${color}, ${color})`
+                        : undefined,
+                    }}
+                  >
+                    {!color.startsWith('#') && !color.startsWith('rgb') && (
+                      <div className={`h-full w-full bg-gradient-to-r ${color}`}></div>
+                    )}
+                  </div>
+                  <div className="text-sm font-medium truncate text-white relative z-10 text-center">
+                    {title || "Nama Kolom"}
+                  </div>
                 </div>
               </div>
             </div>

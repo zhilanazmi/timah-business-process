@@ -36,6 +36,7 @@ import { useFlowShortcuts } from '@/hooks/useFlowShortcuts';
 import ZoomControls from './flow/ZoomControls';
 import PageTabs, { FlowPage } from './flow/PageTabs';
 import { Heart, Info, Mail, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const FlowChart = () => {
   const [pages, setPages] = useState<FlowPage[]>(defaultPages);
@@ -60,6 +61,47 @@ const FlowChart = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [showTutorial, setShowTutorial] = useState(() => {
+    return localStorage.getItem('flowTutorialSeen') !== 'true';
+  });
+
+  useEffect(() => {
+    let toastId;
+    
+    if (showTutorial) {
+      // Create a unique ID for this toast
+      toastId = `tutorial-toast-${Date.now()}`;
+      
+      toast.info(
+        <div>
+          <h3 className="font-medium mb-2">Selamat datang di Editor Diagram Alir!</h3>
+          <ul className="list-disc pl-4 text-sm">
+            <li>Buat node baru dengan tombol "Tambah Node"</li>
+            <li>Hubungkan node dengan drag dari titik koneksi</li>
+            <li>Lihat shortcut dengan tombol bantuan</li>
+          </ul>
+          <Button 
+            onClick={() => {
+              localStorage.setItem('flowTutorialSeen', 'true');
+              setShowTutorial(false);
+              // Actively dismiss this specific toast
+              toast.dismiss(toastId);
+            }} 
+            className="mt-2 w-full"
+            size="sm"
+          >
+            Mengerti
+          </Button>
+        </div>,
+        {
+          duration: 10000,
+          id: toastId, // Assign the unique ID to the toast
+        }
+      );
+    }
+  }, [showTutorial]);
+  
 
   useEffect(() => {
     const page = pages.find(p => p.id === currentPageId);
@@ -136,10 +178,7 @@ const FlowChart = () => {
                 label: newTitle,
                 color: newColor
               },
-              style: {
-                ...node.style,
-                backgroundColor: newColor.startsWith('#') || newColor.startsWith('rgb') ? newColor : undefined
-              }
+              style: {}
             } 
           : node
       )
@@ -221,21 +260,20 @@ const FlowChart = () => {
         label: columnData.title,
         isHeader: true,
         column: columnData.id,
-        color: columnData.color
+        color: columnData.color,
+        onHeaderUpdate: handleHeaderUpdate
       },
       draggable: false,
-      style: { 
-        backgroundColor: columnData.color 
-      }
+      style: {}
     };
     
     setNodes(nds => [...nds, headerNode]);
     toast.success(`Kolom ${columnData.title} berhasil ditambahkan`);
   };
 
-  const updateNode = (nodeId: string, data: any) => {
+  const updateNode = (nodeId: string, data: Record<string, unknown>) => {
     saveCurrentState();
-    setNodes(nds =>
+    setNodes(nds => 
       nds.map(node => 
         node.id === nodeId ? { ...node, data: data } : node
       )
@@ -349,9 +387,11 @@ const FlowChart = () => {
           label: column.title,
           isHeader: true,
           column: column.id,
-          color: column.color
+          color: column.color,
+          onHeaderUpdate: handleHeaderUpdate
         },
-        draggable: false
+        draggable: false,
+        style: {}
       };
     });
     
