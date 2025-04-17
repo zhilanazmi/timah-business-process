@@ -226,10 +226,21 @@ const FlowChart = () => {
       y = maxY + 120;
     }
     
-    const columnIndex = availableColumns.findIndex(col => col.id === nodeData.data.column);
-    const nodeWidth = 180;
-    const gap = 80;
-    const x = columnIndex * (200 + gap) + (200 - nodeWidth) / 2;
+    // Temukan header kolom yang sesuai di halaman saat ini
+    const headerColumns = nodes.filter(node => node.data.isHeader);
+    const headerNode = headerColumns.find(node => node.data.column === nodeData.data.column);
+    
+    // Jika header ditemukan, gunakan posisi x header untuk node baru
+    let x = 0;
+    if (headerNode) {
+      x = headerNode.position.x;
+    } else {
+      // Fallback ke perhitungan sebelumnya jika header tidak ditemukan
+      const columnIndex = availableColumns.findIndex(col => col.id === nodeData.data.column);
+      const nodeWidth = 180;
+      const gap = 80;
+      x = columnIndex * (200 + gap) + (200 - nodeWidth) / 2;
+    }
     
     const newNode = {
       id: `node-${Date.now()}`,
@@ -246,14 +257,16 @@ const FlowChart = () => {
     
     setAvailableColumns(prevColumns => [...prevColumns, columnData]);
     
-    const columnIndex = availableColumns.length;
+    const headerNodes = nodes.filter(node => node.data.isHeader);
+    const columnIndex = headerNodes.length;
+    
     const columnWidth = 200;
     const gap = 80;
     const nodeWidth = 180;
     const x = columnIndex * (columnWidth + gap) + (columnWidth - nodeWidth) / 2;
     
     const headerNode = {
-      id: `header-${columnData.id}`,
+      id: `header-${columnData.id}-${currentPageId}`,
       type: 'customNode',
       position: { x, y: 10 },
       data: { 
@@ -493,19 +506,13 @@ const FlowChart = () => {
     setNodes(nds => 
       nds.map(node => {
         if (node.data.isHeader) {
-          const color = node.data.color;
           return {
             ...node,
             data: {
               ...node.data,
               onHeaderUpdate: handleHeaderUpdate
             },
-            style: {
-              ...node.style,
-              backgroundColor: color && (color.startsWith('#') || color.startsWith('rgb')) 
-                ? color 
-                : undefined
-            }
+            style: {}
           };
         }
         return node;
@@ -595,7 +602,8 @@ const FlowChart = () => {
                     data: {
                       ...node.data,
                       onHeaderUpdate: handleHeaderUpdate
-                    }
+                    },
+                    style: {}
                   };
                 }
                 return node;
