@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -118,4 +117,18 @@
 .react-flow__edge.animated .react-flow__edge-path {
   stroke-dasharray: 5,5;
   animation: flowLineAnimation 0.5s linear infinite;
+}
+
+/* Improved ReactFlow background for cursor visibility */
+.react-flow__background {
+  background-color: #f9f9f9;
+}
+
+.dark .react-flow__background {
+  background-color: #1a1a1a;
+}
+
+.dark .react-flow__background-pattern {
+  stroke: #666;
+  fill: #666;
 }

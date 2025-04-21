@@ -656,7 +656,13 @@ const FlowChart = () => {
           >
             <Controls />
             <MiniMap zoomable pannable nodeClassName={node => node.type || ''} />
-            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+            <Background 
+              variant={BackgroundVariant.Dots} 
+              gap={5} 
+              size={0.5} 
+              color="#555555" 
+              style={{ backgroundColor: '#f2f0f0' }}
+            />
             <Panel position="bottom-right" className="bg-white p-2 rounded shadow-sm">
               <ZoomControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
             </Panel>
