@@ -1,6 +1,6 @@
 import { toPng } from 'html-to-image';
 import { toast } from 'sonner';
-import { Edge, Node } from 'reactflow';
+import { Edge, Node, ReactFlowInstance } from 'reactflow';
 
 /**
  * Saves the flow chart as an image
@@ -55,8 +55,8 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
           } else if (node.className && typeof node.className === 'object') {
             if ('baseVal' in node.className) {
               classStr = (node.className as SVGAnimatedString).baseVal;
-            } else if (typeof (node.className as any).toString === 'function') {
-              classStr = (node.className as any).toString();
+            } else if (typeof (node.className as object).toString === 'function') {
+              classStr = (node.className as object).toString();
             }
           }
         }
@@ -119,21 +119,66 @@ export const saveAsImage = (wrapperRef: React.RefObject<HTMLDivElement>) => {
   }, 100);
 };
 
+interface FlowInstanceRef {
+  current: ReactFlowInstance | null;
+}
+
 /**
  * Exports the flow chart data as JSON
  */
-export const exportToJson = (reactFlowInstance: any) => {
-  if (reactFlowInstance.current) {
-    const flowData = reactFlowInstance.current.toObject();
-    const dataStr = JSON.stringify(flowData);
-    const dataUri =
-      'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-    const exportFileDefaultName = 'flowchart-export.json';
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    toast.success("Diagram berhasil diexport");
+export const exportToJson = (input: FlowInstanceRef | { nodes: Node[]; edges: Edge[] } | Node[]) => {
+  let flowData;
+
+  // Handle different input types
+  if ('current' in input && input.current) {
+    // ReactFlowInstance ref
+    flowData = input.current.toObject();
+  } else if (Array.isArray(input)) {
+    // Array of nodes
+    flowData = {
+      nodes: input,
+      edges: []
+    };
+  } else if ('nodes' in input && 'edges' in input) {
+    // Object with nodes and edges
+    flowData = input;
+  } else {
+    toast.error("Format data tidak valid untuk ekspor");
+    return;
+  }
+
+  const dataStr = JSON.stringify(flowData);
+  const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+  const exportFileDefaultName = 'flowchart-export.json';
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', dataUri);
+  linkElement.setAttribute('download', exportFileDefaultName);
+  linkElement.click();
+  toast.success("Diagram berhasil diexport");
+};
+
+/**
+ * Imports flow chart data from JSON string
+ */
+export const importFromJsonString = (
+  jsonString: string
+): { nodes: Node[]; edges: Edge[] } | null => {
+  try {
+    const flowData = JSON.parse(jsonString);
+    
+    if (flowData && flowData.nodes && flowData.edges) {
+      return {
+        nodes: flowData.nodes,
+        edges: flowData.edges
+      };
+    } else {
+      toast.error("Format JSON tidak valid");
+      return null;
+    }
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+    toast.error("Gagal memproses data JSON");
+    return null;
   }
 };
 
@@ -153,9 +198,9 @@ export const importFromJson = (
     try {
       const result = event.target?.result;
       if (typeof result === 'string') {
-        const flowData = JSON.parse(result);
+        const flowData = importFromJsonString(result);
         
-        if (flowData && flowData.nodes && flowData.edges) {
+        if (flowData) {
           // Apply onHeaderUpdate function to header nodes if provided
           if (onHeaderUpdate) {
             const updatedNodes = flowData.nodes.map((node: Node) => {
@@ -178,8 +223,6 @@ export const importFromJson = (
           setEdges(flowData.edges);
           toast.success("Diagram berhasil diimport");
           if (onImportSuccess) onImportSuccess();
-        } else {
-          toast.error("Format file tidak valid");
         }
       }
     } catch (error) {
@@ -198,7 +241,7 @@ export const importFromJson = (
 /**
  * Save flow chart to localStorage
  */
-export const saveToLocalStorage = (nodes: any[], edges: any[]) => {
+export const saveToLocalStorage = (nodes: Node[], edges: Edge[]) => {
   const flowData = {
     nodes: nodes.filter(node => !node.data.isHeader),
     edges
@@ -210,7 +253,7 @@ export const saveToLocalStorage = (nodes: any[], edges: any[]) => {
 /**
  * Export all pages to JSON
  */
-export const exportAllPagesToJson = (pages: any[]) => {
+export const exportAllPagesToJson = (pages: Array<{ id: string; title: string; nodes: Node[]; edges: Edge[] }>) => {
   const dataStr = JSON.stringify(pages);
   const dataUri =
     'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);

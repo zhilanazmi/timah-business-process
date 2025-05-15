@@ -89,7 +89,7 @@ const FlowNode = ({ data, isConnectable, selected, id }: NodeProps) => {
   };
 
   return (
-    <div className={`p-3.5 rounded-md shadow-md hover:shadow-lg border-2 transition-all duration-200 ${nodeStyle} relative backdrop-blur-sm`}>
+    <div className={`p-3.5 rounded-md shadow-md hover:shadow-lg border-2 transition-all duration-200 ${nodeStyle} relative backdrop-blur-sm flex flex-col items-center text-center`}>
       <NodeResizer 
         minWidth={150}
         minHeight={40}
@@ -118,8 +118,8 @@ const FlowNode = ({ data, isConnectable, selected, id }: NodeProps) => {
         isConnectable={isConnectable}
       />
       
-      <div className="flex justify-between items-start gap-1">
-        <div className="font-medium text-sm">{data.label}</div>
+      <div className="flex justify-center items-center gap-1 w-full">
+        <div className="font-medium text-sm text-center">{data.label}</div>
         {data.link && (
           <ExternalLink 
             size={14} 
@@ -131,14 +131,14 @@ const FlowNode = ({ data, isConnectable, selected, id }: NodeProps) => {
       </div>
       
       {data.description && (
-        <div className="text-xs text-gray-600 mt-1 line-clamp-2">
+        <div className="text-xs text-gray-600 mt-1 line-clamp-2 text-center w-full">
           {data.description}
         </div>
       )}
       
       {/* Tampilkan process owner jika ada */}
       {data.details?.["Process Owner"] && (
-        <div className="text-xs bg-white/70 dark:bg-gray-700/30 px-1.5 py-0.5 rounded-full mt-1.5 inline-block shadow-sm border border-gray-200">
+        <div className="text-xs bg-white/70 dark:bg-gray-700/30 px-1.5 py-0.5 rounded-full mt-1.5 mx-auto shadow-sm border border-gray-200">
           {data.details["Process Owner"]}
         </div>
       )}

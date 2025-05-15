@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BarChart, BoxIcon, GitBranch, Activity, TrendingUp, Zap } from 'lucide-react';
+import { ArrowRight, BarChart, BoxIcon, GitBranch, Activity, TrendingUp, Zap, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { getAllFlows } from '@/data/flows';
 
 const Index = () => {
   const [scrollY, setScrollY] = useState(0);
+  const flows = getAllFlows();
 
   // Update scroll position
   useEffect(() => {
@@ -54,7 +56,7 @@ const Index = () => {
             <p className="text-xl md:text-2xl text-gray-600 mb-8">
               Solusi Manajemen Diagram Alir Proses Bisnis yang Efisien dan Intuitif
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
               <Link to="/flow-editor">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
                   Buka Editor Diagram <ArrowRight className="ml-2 h-5 w-5" />
@@ -63,6 +65,26 @@ const Index = () => {
               <Button variant="outline" size="lg">
                 Pelajari Lebih Lanjut
               </Button>
+            </div>
+            
+            {/* Flow links */}
+            <div className="mt-12 max-w-2xl mx-auto">
+              <h3 className="text-xl font-semibold mb-4 text-gray-800">Diagram Alir Proses Bisnis</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {flows.map(flow => (
+                  <Link 
+                    key={flow.id}
+                    to={`/${flow.id}`} 
+                    className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100"
+                  >
+                    <div>
+                      <h4 className="font-medium text-gray-900">{flow.title}</h4>
+                      <p className="text-sm text-gray-500">{flow.description}</p>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                  </Link>
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>
@@ -187,11 +209,15 @@ const Index = () => {
             <p className="text-xl mb-8 text-blue-100">
               Mulai buat diagram alir proses bisnis yang efisien dan terstruktur sekarang.
             </p>
-            <Link to="/flow-editor">
-              <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50">
-                Buat Diagram Alir Sekarang
-              </Button>
-            </Link>
+            <div className="flex flex-wrap justify-center gap-4">
+              {flows.slice(0, 3).map(flow => (
+                <Link key={flow.id} to={`/${flow.id}`}>
+                  <Button variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20">
+                    {flow.title}
+                  </Button>
+                </Link>
+              ))}
+            </div>
           </motion.div>
         </div>
       </section>
