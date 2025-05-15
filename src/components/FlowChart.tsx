@@ -37,15 +37,80 @@ import ZoomControls from './flow/ZoomControls';
 import PageTabs, { FlowPage } from './flow/PageTabs';
 import { Heart, Info, Mail, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { FlowData } from '@/data/flows/types';
 
-const FlowChart = () => {
-  const [pages, setPages] = useState<FlowPage[]>(defaultPages);
-  const [currentPageId, setCurrentPageId] = useState<string>(defaultPages[0].id);
+interface FlowChartProps {
+  initialFlowData?: FlowData;
+}
+
+const FlowChart = ({ initialFlowData }: FlowChartProps = {}) => {
+  // Use initialFlowData if provided, otherwise use default data
+  const initialPages = initialFlowData ? 
+    initialFlowData.defaultPages.map(page => ({
+      ...page,
+      // For pages with existing nodes, preserve them
+      nodes: page.nodes.length > 0 ? 
+        // Ensure header nodes are properly processed
+        page.nodes.filter(node => !node.data.isHeader).concat(
+          // Add header nodes for each column if not already present
+          initialFlowData.initialColumns.map((column, index) => {
+            // Check if this header already exists
+            const headerNodeId = `header-${column.id}-${page.id}`;
+            const existingHeader = page.nodes.find(n => n.id === headerNodeId);
+            if (existingHeader) return existingHeader;
+            
+            const nodeWidth = 180;
+            const gap = 80;
+            const x = index * (200 + gap) + (200 - nodeWidth) / 2;
+            
+            return {
+              id: headerNodeId,
+              type: 'customNode',
+              position: { x, y: 10 },
+              data: { 
+                label: column.title,
+                isHeader: true,
+                column: column.id,
+                color: column.color,
+              },
+              draggable: false,
+              style: {}
+            };
+          })
+        ) : 
+        // Create header nodes for each column for empty pages
+        initialFlowData.initialColumns.map((column, index) => {
+          const nodeWidth = 180;
+          const gap = 80;
+          const x = index * (200 + gap) + (200 - nodeWidth) / 2;
+          
+          return {
+            id: `header-${column.id}-${page.id}`,
+            type: 'customNode',
+            position: { x, y: 10 },
+            data: { 
+              label: column.title,
+              isHeader: true,
+              column: column.id,
+              color: column.color,
+            },
+            draggable: false,
+            style: {}
+          };
+        }),
+      edges: page.edges || []
+    })) : 
+    defaultPages;
+    
+  const initialColumnsData = initialFlowData?.initialColumns || columns;
+  
+  const [pages, setPages] = useState<FlowPage[]>(initialPages);
+  const [currentPageId, setCurrentPageId] = useState<string>(initialPages[0]?.id || '');
   
   const currentPage = pages.find(p => p.id === currentPageId) || pages[0];
   
-  const [nodes, setNodes] = useNodesState(currentPage.nodes);
-  const [edges, setEdges] = useEdgesState(currentPage.edges.map(edge => ({
+  const [nodes, setNodes] = useNodesState(currentPage?.nodes || []);
+  const [edges, setEdges] = useEdgesState((currentPage?.edges || []).map(edge => ({
     ...edge,
     type: 'smoothstep'
   })));
@@ -54,7 +119,7 @@ const FlowChart = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const [isShortcutHelpOpen, setIsShortcutHelpOpen] = useState(false);
-  const [availableColumns, setAvailableColumns] = useState(columns);
+  const [availableColumns, setAvailableColumns] = useState(initialColumnsData);
   const [undoStack, setUndoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
   const [redoStack, setRedoStack] = useState<Array<{ nodes: Node[], edges: Edge[] }>>([]);
   
@@ -293,6 +358,22 @@ const FlowChart = () => {
     );
   };
 
+  const handleNodeResize = (nodeId: string, width: number, height: number) => {
+    saveCurrentState();
+    setNodes(nds => 
+      nds.map(node => 
+        node.id === nodeId ? { 
+          ...node, 
+          data: { 
+            ...node.data, 
+            width, 
+            height 
+          } 
+        } : node
+      )
+    );
+  };
+
   const deleteNode = (nodeId: string) => {
     saveCurrentState();
     setNodes(nds => nds.filter(node => node.id !== nodeId));
@@ -515,6 +596,16 @@ const FlowChart = () => {
             style: {}
           };
         }
+        // Add onResize handler for documentNode type
+        if (node.type === 'documentNode') {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              onResize: handleNodeResize
+            }
+          };
+        }
         return node;
       })
     );
@@ -656,7 +747,13 @@ const FlowChart = () => {
           >
             <Controls />
             <MiniMap zoomable pannable nodeClassName={node => node.type || ''} />
-            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+            <Background 
+              variant={BackgroundVariant.Dots} 
+              gap={5} 
+              size={0.5} 
+              color="#555555" 
+              style={{ backgroundColor: '#f2f0f0' }}
+            />
             <Panel position="bottom-right" className="bg-white p-2 rounded shadow-sm">
               <ZoomControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
             </Panel>

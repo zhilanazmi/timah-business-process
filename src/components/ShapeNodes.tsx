@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { Handle, Position, NodeResizer } from 'reactflow';
+import { Handle, Position, NodeResizer, NodeProps } from 'reactflow';
 
 // Terminator Node (Rounded rectangle)
 export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
@@ -195,8 +195,29 @@ export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
 });
 
 
+// Document Node type extension
+type DocumentNodeData = {
+  label: string;
+  description?: string;
+  details?: Record<string, string>;
+  width?: number;
+  height?: number;
+  onResize?: (nodeId: string, width: number, height: number) => void;
+};
+
+type DocumentNodeProps = Omit<NodeProps, 'data'> & {
+  data: DocumentNodeData;
+};
+
 // Document Node
-export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
+export const DocumentNode = memo(({ data, isConnectable, selected, id }: DocumentNodeProps) => {
+  const handleResize = (width: number, height: number) => {
+    // Update the node data with new dimensions
+    if (data.onResize) {
+      data.onResize(id, width, height);
+    }
+  };
+
   return (
     <div 
       className="relative inline-block" 
@@ -212,9 +233,7 @@ export const DocumentNode = memo(({ data, isConnectable, selected }: any) => {
         lineClassName="border-indigo-400"
         handleClassName="h-4 w-4 bg-white border-2 border-indigo-400"
         onResize={(event, params) => {
-          if (data.onResize) {
-            data.onResize(params.width, params.height);
-          }
+          handleResize(params.width, params.height);
         }}
       />
 
