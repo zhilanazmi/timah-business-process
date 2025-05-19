@@ -131,6 +131,8 @@ const FlowChart = ({ initialFlowData }: FlowChartProps = {}) => {
     return localStorage.getItem('flowTutorialSeen') !== 'true';
   });
 
+  const [clipboardNode, setClipboardNode] = useState<Node | null>(null);
+
   useEffect(() => {
     let toastId;
     
@@ -611,6 +613,57 @@ const FlowChart = ({ initialFlowData }: FlowChartProps = {}) => {
     );
   }, [currentPageId]);
 
+  const duplicateNode = () => {
+    if (!selectedNode || selectedNode.data.isHeader) return;
+    
+    saveCurrentState();
+    
+    const offset = 50; // Offset for the duplicated node position
+    const newId = `node-${Date.now()}`;
+    
+    const duplicatedNode = {
+      ...JSON.parse(JSON.stringify(selectedNode)),
+      id: newId,
+      position: {
+        x: selectedNode.position.x + offset,
+        y: selectedNode.position.y + offset
+      }
+    };
+    
+    setNodes(nds => [...nds, duplicatedNode]);
+    setSelectedNode(duplicatedNode);
+    toast.success("Node berhasil diduplikasi");
+  };
+  
+  const copyNode = () => {
+    if (!selectedNode || selectedNode.data.isHeader) return;
+    
+    setClipboardNode(JSON.parse(JSON.stringify(selectedNode)));
+    toast.success("Node berhasil disalin");
+  };
+  
+  const pasteNode = () => {
+    if (!clipboardNode) return;
+    
+    saveCurrentState();
+    
+    const offset = 50; // Offset for the pasted node position
+    const newId = `node-${Date.now()}`;
+    
+    const pastedNode = {
+      ...clipboardNode,
+      id: newId,
+      position: {
+        x: clipboardNode.position.x + offset,
+        y: clipboardNode.position.y + offset
+      }
+    };
+    
+    setNodes(nds => [...nds, pastedNode]);
+    setSelectedNode(pastedNode);
+    toast.success("Node berhasil ditempel");
+  };
+
   useFlowShortcuts({
     onAddNode: () => setIsModalOpen(true),
     onAddColumn: () => setIsColumnModalOpen(true),
@@ -628,10 +681,14 @@ const FlowChart = ({ initialFlowData }: FlowChartProps = {}) => {
         setSelectedNode(null);
       }
     },
+    onDuplicateNode: duplicateNode,
+    onCopyNode: copyNode,
+    onPasteNode: pasteNode,
     onShowShortcuts: () => setIsShortcutHelpOpen(true),
     canUndo: undoStack.length > 0,
     canRedo: redoStack.length > 0,
-    selectedNode
+    selectedNode,
+    hasNodeInClipboard: !!clipboardNode
   });
 
   return (
