@@ -1,8 +1,21 @@
 import { memo, useState } from 'react';
 import { Handle, Position, NodeResizer, NodeProps } from 'reactflow';
 
+// Type definition for shape nodes
+type ShapeNodeData = {
+  label: string;
+  description?: string;
+  details?: Record<string, string>;
+  rightPathLabel?: string; // For diamond nodes
+  bottomPathLabel?: string; // For diamond nodes
+};
+
+type ShapeNodeProps = Omit<NodeProps, 'data'> & {
+  data: ShapeNodeData;
+};
+
 // Terminator Node (Rounded rectangle)
-export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
+export const TerminatorNode = memo(({ data, isConnectable, selected }: ShapeNodeProps) => {
   return (
     <div className="relative inline-block">
         {/* Top handle - both input and output */}
@@ -21,6 +34,24 @@ export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
         isConnectable={isConnectable}
         className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
         style={{ top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
+      />
+      
+      {/* Left handle - both input and output */}
+      <Handle
+        type="target"  // Input handle
+        position={Position.Left}
+        id="left-target"
+        isConnectable={isConnectable}
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
+        style={{ left: 0, top: '50%', transform: 'translate(-50%, -50%)' }}
+      />
+      <Handle
+        type="source"  // Output handle (overlapping with input)
+        position={Position.Left}
+        id="left-source"
+        isConnectable={isConnectable}
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
+        style={{ left: 0, top: '50%', transform: 'translate(-50%, -50%)' }}
       />
       
       <div className="min-w-[50px] px-2 py-2 rounded-full shadow-md border-2 bg-amber-100 border-amber-300 hover:border-amber-400 transition-colors">
@@ -48,6 +79,24 @@ export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
         </div>
       </div>
 
+      {/* Right handle - both input and output */}
+      <Handle
+        type="target"  // Input handle
+        position={Position.Right}
+        id="right-target"
+        isConnectable={isConnectable}
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
+        style={{ right: 0, top: '50%', transform: 'translate(50%, -50%)' }}
+      />
+      <Handle
+        type="source"  // Output handle (overlapping with input)
+        position={Position.Right}
+        id="right-source"
+        isConnectable={isConnectable}
+        className="!absolute w-2.5 h-2.5 rounded-full !bg-gray-500 hover:!bg-gray-700"
+        style={{ right: 0, top: '50%', transform: 'translate(50%, -50%)' }}
+      />
+
       {/* Bottom handle - both input and output */}
       <Handle
         type="target"  // Input handle
@@ -71,7 +120,7 @@ export const TerminatorNode = memo(({ data, isConnectable, selected }: any) => {
 
 
 // Diamond Node (Decision)
-export const DiamondNode = memo(({ data, isConnectable, selected }: any) => {
+export const DiamondNode = memo(({ data, isConnectable, selected }: ShapeNodeProps) => {
   const width = 150;
   const height = 100;
 
