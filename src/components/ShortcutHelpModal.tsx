@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { Keyboard, MousePointer, Info, Undo, Redo, ArrowDownToLine, FileUp, FileDown, ZoomIn, ZoomOut, Monitor, X } from "lucide-react";
+import { Keyboard, MousePointer, Info, Undo, Redo, ArrowDownToLine, FileUp, FileDown, ZoomIn, ZoomOut, Monitor, X, Copy, Clipboard, ClipboardCopy } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,9 @@ const ShortcutHelpModal = ({ open, onOpenChange }: ShortcutHelpModalProps) => {
     { key: "Ctrl + E", description: "Export diagram", icon: <FileUp size={14} /> },
     { key: "Ctrl + I", description: "Import diagram", icon: <FileDown size={14} /> },
     { key: "Ctrl + S", description: "Simpan sebagai gambar", icon: <ArrowDownToLine size={14} /> },
+    { key: "Ctrl + D", description: "Duplikat node yang dipilih", icon: <Copy size={14} /> },
+    { key: "Ctrl + C", description: "Salin node yang dipilih", icon: <ClipboardCopy size={14} /> },
+    { key: "Ctrl + V", description: "Tempel node yang disalin", icon: <Clipboard size={14} /> },
     { key: "Delete", description: "Hapus node/edge yang dipilih", icon: <X size={14} /> },
     { key: "Escape", description: "Batalkan pemilihan", icon: <X size={14} /> },
     { key: "Ctrl + 0", description: "Reset zoom", icon: <Monitor size={14} /> },

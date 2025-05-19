@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { toast } from 'sonner';
@@ -16,12 +15,16 @@ interface UseFlowShortcutsProps {
   onFitView: () => void;
   onDeleteSelectedNode: () => void;
   onShowShortcuts: () => void;
+  onDuplicateNode: () => void;
+  onCopyNode: () => void;
+  onPasteNode: () => void;
   onPrevPage?: () => void;
   onNextPage?: () => void;
   onNewPage?: () => void;
   canUndo: boolean;
   canRedo: boolean;
   selectedNode: any | null;
+  hasNodeInClipboard?: boolean;
 }
 
 export const useFlowShortcuts = ({
@@ -37,12 +40,16 @@ export const useFlowShortcuts = ({
   onFitView,
   onDeleteSelectedNode,
   onShowShortcuts,
+  onDuplicateNode,
+  onCopyNode,
+  onPasteNode,
   onPrevPage,
   onNextPage,
   onNewPage,
   canUndo,
   canRedo,
   selectedNode,
+  hasNodeInClipboard
 }: UseFlowShortcutsProps) => {
   // Add node shortcut (Ctrl+N)
   useHotkeys('ctrl+n', (e) => {
@@ -76,7 +83,37 @@ export const useFlowShortcuts = ({
     }
   }, { enableOnFormTags: true });
 
+  // Duplicate node shortcut (Ctrl+D)
+  useHotkeys('ctrl+d', (e) => {
+    e.preventDefault();
+    if (selectedNode && !selectedNode.data.isHeader) {
+      onDuplicateNode();
+    } else {
+      toast.info("Pilih node terlebih dahulu untuk menduplikasi");
+    }
+  }, { enableOnFormTags: true });
 
+  // Copy node shortcut (Ctrl+C)
+  useHotkeys('ctrl+c', (e) => {
+    // Only if we're not in an input field
+    if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+      if (selectedNode && !selectedNode.data.isHeader) {
+        e.preventDefault();
+        onCopyNode();
+      }
+    }
+  });
+
+  // Paste node shortcut (Ctrl+V)
+  useHotkeys('ctrl+v', (e) => {
+    // Only if we're not in an input field
+    if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+      if (hasNodeInClipboard) {
+        e.preventDefault();
+        onPasteNode();
+      }
+    }
+  });
 
   // Export shortcut (Ctrl+E)
   useHotkeys('ctrl+e', (e) => {
@@ -84,7 +121,7 @@ export const useFlowShortcuts = ({
     onExport();
   }, { enableOnFormTags: true });
 
-  // Save as image shortcut (Ctrl+Shift+S)
+  // Save as image shortcut (Ctrl+S)
   useHotkeys('ctrl+s', (e) => {
     e.preventDefault();
     onSaveAsImage();
