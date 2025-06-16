@@ -209,6 +209,18 @@ const Index = () => {
             <p className="text-xl mb-8 text-blue-100">
               Mulai buat diagram alir proses bisnis yang efisien dan terstruktur sekarang.
             </p>
+            <div className="flex flex-wrap justify-center gap-4 mb-6">
+              <Link to="/flow-editor">
+                <Button className="bg-white text-blue-700 hover:bg-blue-50">
+                  Mulai Sekarang <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/embed-generator">
+                <Button variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20">
+                  Generator Embed
+                </Button>
+              </Link>
+            </div>
             <div className="flex flex-wrap justify-center gap-4">
               {flows.slice(0, 3).map(flow => (
                 <Link key={flow.id} to={`/${flow.id}`}>
