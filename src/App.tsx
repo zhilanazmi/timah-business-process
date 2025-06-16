@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FlowEditor from "./pages/FlowEditor";
 import DynamicFlowRoute from "./pages/DynamicFlowRoute";
+import PerencanaanProduksiEmbedPage from "./pages/embeds/PerencanaanProduksiEmbedPage";
+import EmbedGenerator from "./pages/EmbedGenerator";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +21,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/flow-editor" element={<FlowEditor />} />
+          <Route path="/embed-generator" element={<EmbedGenerator />} />
           
           {/* Primary flow routes */}
           <Route path="/perencanaan-produksi" element={<DynamicFlowRoute flowId="perencanaan-produksi" />} />
@@ -31,6 +34,9 @@ const App = () => (
           <Route path="/pengiriman-barang" element={<DynamicFlowRoute flowId="analisa-sampel-non-rutin" />} />
           <Route path="/sampel-rutin" element={<DynamicFlowRoute flowId="analisa-sampel-rutin" />} />
           <Route path="/non-sampel-rutin" element={<DynamicFlowRoute flowId="analisa-sampel-non-rutin" />} />
+          
+          {/* Embed routes */}
+          <Route path="/embed/perencanaan-produksi" element={<PerencanaanProduksiEmbedPage />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

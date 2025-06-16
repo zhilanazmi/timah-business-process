@@ -1,5 +1,5 @@
 import { FlowData } from './types';
-import { Node } from 'reactflow';
+import { Node, Edge, MarkerType } from 'reactflow';
 
 // Parse the exported flow data
 const exportedFlowData = {
@@ -792,6 +792,22 @@ const processNodes = exportedFlowData.nodes.filter(node =>
   !node.data.isHeader
 );
 
+// Convert edges to proper Edge type
+const processEdges: Edge[] = exportedFlowData.edges.map(edge => ({
+  id: edge.id,
+  source: edge.source,
+  target: edge.target,
+  sourceHandle: edge.sourceHandle,
+  targetHandle: edge.targetHandle,
+  type: edge.type,
+  animated: edge.animated,
+  style: edge.style,
+  data: edge.data,
+  markerEnd: {
+    type: MarkerType.ArrowClosed
+  }
+}));
+
 const perencanaanProduksiFlow: FlowData = {
   id: 'perencanaan-produksi',
   title: 'Perencanaan Produksi',
@@ -802,7 +818,7 @@ const perencanaanProduksiFlow: FlowData = {
       id: 'page-1',
       title: 'Alur Utama',
       nodes: processNodes as Node[],
-      edges: exportedFlowData.edges
+      edges: processEdges
     }
   ]
 };
