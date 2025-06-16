@@ -11,6 +11,7 @@ import ReactFlow, {
   Connection,
   ConnectionMode,
   ReactFlowProvider,
+  MarkerType,
 } from 'reactflow';
 import { Eye, EyeOff } from 'lucide-react';
 import 'reactflow/dist/style.css';
@@ -62,7 +63,22 @@ const EmbeddableFlowChart: React.FC<EmbeddableFlowChartProps> = ({
   const onConnect = useCallback(
     (params: Connection) => {
       if (interactive) {
-        setEdges((eds) => addEdge(params, eds));
+        const newEdge = {
+          ...params,
+          type: 'smoothstep',
+          animated: true,
+          style: {
+            strokeWidth: 2,
+            stroke: '#555'
+          },
+          data: {
+            label: 'Hubungan'
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed
+          }
+        };
+        setEdges((eds) => addEdge(newEdge, eds));
       }
     },
     [setEdges, interactive]
@@ -115,6 +131,29 @@ const EmbeddableFlowChart: React.FC<EmbeddableFlowChartProps> = ({
             background: rgba(255, 255, 255, 1);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
           }
+          
+          /* Style for connection line while dragging */
+          .embeddable-flowchart .react-flow__connection-line {
+            stroke: #555 !important;
+            stroke-width: 2px !important;
+          }
+          
+          /* Style for temporary edge while connecting */
+          .embeddable-flowchart .react-flow__edge.react-flow__edge-path {
+            stroke: #555;
+            stroke-width: 2;
+          }
+          
+          /* Ensure new connections have animated style */
+          .embeddable-flowchart .react-flow__edge-path {
+            animation: dasharray 0.5s linear infinite;
+          }
+          
+          @keyframes dasharray {
+            to {
+              stroke-dashoffset: -1000;
+            }
+          }
         `}
       </style>
       <ReactFlowProvider>
@@ -126,6 +165,21 @@ const EmbeddableFlowChart: React.FC<EmbeddableFlowChartProps> = ({
           onConnect={onConnect}
           nodeTypes={nodeTypes}
           connectionMode={ConnectionMode.Loose}
+          defaultEdgeOptions={{
+            type: 'smoothstep',
+            animated: true,
+            style: {
+              strokeWidth: 2,
+              stroke: '#555'
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed
+            }
+          }}
+          connectionLineStyle={{
+            strokeWidth: 2,
+            stroke: '#555',
+          }}
           fitView
           fitViewOptions={{ padding: 0.1 }}
           nodesDraggable={interactive}
@@ -160,21 +214,21 @@ const EmbeddableFlowChart: React.FC<EmbeddableFlowChartProps> = ({
                 border: '1px solid #e5e7eb',
               }}
             />
-                      )}
-            
-            {/* Handles Toggle Button (only in interactive mode) */}
-            {interactive && showHandlesToggle && (
-              <div 
-                className="handles-toggle-btn"
-                onClick={() => setHandlesVisible(!handlesVisible)}
-                title={handlesVisible ? "Sembunyikan titik penghubung" : "Tampilkan titik penghubung"}
-              >
-                {handlesVisible ? <EyeOff size={14} /> : <Eye size={14} />}
-                <span>{handlesVisible ? "Sembunyikan" : "Tampilkan"}</span>
-              </div>
-            )}
-          </ReactFlow>
-        </ReactFlowProvider>
+          )}
+          
+          {/* Handles Toggle Button (only in interactive mode) */}
+          {interactive && showHandlesToggle && (
+            <div 
+              className="handles-toggle-btn"
+              onClick={() => setHandlesVisible(!handlesVisible)}
+              title={handlesVisible ? "Sembunyikan titik penghubung" : "Tampilkan titik penghubung"}
+            >
+              {handlesVisible ? <EyeOff size={14} /> : <Eye size={14} />}
+              <span>{handlesVisible ? "Sembunyikan" : "Tampilkan"}</span>
+            </div>
+          )}
+        </ReactFlow>
+      </ReactFlowProvider>
     </div>
   );
 };
