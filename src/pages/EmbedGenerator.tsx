@@ -26,6 +26,7 @@ const EmbedGenerator: React.FC = () => {
   const flowOptions = [
     { value: 'perencanaan-produksi', label: 'Perencanaan Produksi' },
     { value: 'analisa-sampel-rutin', label: 'Analisa Sampel Rutin' },
+    { value: 'analisa-sampel-non-rutin', label: 'Analisa Sampel Non Rutin' },
   ];
 
   const { toast } = useToast();
@@ -67,6 +68,7 @@ const EmbedGenerator: React.FC = () => {
     const componentMap = {
       'perencanaan-produksi': 'PerencanaanProduksiEmbed',
       'analisa-sampel-rutin': 'AnalisaSampelRutinEmbed',
+      'analisa-sampel-non-rutin': 'AnalisaSampelNonRutinEmbed',
     };
     
     const componentName = componentMap[config.flowType as keyof typeof componentMap];
