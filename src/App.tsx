@@ -8,6 +8,8 @@ import NotFound from "./pages/NotFound";
 import FlowEditor from "./pages/FlowEditor";
 import DynamicFlowRoute from "./pages/DynamicFlowRoute";
 import PerencanaanProduksiEmbedPage from "./pages/embeds/PerencanaanProduksiEmbedPage";
+import AnalisaSampelRutinEmbedPage from "./pages/embeds/AnalisaSampelRutinEmbedPage";
+import AnalisaSampelNonRutinEmbedPage from "./pages/embeds/AnalisaSampelNonRutinEmbedPage";
 import EmbedGenerator from "./pages/EmbedGenerator";
 
 const queryClient = new QueryClient();
@@ -37,6 +39,8 @@ const App = () => (
           
           {/* Embed routes */}
           <Route path="/embed/perencanaan-produksi" element={<PerencanaanProduksiEmbedPage />} />
+          <Route path="/embed/analisa-sampel-rutin" element={<AnalisaSampelRutinEmbedPage />} />
+          <Route path="/embed/analisa-sampel-non-rutin" element={<AnalisaSampelNonRutinEmbedPage />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

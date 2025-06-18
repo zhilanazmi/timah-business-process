@@ -5,11 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Copy, ExternalLink, Eye } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const EmbedGenerator: React.FC = () => {
   const [config, setConfig] = useState({
+    flowType: 'perencanaan-produksi',
     height: '600',
     width: '100%',
     showControls: true,
@@ -20,6 +22,12 @@ const EmbedGenerator: React.FC = () => {
     showHeaders: true,
     showHandlesToggle: true,
   });
+
+  const flowOptions = [
+    { value: 'perencanaan-produksi', label: 'Perencanaan Produksi' },
+    { value: 'analisa-sampel-rutin', label: 'Analisa Sampel Rutin' },
+    { value: 'analisa-sampel-non-rutin', label: 'Analisa Sampel Non Rutin' },
+  ];
 
   const { toast } = useToast();
 
@@ -38,12 +46,13 @@ const EmbedGenerator: React.FC = () => {
     if (!config.showHandlesToggle) params.append('handlesToggle', 'false');
 
     const queryString = params.toString();
-    return `${baseUrl}/embed/perencanaan-produksi${queryString ? '?' + queryString : ''}`;
+    return `${baseUrl}/embed/${config.flowType}${queryString ? '?' + queryString : ''}`;
   };
 
   const generateIframeCode = () => {
     const url = generateEmbedUrl();
     const heightValue = config.height.includes('%') ? config.height : config.height + 'px';
+    const selectedFlow = flowOptions.find(flow => flow.value === config.flowType);
     
     return `<iframe 
   src="${url}"
@@ -51,16 +60,24 @@ const EmbedGenerator: React.FC = () => {
   height="${heightValue}"
   frameborder="0"
   style="border: 1px solid #e5e7eb; border-radius: 8px;"
-  title="Diagram Perencanaan Produksi - PT. Timah Industri">
+  title="Diagram ${selectedFlow?.label} - PT. Timah Industri">
 </iframe>`;
   };
 
   const generateReactCode = () => {
-    return `import PerencanaanProduksiEmbed from './components/embeds/PerencanaanProduksiEmbed';
+    const componentMap = {
+      'perencanaan-produksi': 'PerencanaanProduksiEmbed',
+      'analisa-sampel-rutin': 'AnalisaSampelRutinEmbed',
+      'analisa-sampel-non-rutin': 'AnalisaSampelNonRutinEmbed',
+    };
+    
+    const componentName = componentMap[config.flowType as keyof typeof componentMap];
+    
+    return `import ${componentName} from './components/embeds/${componentName}';
 
 function MyComponent() {
   return (
-    <PerencanaanProduksiEmbed
+    <${componentName}
       height="${config.height}${config.height.includes('%') ? '' : 'px'}"
       width="${config.width}"
       showControls={${config.showControls}}
@@ -68,6 +85,8 @@ function MyComponent() {
       showBackground={${config.showBackground}}
       interactive={${config.interactive}}
       showTitle={${config.showTitle}}
+      showHeaders={${config.showHeaders}}
+      showHandlesToggle={${config.showHandlesToggle}}
     />
   );
 }`;
@@ -92,10 +111,10 @@ function MyComponent() {
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Generator Embed Diagram Perencanaan Produksi
+              Generator Embed Diagram Alir Proses Bisnis
             </h1>
             <p className="text-gray-600">
-              Buat kode embed untuk menampilkan diagram alir Perencanaan Produksi di website atau aplikasi Anda.
+              Buat kode embed untuk menampilkan diagram alir proses bisnis di website atau aplikasi Anda.
             </p>
           </div>
 
@@ -109,6 +128,26 @@ function MyComponent() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Flow Selection */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-gray-900">Pilih Diagram Alir</h3>
+                  <div>
+                    <Label htmlFor="flowType">Jenis Diagram</Label>
+                    <Select value={config.flowType} onValueChange={(value) => setConfig({ ...config, flowType: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih diagram alir" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {flowOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
                 {/* Dimensions */}
                 <div className="space-y-4">
                   <h3 className="font-medium text-gray-900">Ukuran</h3>
